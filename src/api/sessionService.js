@@ -8,3 +8,7 @@ export const getSessions = () => {
 export const getSessionById = (id) => {
   return axiosClient.get(`/sessions/${id}/`);
 };
+
+export const createSession = (data) => {
+  return axiosClient.post('/sessions/', data);
+};

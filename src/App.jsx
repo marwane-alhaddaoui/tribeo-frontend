@@ -5,6 +5,8 @@ import HomePage from './pages/Home';
 import PrivateRoute from './routes/PrivateRoute';
 import Dashboard from './pages/Dashboard';
 import SessionDetailPage from './pages/SessionDetail';
+import CreateSessionPage from './pages/SessionCreate';
+
 
 function App() {
   return (
@@ -15,6 +17,7 @@ function App() {
         <Route path="/" element={<PrivateRoute><HomePage /></PrivateRoute>}/>
         <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>}/>
         <Route path="/sessions/:id" element={<PrivateRoute><SessionDetailPage /></PrivateRoute>}/>
+        <Route path="/sessions/create" element={<PrivateRoute><CreateSessionPage /></PrivateRoute>}/>
       </Routes>
     </Router>
   );
