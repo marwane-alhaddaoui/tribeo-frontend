@@ -1,26 +1,16 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/Login';
 import RegisterPage from './pages/Register';
+import HomePage from './pages/Home';
 import PrivateRoute from './routes/PrivateRoute';
-
-function HomePage() {
-  return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold">Bienvenue sur Tribeo</h1>
-      <p>Vous êtes connecté avec succès 🎉</p>
-    </div>
-  );
-}
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Routes publiques */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-
-        {/* Routes privées */}
         <Route
           path="/"
           element={
@@ -29,6 +19,14 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route
+      path="/dashboard"
+      element={
+    <PrivateRoute>
+      <Dashboard />
+    </PrivateRoute>
+    }
+    />
       </Routes>
     </Router>
   );

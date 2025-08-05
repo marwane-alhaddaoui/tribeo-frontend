@@ -6,37 +6,36 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(getToken());
   const [loading, setLoading] = useState(true);
 
-  // Récupère le profil utilisateur si un token existe
   useEffect(() => {
-    const token = getToken();
     if (token) {
       getProfile()
         .then((res) => setUser(res.data))
         .catch(() => logout());
     }
     setLoading(false);
-  }, []);
+  }, [token]);
 
-  // Connexion (utilisé dans la page Login)
   const login = async (email, password) => {
     const res = await loginUser({ email, password });
     if (res.data.access) {
       saveToken(res.data.access);
+      setToken(res.data.access);  // ✅ MAJ immédiate du state
       const profile = await getProfile();
       setUser(profile.data);
     }
   };
 
-  // Déconnexion
   const logout = () => {
     clearToken();
+    setToken(null);
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout }}>
       {!loading && children}
     </AuthContext.Provider>
   );

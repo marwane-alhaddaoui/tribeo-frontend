@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import { registerUser } from '../../api/authService';
+import { registerUser } from '../../api/AuthService';
 import RegisterForm from './RegisterForm';
 import { useNavigate } from 'react-router-dom';
 

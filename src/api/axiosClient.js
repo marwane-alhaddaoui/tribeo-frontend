@@ -5,7 +5,6 @@ const axiosClient = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Ajout automatique du token à chaque requête s'il existe
 axiosClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
