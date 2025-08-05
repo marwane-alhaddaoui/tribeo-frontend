@@ -4,6 +4,7 @@ import RegisterPage from './pages/Register';
 import HomePage from './pages/Home';
 import PrivateRoute from './routes/PrivateRoute';
 import Dashboard from './pages/Dashboard';
+import SessionDetailPage from './pages/SessionDetail';
 
 function App() {
   return (
@@ -11,22 +12,9 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route
-          path="/"
-          element={
-            <PrivateRoute>
-              <HomePage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-      path="/dashboard"
-      element={
-    <PrivateRoute>
-      <Dashboard />
-    </PrivateRoute>
-    }
-    />
+        <Route path="/" element={<PrivateRoute><HomePage /></PrivateRoute>}/>
+        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>}/>
+        <Route path="/sessions/:id" element={<PrivateRoute><SessionDetailPage /></PrivateRoute>}/>
       </Routes>
     </Router>
   );
