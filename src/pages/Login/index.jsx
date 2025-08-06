@@ -2,7 +2,7 @@ import { useContext, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import LoginForm from './LoginForm';
 import { useNavigate } from 'react-router-dom';
-import './LoginPage.css'; // ← ton nouveau fichier CSS
+import '../../styles/LoginPage.css'; // ← ton nouveau fichier CSS
 
 export default function LoginPage() {
   const { login } = useContext(AuthContext);
