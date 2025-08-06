@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import logo from '../assets/logo.png';
+import logo from '../assets/logo_v2_2.png';
 import './Header.css';
 
 export default function Header() {
