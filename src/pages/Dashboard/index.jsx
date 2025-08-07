@@ -15,14 +15,15 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchSessions = async () => {
       try {
-        const res = await getSessions();
-        setAllSessions(res.data);
+        const res = await getSessions(); // ✅ res est déjà un tableau
+        setAllSessions(res);
+        console.log("res :", res);
 
-        const joined = res.data.filter((s) =>
+        const joined = res.filter((s) =>
           s.participants.includes(user.email)
         );
 
-        const created = res.data.filter((s) =>
+        const created = res.filter((s) =>
           s.creator === user.email
         );
 
