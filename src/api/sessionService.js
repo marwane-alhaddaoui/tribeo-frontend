@@ -1,8 +1,16 @@
 import axiosClient from './axiosClient';
 
-// 🔄 GET toutes les sessions
-export const getSessions = () => {
-  return axiosClient.get('/sessions/');
+// 🔄 GET toutes les sessions + filtre
+export const getSessions = async (filters = {}) => {
+  const queryParams = new URLSearchParams(filters).toString();
+  const url = queryParams ? `/sessions/?${queryParams}` : '/sessions/';
+  try {
+    const res = await axiosClient.get(url);
+    return res.data.results ?? res.data; // <--- ici la correction clé
+  } catch (err) {
+    console.error('Erreur récupération des sessions', err);
+    return [];
+  }
 };
 
 // 📄 GET une session par ID

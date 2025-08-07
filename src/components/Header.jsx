@@ -19,6 +19,7 @@ export default function Header() {
           <Link to="/">Accueil</Link>
           {user ? (
             <>
+              <Link to="/sessions">Sessions</Link>
               <Link to="/dashboard">Dashboard</Link>
               <Link to="/sessions/create">Créer</Link>
               <button onClick={logout}>Déconnexion</button>
