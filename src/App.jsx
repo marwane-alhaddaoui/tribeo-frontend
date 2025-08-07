@@ -8,7 +8,7 @@ import SessionDetailPage from './pages/SessionDetail';
 import CreateSessionPage from './pages/SessionCreate';
 import PrivateRoute from './routes/PrivateRoute'
 import SessionsPage from './pages/Sessions';
-
+import ProfilePage from "./pages/Profile/ProfilePage";
 
 function App() {
   return (
@@ -20,6 +20,7 @@ function App() {
         <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
         <Route path="/sessions/create" element={<PrivateRoute><CreateSessionPage /></PrivateRoute>} />
         <Route path="/sessions/:id" element={<PrivateRoute><SessionDetailPage /></PrivateRoute>} />
+        <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
         <Route path="/login" element={<LoginPage />} />         
         <Route path="/register" element={<RegisterPage />} />   
       </Route>
