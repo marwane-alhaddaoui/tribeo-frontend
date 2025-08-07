@@ -2,6 +2,8 @@ import { useEffect, useState, useContext } from 'react';
 import { getSessions } from '../../api/sessionService';
 import { AuthContext } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
+import '../../styles/DashboardPage.css';
+
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
@@ -43,46 +45,47 @@ export default function Dashboard() {
   if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">🏠 Mon tableau de bord</h1>
+    <div className="dashboard-wrapper">
+  <h1 className="dashboard-title">🏠 Mon tableau de bord</h1>
 
-      {/* 🔷 Sessions auxquelles je participe */}
-      <section className="mb-10">
-        <h2 className="text-xl font-semibold mb-2">👟 Mes sessions à venir</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {mySessions.length > 0 ? (
-            mySessions.map((s) => (
-              <div key={s.id} className="p-4 border rounded shadow bg-white">
-                <h3 className="text-lg font-bold">{s.title}</h3>
-                <p>{s.sport} - {s.date} à {s.start_time}</p>
-                <p>📍 {s.location}</p>
-                <Link to={`/sessions/${s.id}`} className="text-blue-600 underline mt-2 inline-block">Voir détails</Link>
-              </div>
-            ))
-          ) : (
-            <p>Aucune session prévue.</p>
-          )}
-        </div>
-      </section>
-
-      {/* 🔶 Sessions que j’ai créées */}
-      <section>
-        <h2 className="text-xl font-semibold mb-2">🧑‍💼 Mes sessions créées</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {createdSessions.length > 0 ? (
-            createdSessions.map((s) => (
-              <div key={s.id} className="p-4 border rounded shadow bg-white">
-                <h3 className="text-lg font-bold">{s.title}</h3>
-                <p>{s.sport} - {s.date} à {s.start_time}</p>
-                <p>📍 {s.location}</p>
-                <Link to={`/sessions/${s.id}`} className="text-blue-600 underline mt-2 inline-block">Voir détails</Link>
-              </div>
-            ))
-          ) : (
-            <p>Tu n’as pas encore créé de session.</p>
-          )}
-        </div>
-      </section>
+  {/* 🔷 Mes sessions à venir */}
+  <section className="dashboard-section">
+    <h2 className="dashboard-subtitle">👟 Mes sessions à venir</h2>
+    <div className="dashboard-grid">
+      {mySessions.length > 0 ? (
+        mySessions.map((s) => (
+          <div className="dashboard-card" key={s.id}>
+            <h3>{s.title}</h3>
+            <p>📅 {s.date} à {s.start_time}</p>
+            <p>📍 {s.location}</p>
+            <Link to={`/sessions/${s.id}`} className="dashboard-link">Voir détails</Link>
+          </div>
+        ))
+      ) : (
+        <p className="dashboard-empty">Aucune session prévue.</p>
+      )}
     </div>
+  </section>
+
+  {/* 🔶 Mes sessions créées */}
+  <section className="dashboard-section">
+    <h2 className="dashboard-subtitle">🧑‍💼 Mes sessions créées</h2>
+    <div className="dashboard-grid">
+      {createdSessions.length > 0 ? (
+        createdSessions.map((s) => (
+          <div className="dashboard-card" key={s.id}>
+            <h3>{s.title}</h3>
+            <p>📅 {s.date} à {s.start_time}</p>
+            <p>📍 {s.location}</p>
+            <Link to={`/sessions/${s.id}`} className="dashboard-link">Voir détails</Link>
+          </div>
+        ))
+      ) : (
+        <p className="dashboard-empty">Tu n’as pas encore créé de session.</p>
+      )}
+    </div>
+  </section>
+</div>
+
   );
 }

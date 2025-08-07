@@ -1,0 +1,78 @@
+body {
+  background-color: #121212;
+  color: white;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.dashboard-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.dashboard-title {
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.dashboard-section {
+  margin-bottom: 50px;
+}
+
+.dashboard-subtitle {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.dashboard-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.dashboard-card {
+  background-color: #1a1a1a;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.dashboard-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: #ff2d2d;
+}
+
+.dashboard-card p {
+  font-size: 0.95rem;
+  margin: 4px 0;
+  color: #ccc;
+}
+
+.dashboard-link {
+  margin-top: 12px;
+  padding: 10px 16px;
+  background-color: #ff2d2d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.dashboard-link:hover {
+  background-color: #e02525;
+}
+
+.dashboard-empty {
+  font-style: italic;
+  color: #888;
+  text-align: center;
+}
