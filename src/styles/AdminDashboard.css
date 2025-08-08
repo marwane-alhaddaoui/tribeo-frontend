@@ -1,0 +1,26 @@
+.admin-dashboard {
+  padding: 20px;
+}
+
+.admin-dashboard h1 {
+  margin-bottom: 20px;
+}
+
+.admin-dashboard section {
+  margin-bottom: 40px;
+}
+
+.admin-dashboard table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-dashboard th,
+.admin-dashboard td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.admin-dashboard th {
+  background-color: #f4f4f4;
+}
