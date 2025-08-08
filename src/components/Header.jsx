@@ -20,7 +20,14 @@ export default function Header() {
           {user ? (
             <>
               <Link to="/sessions">Sessions</Link>
-              <Link to="/dashboard">Dashboard</Link>
+
+              {/* 🔹 Dashboard selon le rôle */}
+              {user.role === 'admin' ? (
+                <Link to="/admin/dashboard">Dashboard</Link>
+              ) : (
+                <Link to="/dashboard">Dashboard</Link>
+              )}
+
               <Link to="/sessions/create">Créer</Link>
               <Link to="/profile">Profile</Link>
               <button onClick={logout}>Déconnexion</button>
