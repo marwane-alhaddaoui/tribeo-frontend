@@ -1,15 +1,22 @@
 import { useEffect, useState } from "react";
-import { getAllSessionsAdmin, deleteSession, updateSession } from "../../api/adminService";
-import "../../styles/AdminModal.css"; // ✅ On le crée juste après
+import {
+  getAllSessionsAdmin,
+  deleteSession,
+  updateSession,
+} from "../../api/adminService";
 
 export default function SessionManagement() {
   const [sessions, setSessions] = useState([]);
-  const [editingSession, setEditingSession] = useState(null); // session en cours d'édition
-  const [formData, setFormData] = useState({});
+  const [search, setSearch] = useState("");
+  const [editingSession, setEditingSession] = useState(null);
 
   const fetchSessions = () => {
     getAllSessionsAdmin().then(setSessions).catch(console.error);
   };
+
+  useEffect(() => {
+    fetchSessions();
+  }, []);
 
   const handleDelete = (id) => {
     if (window.confirm("❌ Supprimer cette session ?")) {
@@ -17,37 +24,26 @@ export default function SessionManagement() {
     }
   };
 
-  const handleEditClick = (session) => {
-    setEditingSession(session);
-    setFormData(session);
-  };
-
-  const handleCloseModal = () => {
-    setEditingSession(null);
-    setFormData({});
-  };
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSave = () => {
-    updateSession(editingSession.id, formData)
-      .then(() => {
-        fetchSessions();
-        handleCloseModal();
-      })
-      .catch(console.error);
-  };
-
-  useEffect(() => {
-    fetchSessions();
-  }, []);
+  const filteredSessions = sessions.filter((s) =>
+    `${s.title} ${s.sport} ${s.location} ${s.date}`
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
 
   return (
     <div>
-      <h2>Liste des sessions</h2>
-      {sessions.length > 0 ? (
+      <h2>Gestion des sessions</h2>
+
+      {/* Barre de recherche */}
+      <input
+        type="text"
+        placeholder="Rechercher une session..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="search-bar"
+      />
+
+      {filteredSessions.length > 0 ? (
         <table className="admin-table">
           <thead>
             <tr>
@@ -55,19 +51,31 @@ export default function SessionManagement() {
               <th>Sport</th>
               <th>Date</th>
               <th>Lieu</th>
+              <th>Max joueurs</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {sessions.map((s) => (
+            {filteredSessions.map((s) => (
               <tr key={s.id}>
                 <td>{s.title}</td>
                 <td>{s.sport}</td>
                 <td>{s.date}</td>
                 <td>{s.location}</td>
+                <td>{s.max_players}</td>
                 <td>
-                  <button className="btn-delete" onClick={() => handleDelete(s.id)}>🗑 Supprimer</button>
-                  <button className="btn-edit" onClick={() => handleEditClick(s)}>✏ Modifier</button>
+                  <button
+                    className="btn-edit"
+                    onClick={() => setEditingSession(s)}
+                  >
+                    ✏ Modifier
+                  </button>
+                  <button
+                    className="btn-delete"
+                    onClick={() => handleDelete(s.id)}
+                  >
+                    🗑 Supprimer
+                  </button>
                 </td>
               </tr>
             ))}
@@ -77,31 +85,82 @@ export default function SessionManagement() {
         <p>Aucune session trouvée.</p>
       )}
 
-      {/* ✅ Modal d'édition */}
+      {/* Modal d'édition */}
       {editingSession && (
         <div className="modal-overlay">
           <div className="modal">
             <h3>Modifier la session</h3>
-            <label>
-              Titre :
-              <input type="text" name="title" value={formData.title || ""} onChange={handleChange} />
-            </label>
-            <label>
-              Sport :
-              <input type="text" name="sport" value={formData.sport || ""} onChange={handleChange} />
-            </label>
-            <label>
-              Date :
-              <input type="date" name="date" value={formData.date || ""} onChange={handleChange} />
-            </label>
-            <label>
-              Lieu :
-              <input type="text" name="location" value={formData.location || ""} onChange={handleChange} />
-            </label>
+            <label>Titre</label>
+            <input
+              type="text"
+              value={editingSession.title}
+              onChange={(e) =>
+                setEditingSession({ ...editingSession, title: e.target.value })
+              }
+            />
+
+            <label>Sport</label>
+            <input
+              type="text"
+              value={editingSession.sport}
+              onChange={(e) =>
+                setEditingSession({ ...editingSession, sport: e.target.value })
+              }
+            />
+
+            <label>Date</label>
+            <input
+              type="date"
+              value={editingSession.date}
+              onChange={(e) =>
+                setEditingSession({ ...editingSession, date: e.target.value })
+              }
+            />
+
+            <label>Lieu</label>
+            <input
+              type="text"
+              value={editingSession.location}
+              onChange={(e) =>
+                setEditingSession({
+                  ...editingSession,
+                  location: e.target.value,
+                })
+              }
+            />
+
+            <label>Max joueurs</label>
+            <input
+              type="number"
+              value={editingSession.max_players}
+              onChange={(e) =>
+                setEditingSession({
+                  ...editingSession,
+                  max_players: e.target.value,
+                })
+              }
+            />
 
             <div className="modal-buttons">
-              <button className="btn-cancel" onClick={handleCloseModal}>Annuler</button>
-              <button className="btn-save" onClick={handleSave}>💾 Sauvegarder</button>
+              <button
+                className="btn-cancel"
+                onClick={() => setEditingSession(null)}
+              >
+                Annuler
+              </button>
+              <button
+                className="btn-save"
+                onClick={() => {
+                  updateSession(editingSession.id, editingSession)
+                    .then(() => {
+                      fetchSessions();
+                      setEditingSession(null);
+                    })
+                    .catch(console.error);
+                }}
+              >
+                Sauvegarder
+              </button>
             </div>
           </div>
         </div>
