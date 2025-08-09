@@ -1,0 +1,37 @@
+.coach-dashboard {
+  padding: 20px;
+}
+
+.coach-title {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.coach-nav {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.coach-nav button {
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+}
+
+.coach-nav button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.coach-section {
+  margin-top: 20px;
+  display: grid;
+  gap: 15px;
+}
+
+.coach-card {
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 8px;
+}

@@ -22,11 +22,16 @@ export default function Header() {
               <Link to="/sessions">Sessions</Link>
 
               {/* 🔹 Dashboard selon le rôle */}
-              {user.role === 'admin' ? (
-                <Link to="/admin/dashboard">Dashboard</Link>
-              ) : (
+              {user.role === 'admin' && (
+                <Link to="/admin/dashboard">Dashboard Admin</Link>
+              )}
+              {user.role === 'coach' && (
+                <Link to="/dashboard">Dashboard Coach</Link>
+              )}
+              {user.role === 'user' && (
                 <Link to="/dashboard">Dashboard</Link>
               )}
+
 
               <Link to="/sessions/create">Créer</Link>
               <Link to="/profile">Profile</Link>

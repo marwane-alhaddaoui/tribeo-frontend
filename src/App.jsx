@@ -3,14 +3,14 @@ import Layout from "./components/Layout";
 import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
 import HomePage from "./pages/Home";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/Dashboard/WrapperDashboard"; // Wrapper qui choisit User ou Coach
 import SessionDetailPage from "./pages/SessionDetail";
 import CreateSessionPage from "./pages/SessionCreate";
 import PrivateRoute from "./routes/PrivateRoute";
 import SessionsPage from "./pages/Sessions";
 import ProfilePage from "./pages/Profile/ProfilePage";
 import AdminRoute from "./routes/AdminRoute";
-import AdminDashboard from "./pages/Dashboard/AdminDashboard.jsx";
+import AdminDashboard from "./pages/Dashboard/AdminDashboard";
 
 function App() {
   return (
