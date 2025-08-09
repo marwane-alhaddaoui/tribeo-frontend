@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getSessions } from "../../api/sessionService";
+import { getSessions, joinSession, leaveSession } from "../../api/sessionService";
 import SportFilter from "./SportFilter";
 import SessionCard from "./SessionCard";
 import "../../styles/SessionPage.css";
@@ -9,13 +9,37 @@ export default function SessionsPage() {
   const [selectedSport, setSelectedSport] = useState("");
   const [search, setSearch] = useState("");
 
-  useEffect(() => {
+  const fetchSessions = () => {
     const filters = {};
     if (selectedSport) filters.sport_id = selectedSport;
     if (search.trim()) filters.search = search.trim();
 
-    getSessions(filters).then(setSessions);
+    getSessions(filters).then(setSessions).catch(console.error);
+  };
+
+  useEffect(() => {
+    fetchSessions();
   }, [selectedSport, search]);
+
+  const handleJoin = async (id) => {
+    try {
+      await joinSession(id);
+      alert("✅ Vous avez rejoint la session !");
+      fetchSessions(); // Refresh après action
+    } catch (err) {
+      alert(`❌ ${err.response?.data?.detail || "Erreur lors de la participation"}`);
+    }
+  };
+
+  const handleLeave = async (id) => {
+    try {
+      await leaveSession(id);
+      alert("✅ Vous avez quitté la session !");
+      fetchSessions();
+    } catch (err) {
+      alert(`❌ ${err.response?.data?.detail || "Erreur lors de la sortie"}`);
+    }
+  };
 
   return (
     <div className="sessions-wrapper">
@@ -33,9 +57,15 @@ export default function SessionsPage() {
       <SportFilter selected={selectedSport} onSelect={setSelectedSport} />
 
       <div className="sessions-grid">
-        {Array.isArray(sessions) && sessions.map((s) => (
-          <SessionCard key={s.id} session={s} />
-        ))}
+        {Array.isArray(sessions) &&
+          sessions.map((s) => (
+            <SessionCard
+              key={s.id}
+              session={s}
+              onJoin={handleJoin}
+              onLeave={handleLeave}
+            />
+          ))}
       </div>
     </div>
   );
