@@ -2,14 +2,17 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createSession, getSports } from '../../api/sessionService';
 import '../../styles/CreateSession.css';
+import AddressAutocomplete from "../../components/AddressAutocomplete";
 
 export default function CreateSessionPage() {
   const [sports, setSports] = useState([]);
   const [form, setForm] = useState({
     title: '',
-    sport_id: '', // ✅ on envoie l'ID
+    sport_id: '',
     description: '',
     location: '',
+    latitude: null,
+    longitude: null,
     date: '',
     start_time: '',
     is_public: true,
@@ -37,8 +40,23 @@ export default function CreateSessionPage() {
     });
   };
 
+  const handleAddressSelect = (location, latitude, longitude) => {
+    setForm({
+      ...form,
+      location,
+      latitude,
+      longitude
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!form.latitude || !form.longitude) {
+      setError("❌ Veuillez sélectionner une adresse valide depuis la liste.");
+      return;
+    }
+
     try {
       await createSession(form);
       navigate('/dashboard');
@@ -59,7 +77,7 @@ export default function CreateSessionPage() {
 
         <label>Sport</label>
         <select
-          name="sport_id" // ✅ clé correcte pour le backend
+          name="sport_id"
           value={form.sport_id}
           onChange={handleChange}
           required
@@ -77,7 +95,12 @@ export default function CreateSessionPage() {
         <textarea name="description" value={form.description} onChange={handleChange} required />
 
         <label>Lieu</label>
-        <input name="location" value={form.location} onChange={handleChange} required />
+        <AddressAutocomplete
+          value={form.location}
+          onSelect={(location, latitude, longitude) =>
+            setForm({ ...form, location, latitude, longitude })
+          }
+          />
 
         <label>Date</label>
         <input type="date" name="date" value={form.date} onChange={handleChange} required />

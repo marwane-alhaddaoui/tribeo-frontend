@@ -3,6 +3,7 @@ import { getSessions, joinSession, leaveSession } from "../../api/sessionService
 import SportFilter from "./SportFilter";
 import SessionCard from "./SessionCard";
 import "../../styles/SessionPage.css";
+import SessionMap from "../../components/SessionMap";
 
 export default function SessionsPage() {
   const [sessions, setSessions] = useState([]);
@@ -25,7 +26,7 @@ export default function SessionsPage() {
     try {
       await joinSession(id);
       alert("✅ Vous avez rejoint la session !");
-      fetchSessions(); // Refresh après action
+      fetchSessions();
     } catch (err) {
       alert(`❌ ${err.response?.data?.detail || "Erreur lors de la participation"}`);
     }
@@ -55,6 +56,9 @@ export default function SessionsPage() {
       />
 
       <SportFilter selected={selectedSport} onSelect={setSelectedSport} />
+
+      {/* Carte des sessions */}
+      <SessionMap sessions={sessions} />
 
       <div className="sessions-grid">
         {Array.isArray(sessions) &&
