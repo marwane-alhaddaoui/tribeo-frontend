@@ -20,31 +20,18 @@ function App() {
         <Route element={<Layout />}>
           {/* Pages publiques */}
           <Route path="/" element={<HomePage />} />
-          <Route path="/sessions" element={<SessionsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* Dashboard utilisateur */}
+          {/* Pages privées */}
           <Route
-            path="/dashboard"
+            path="/sessions"
             element={
               <PrivateRoute>
-                <Dashboard />
+                <SessionsPage />
               </PrivateRoute>
             }
           />
-
-          {/* Dashboard admin */}
-          <Route
-            path="/admin/dashboard"
-            element={
-              <AdminRoute>
-                <AdminDashboard />
-              </AdminRoute>
-            }
-          />
-
-          {/* Pages privées accessibles à tous les utilisateurs connectés */}
           <Route
             path="/sessions/create"
             element={
@@ -67,6 +54,24 @@ function App() {
               <PrivateRoute>
                 <ProfilePage />
               </PrivateRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Dashboard admin */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
             }
           />
         </Route>
