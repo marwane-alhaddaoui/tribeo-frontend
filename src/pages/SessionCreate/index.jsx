@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createSession } from '../../api/sessionService';
+import { createSession, getSports } from '../../api/sessionService';
 
 export default function CreateSessionPage() {
+  const [sports, setSports] = useState([]);
   const [form, setForm] = useState({
     title: '',
     sport: '',
@@ -16,9 +17,16 @@ export default function CreateSessionPage() {
     min_players_per_team: 2,
     max_players_per_team: 5,
   });
-
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchSports = async () => {
+      const data = await getSports();
+      setSports(data);
+    };
+    fetchSports();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -35,7 +43,7 @@ export default function CreateSessionPage() {
       navigate('/dashboard');
     } catch (err) {
       const message = JSON.stringify(err.response?.data || err.message);
-      setError("Erreur: " + message);
+      setError('Erreur: ' + message);
     }
   };
 
@@ -46,7 +54,18 @@ export default function CreateSessionPage() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <input name="title" placeholder="Titre" onChange={handleChange} className="w-full p-2 border rounded" required />
-        <input name="sport" placeholder="Sport" onChange={handleChange} className="w-full p-2 border rounded" required />
+        
+        <select name="sport" value={form.sport} onChange={handleChange} className="w-full p-2 border rounded" required>
+          <option value="">Sélectionner un sport</option>
+          {Array.isArray(sports) &&
+          sports.map((s) => (
+         <option key={s.id} value={s.id}>
+           {s.name}
+         </option>
+         ))
+          }
+        </select>
+
         <textarea name="description" placeholder="Description" onChange={handleChange} className="w-full p-2 border rounded" required />
         <input name="location" placeholder="Lieu" onChange={handleChange} className="w-full p-2 border rounded" required />
         <input name="date" type="date" onChange={handleChange} className="w-full p-2 border rounded" required />

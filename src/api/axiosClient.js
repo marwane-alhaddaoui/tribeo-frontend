@@ -3,21 +3,27 @@ import { clearToken } from '../utils/storage';
 
 const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
-// 🔐 Ajoute le token à chaque requête
+// 🔐 Ajoute le token et choisit le Content-Type automatiquement
 axiosClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  // Déterminer Content-Type automatiquement
+  if (config.data instanceof FormData) {
+    // Laisser Axios gérer le Content-Type + boundary
+    delete config.headers['Content-Type'];
+  } else {
+    config.headers['Content-Type'] = 'application/json';
+  }
+
   return config;
 });
 
-// ❌ Intercepte les erreurs pour gérer token expiré
+// ❌ Gérer token expiré
 axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -27,7 +33,7 @@ axiosClient.interceptors.response.use(
 
     if (isTokenError) {
       clearToken();
-      window.location.href = '/login'; // 🔁 redirection immédiate
+      window.location.href = '/login';
     }
 
     return Promise.reject(error);

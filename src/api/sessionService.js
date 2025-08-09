@@ -36,3 +36,13 @@ export const leaveSession = (id) => {
 export const getSessionById = (id) => {
   return axiosClient.get(`/sessions/${id}/`);
 };
+
+export const getSports = async () => {
+  const response = await axiosClient.get('/sports/');
+  return response.data;
+};
+
+// ➕ POST créer un sport
+export const createSport = (data) => {
+  return axiosClient.post('/sports/', data);
+};
