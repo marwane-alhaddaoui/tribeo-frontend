@@ -1,0 +1,68 @@
+.create-session-container {
+  padding: 30px;
+  background-color: #121212;
+  color: white;
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.create-session-title {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #ff2d2d;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.create-session-form {
+  max-width: 500px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.create-session-form label {
+  font-weight: bold;
+}
+
+.create-session-form input,
+.create-session-form select,
+.create-session-form textarea {
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  background-color: #1f1f1f;
+  color: white;
+}
+
+.create-session-form textarea {
+  resize: vertical;
+}
+
+.checkbox-group {
+  display: flex;
+  gap: 15px;
+  margin: 10px 0;
+}
+
+.btn-save-session {
+  background-color: #4caf50;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: all 0.3s ease;
+}
+
+.btn-save-session:hover {
+  background-color: #45a049;
+}

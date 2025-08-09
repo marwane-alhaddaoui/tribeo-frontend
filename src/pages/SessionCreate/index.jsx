@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createSession, getSports } from '../../api/sessionService';
+import '../../styles/CreateSession.css';
 
 export default function CreateSessionPage() {
   const [sports, setSports] = useState([]);
@@ -48,46 +49,58 @@ export default function CreateSessionPage() {
   };
 
   return (
-    <div className="p-6 max-w-xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Créer une session sportive</h2>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
+    <div className="create-session-container">
+      <h2 className="create-session-title">🏆 Créer une session sportive</h2>
+      {error && <p className="error-message">{error}</p>}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input name="title" placeholder="Titre" onChange={handleChange} className="w-full p-2 border rounded" required />
-        
-        <select name="sport" value={form.sport} onChange={handleChange} className="w-full p-2 border rounded" required>
+      <form onSubmit={handleSubmit} className="create-session-form">
+        <label>Titre</label>
+        <input name="title" value={form.title} onChange={handleChange} required />
+
+        <label>Sport</label>
+        <select name="sport" value={form.sport} onChange={handleChange} required>
           <option value="">Sélectionner un sport</option>
           {Array.isArray(sports) &&
-          sports.map((s) => (
-         <option key={s.id} value={s.id}>
-           {s.name}
-         </option>
-         ))
-          }
+            sports.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
         </select>
 
-        <textarea name="description" placeholder="Description" onChange={handleChange} className="w-full p-2 border rounded" required />
-        <input name="location" placeholder="Lieu" onChange={handleChange} className="w-full p-2 border rounded" required />
-        <input name="date" type="date" onChange={handleChange} className="w-full p-2 border rounded" required />
-        <input name="start_time" type="time" onChange={handleChange} className="w-full p-2 border rounded" required />
+        <label>Description</label>
+        <textarea name="description" value={form.description} onChange={handleChange} required />
 
-        <label className="flex items-center gap-2">
-          <input type="checkbox" name="is_public" checked={form.is_public} onChange={handleChange} />
-          Public
-        </label>
+        <label>Lieu</label>
+        <input name="location" value={form.location} onChange={handleChange} required />
 
-        <label className="flex items-center gap-2">
-          <input type="checkbox" name="team_mode" checked={form.team_mode} onChange={handleChange} />
-          Mode équipe
-        </label>
+        <label>Date</label>
+        <input type="date" name="date" value={form.date} onChange={handleChange} required />
 
-        <input name="max_players" type="number" min="1" placeholder="Max joueurs" onChange={handleChange} className="w-full p-2 border rounded" required />
-        <input name="min_players_per_team" type="number" min="1" placeholder="Min joueurs/équipe" onChange={handleChange} className="w-full p-2 border rounded" required />
-        <input name="max_players_per_team" type="number" min="1" placeholder="Max joueurs/équipe" onChange={handleChange} className="w-full p-2 border rounded" required />
+        <label>Heure de début</label>
+        <input type="time" name="start_time" value={form.start_time} onChange={handleChange} required />
 
-        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-          Créer la session
-        </button>
+        <div className="checkbox-group">
+          <label>
+            <input type="checkbox" name="is_public" checked={form.is_public} onChange={handleChange} />
+            Public
+          </label>
+          <label>
+            <input type="checkbox" name="team_mode" checked={form.team_mode} onChange={handleChange} />
+            Mode équipe
+          </label>
+        </div>
+
+        <label>Max joueurs</label>
+        <input type="number" name="max_players" min="1" value={form.max_players} onChange={handleChange} required />
+
+        <label>Min joueurs/équipe</label>
+        <input type="number" name="min_players_per_team" min="1" value={form.min_players_per_team} onChange={handleChange} required />
+
+        <label>Max joueurs/équipe</label>
+        <input type="number" name="max_players_per_team" min="1" value={form.max_players_per_team} onChange={handleChange} required />
+
+        <button type="submit" className="btn-save-session">Créer la session</button>
       </form>
     </div>
   );
