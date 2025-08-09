@@ -7,7 +7,8 @@ export default function SportFilter({ selected, onSelect }) {
   useEffect(() => {
     getSports().then((data) => {
       if (Array.isArray(data)) {
-        setSports(["Tous les sports", ...data.map((s) => s.name)]);
+        // On stocke id et name
+        setSports([{ id: "", name: "Tous les sports" }, ...data]);
       }
     });
   }, []);
@@ -16,15 +17,11 @@ export default function SportFilter({ selected, onSelect }) {
     <div className="sport-filters">
       {sports.map((sport) => (
         <button
-          key={sport}
-          onClick={() => onSelect(sport === "Tous les sports" ? "" : sport)}
-          className={`sport-button ${
-            selected === sport || (sport === "Tous les sports" && selected === "")
-              ? "active"
-              : ""
-          }`}
+          key={sport.id || "all"}
+          onClick={() => onSelect(sport.id)}
+          className={`sport-button ${selected === sport.id ? "active" : ""}`}
         >
-          {sport}
+          {sport.name}
         </button>
       ))}
     </div>
