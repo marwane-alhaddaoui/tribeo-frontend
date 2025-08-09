@@ -4,9 +4,11 @@ import {
   deleteSession,
   updateSession,
 } from "../../api/adminService";
+import { getSports } from "../../api/sessionService";
 
 export default function SessionManagement() {
   const [sessions, setSessions] = useState([]);
+  const [sports, setSports] = useState([]);
   const [search, setSearch] = useState("");
   const [editingSession, setEditingSession] = useState(null);
 
@@ -16,6 +18,7 @@ export default function SessionManagement() {
 
   useEffect(() => {
     fetchSessions();
+    getSports().then(setSports).catch(console.error);
   }, []);
 
   const handleDelete = (id) => {
@@ -25,7 +28,7 @@ export default function SessionManagement() {
   };
 
   const filteredSessions = sessions.filter((s) =>
-    `${s.title} ${s.sport} ${s.location} ${s.date}`
+    `${s.title} ${s.sport?.name} ${s.location} ${s.date}`
       .toLowerCase()
       .includes(search.toLowerCase())
   );
@@ -59,14 +62,19 @@ export default function SessionManagement() {
             {filteredSessions.map((s) => (
               <tr key={s.id}>
                 <td>{s.title}</td>
-                <td>{s.sport}</td>
+                <td>{s.sport?.name}</td>
                 <td>{s.date}</td>
                 <td>{s.location}</td>
                 <td>{s.max_players}</td>
                 <td>
                   <button
                     className="btn-edit"
-                    onClick={() => setEditingSession(s)}
+                    onClick={() =>
+                      setEditingSession({
+                        ...s,
+                        sport_id: s.sport?.id || "",
+                      })
+                    }
                   >
                     ✏ Modifier
                   </button>
@@ -95,25 +103,40 @@ export default function SessionManagement() {
               type="text"
               value={editingSession.title}
               onChange={(e) =>
-                setEditingSession({ ...editingSession, title: e.target.value })
+                setEditingSession({
+                  ...editingSession,
+                  title: e.target.value,
+                })
               }
             />
 
             <label>Sport</label>
-            <input
-              type="text"
-              value={editingSession.sport}
+            <select
+              value={editingSession.sport_id}
               onChange={(e) =>
-                setEditingSession({ ...editingSession, sport: e.target.value })
+                setEditingSession({
+                  ...editingSession,
+                  sport_id: parseInt(e.target.value),
+                })
               }
-            />
+            >
+              <option value="">Sélectionner un sport</option>
+              {sports.map((sport) => (
+                <option key={sport.id} value={sport.id}>
+                  {sport.name}
+                </option>
+              ))}
+            </select>
 
             <label>Date</label>
             <input
               type="date"
               value={editingSession.date}
               onChange={(e) =>
-                setEditingSession({ ...editingSession, date: e.target.value })
+                setEditingSession({
+                  ...editingSession,
+                  date: e.target.value,
+                })
               }
             />
 
@@ -151,7 +174,11 @@ export default function SessionManagement() {
               <button
                 className="btn-save"
                 onClick={() => {
-                  updateSession(editingSession.id, editingSession)
+                  const payload = {
+                    ...editingSession,
+                    sport_id: editingSession.sport_id,
+                  };
+                  updateSession(editingSession.id, payload)
                     .then(() => {
                       fetchSessions();
                       setEditingSession(null);

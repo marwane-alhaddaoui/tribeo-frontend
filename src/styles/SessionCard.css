@@ -1,0 +1,49 @@
+.session-card {
+  background-color: #1a1a1a;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.session-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+}
+
+.session-card h2 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: #ff2d2d;
+}
+
+.session-card img {
+  width: 48px;
+  height: 48px;
+  margin: 5px 0;
+}
+
+.session-card p {
+  font-size: 0.95rem;
+  margin: 4px 0;
+  color: #ccc;
+}
+
+.session-card button {
+  margin-top: 12px;
+  padding: 10px 16px;
+  background-color: #ff2d2d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.session-card button:hover {
+  background-color: #e02525;
+}

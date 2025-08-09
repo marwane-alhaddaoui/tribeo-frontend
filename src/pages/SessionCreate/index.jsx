@@ -7,7 +7,7 @@ export default function CreateSessionPage() {
   const [sports, setSports] = useState([]);
   const [form, setForm] = useState({
     title: '',
-    sport: '',
+    sport_id: '', // ✅ on envoie l'ID
     description: '',
     location: '',
     date: '',
@@ -58,7 +58,12 @@ export default function CreateSessionPage() {
         <input name="title" value={form.title} onChange={handleChange} required />
 
         <label>Sport</label>
-        <select name="sport" value={form.sport} onChange={handleChange} required>
+        <select
+          name="sport_id" // ✅ clé correcte pour le backend
+          value={form.sport_id}
+          onChange={handleChange}
+          required
+        >
           <option value="">Sélectionner un sport</option>
           {Array.isArray(sports) &&
             sports.map((s) => (

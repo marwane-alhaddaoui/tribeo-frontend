@@ -1,13 +1,12 @@
-
-import { useEffect, useState } from 'react';
-import { getSessions } from '../../api/sessionService';
-import '../../styles/SessionPage.css';
+import { useEffect, useState } from "react";
+import { getSessions } from "../../api/sessionService";
+import SportFilter from "./SportFilter";
+import SessionCard from "./SessionCard"; // ✅ Import du composant
+import "../../styles/SessionPage.css";
 
 export default function SessionsPage() {
   const [sessions, setSessions] = useState([]);
-  const [selectedSport, setSelectedSport] = useState('');
-
-  const sports = ['Tous les sports', 'Football', 'Tennis', 'CrossFit', 'Running', 'Yoga'];
+  const [selectedSport, setSelectedSport] = useState("");
 
   useEffect(() => {
     getSessions(selectedSport ? { sport: selectedSport } : {}).then(setSessions);
@@ -17,29 +16,16 @@ export default function SessionsPage() {
     <div className="sessions-wrapper">
       <h1 className="sessions-title">Trouve ta prochaine session sportive</h1>
 
-      <div className="sport-filters">
-        {sports.map((sport) => (
-          <button
-            key={sport}
-            className={`sport-button ${selectedSport === sport || (sport === 'Tous les sports' && selectedSport === '') ? 'active' : ''}`}
-            onClick={() => setSelectedSport(sport === 'Tous les sports' ? '' : sport)}
-          >
-            {sport}
-          </button>
-        ))}
-      </div>
+      <SportFilter selected={selectedSport} onSelect={setSelectedSport} />
 
       <div className="sessions-grid">
-        {Array.isArray(sessions) && sessions.map((s) => (
-          <div className="session-card" key={s.id}>
-            <h2>{s.sport}</h2>
-            <p>📅 {s.date}</p>
-            <p>📍 {s.location}</p>
-            <p>🎯 {s.level || 'Non spécifié'}</p>
-            <p>👥 {s.max_players} places</p>
-            <button>Participer</button>
-          </div>
-        ))}
+        {Array.isArray(sessions) && sessions.length > 0 ? (
+          sessions.map((s) => (
+            <SessionCard key={s.id} session={s} />
+          ))
+        ) : (
+          <p>Aucune session trouvée.</p>
+        )}
       </div>
     </div>
   );
