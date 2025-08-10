@@ -4,34 +4,23 @@ import { AuthContext } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 import '../../styles/DashboardPage.css';
 
-
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
-  const [allSessions, setAllSessions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
   const [mySessions, setMySessions] = useState([]);
   const [createdSessions, setCreatedSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchSessions = async () => {
       try {
-        const res = await getSessions(); // ✅ res est déjà un tableau
-        setAllSessions(res);
-        console.log("res :", res);
+        // ✅ On ne récupère QUE les sessions qui concernent l'utilisateur (créées ou rejointes)
+        const res = await getSessions({ mine: true });
 
-        const joined = res.filter((s) =>
-          s.participants.includes(user.email)
-        );
-
-        const created = res.filter((s) =>
-          s.creator === user.email
-        );
-
-        setMySessions(joined);
-        setCreatedSessions(created);
+        setCreatedSessions(res.filter((s) => s.creator === user.email));
+        setMySessions(res.filter((s) => s.participants.includes(user.email)));
       } catch (err) {
+        console.error(err);
         setError("Erreur de chargement des sessions.");
       } finally {
         setLoading(false);
@@ -46,46 +35,45 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-wrapper">
-  <h1 className="dashboard-title">🏠 Mon tableau de bord</h1>
+      <h1 className="dashboard-title">🏠 Mon tableau de bord</h1>
 
-  {/* 🔷 Mes sessions à venir */}
-  <section className="dashboard-section">
-    <h2 className="dashboard-subtitle">👟 Mes sessions à venir</h2>
-    <div className="dashboard-grid">
-      {mySessions.length > 0 ? (
-        mySessions.map((s) => (
-          <div className="dashboard-card" key={s.id}>
-            <h3>{s.title}</h3>
-            <p>📅 {s.date} à {s.start_time}</p>
-            <p>📍 {s.location}</p>
-            <Link to={`/sessions/${s.id}`} className="dashboard-link">Voir détails</Link>
-          </div>
-        ))
-      ) : (
-        <p className="dashboard-empty">Aucune session prévue.</p>
-      )}
+      {/* 🔷 Mes sessions à venir */}
+      <section className="dashboard-section">
+        <h2 className="dashboard-subtitle">👟 Mes sessions à venir</h2>
+        <div className="dashboard-grid">
+          {mySessions.length > 0 ? (
+            mySessions.map((s) => (
+              <div className="dashboard-card" key={s.id}>
+                <h3>{s.title}</h3>
+                <p>📅 {s.date} à {s.start_time}</p>
+                <p>📍 {s.location}</p>
+                <Link to={`/sessions/${s.id}`} className="dashboard-link">Voir détails</Link>
+              </div>
+            ))
+          ) : (
+            <p className="dashboard-empty">Aucune session prévue.</p>
+          )}
+        </div>
+      </section>
+
+      {/* 🔶 Mes sessions créées */}
+      <section className="dashboard-section">
+        <h2 className="dashboard-subtitle">🧑‍💼 Mes sessions créées</h2>
+        <div className="dashboard-grid">
+          {createdSessions.length > 0 ? (
+            createdSessions.map((s) => (
+              <div className="dashboard-card" key={s.id}>
+                <h3>{s.title}</h3>
+                <p>📅 {s.date} à {s.start_time}</p>
+                <p>📍 {s.location}</p>
+                <Link to={`/sessions/${s.id}`} className="dashboard-link">Voir détails</Link>
+              </div>
+            ))
+          ) : (
+            <p className="dashboard-empty">Tu n’as pas encore créé de session.</p>
+          )}
+        </div>
+      </section>
     </div>
-  </section>
-
-  {/* 🔶 Mes sessions créées */}
-  <section className="dashboard-section">
-    <h2 className="dashboard-subtitle">🧑‍💼 Mes sessions créées</h2>
-    <div className="dashboard-grid">
-      {createdSessions.length > 0 ? (
-        createdSessions.map((s) => (
-          <div className="dashboard-card" key={s.id}>
-            <h3>{s.title}</h3>
-            <p>📅 {s.date} à {s.start_time}</p>
-            <p>📍 {s.location}</p>
-            <Link to={`/sessions/${s.id}`} className="dashboard-link">Voir détails</Link>
-          </div>
-        ))
-      ) : (
-        <p className="dashboard-empty">Tu n’as pas encore créé de session.</p>
-      )}
-    </div>
-  </section>
-</div>
-
   );
 }

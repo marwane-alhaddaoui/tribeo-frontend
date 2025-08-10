@@ -11,12 +11,12 @@ export default function SessionsPage() {
   const [search, setSearch] = useState("");
 
   const fetchSessions = () => {
-    const filters = {};
-    if (selectedSport) filters.sport_id = selectedSport;
-    if (search.trim()) filters.search = search.trim();
+  const filters = { is_public: true }; // 🔥 On force public pour tout le monde
+  if (selectedSport) filters.sport_id = selectedSport;
+  if (search.trim()) filters.search = search.trim();
 
-    getSessions(filters).then(setSessions).catch(console.error);
-  };
+  getSessions(filters).then(setSessions).catch(console.error);
+};
 
   useEffect(() => {
     fetchSessions();

@@ -1,11 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createSession, getSports } from '../../api/sessionService';
+import { getGroupsByCoach } from '../../api/groupService';
+import { AuthContext } from '../../context/AuthContext';
 import '../../styles/CreateSession.css';
 import AddressAutocomplete from "../../components/AddressAutocomplete";
 
 export default function CreateSessionPage() {
+  const { user } = useContext(AuthContext);
   const [sports, setSports] = useState([]);
+  const [groups, setGroups] = useState([]);
   const [form, setForm] = useState({
     title: '',
     sport_id: '',
@@ -15,7 +19,8 @@ export default function CreateSessionPage() {
     longitude: null,
     date: '',
     start_time: '',
-    is_public: true,
+    visibility: 'PUBLIC', // 🔹 par défaut
+    group_id: '',
     team_mode: true,
     max_players: 10,
     min_players_per_team: 2,
@@ -25,12 +30,14 @@ export default function CreateSessionPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchSports = async () => {
-      const data = await getSports();
-      setSports(data);
-    };
-    fetchSports();
-  }, []);
+    // Charger les sports
+    getSports().then(setSports).catch(console.error);
+
+    // Charger les groupes si coach
+    if (user.role === 'coach') {
+      getGroupsByCoach().then(setGroups).catch(console.error);
+    }
+  }, [user.role]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -57,6 +64,12 @@ export default function CreateSessionPage() {
       return;
     }
 
+    // Si visibility = GROUP mais pas de groupe choisi
+    if (form.visibility === 'GROUP' && !form.group_id) {
+      setError("❌ Veuillez sélectionner un groupe.");
+      return;
+    }
+
     try {
       await createSession(form);
       navigate('/dashboard');
@@ -76,19 +89,11 @@ export default function CreateSessionPage() {
         <input name="title" value={form.title} onChange={handleChange} required />
 
         <label>Sport</label>
-        <select
-          name="sport_id"
-          value={form.sport_id}
-          onChange={handleChange}
-          required
-        >
+        <select name="sport_id" value={form.sport_id} onChange={handleChange} required>
           <option value="">Sélectionner un sport</option>
-          {Array.isArray(sports) &&
-            sports.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
+          {sports.map((s) => (
+            <option key={s.id} value={s.id}>{s.name}</option>
+          ))}
         </select>
 
         <label>Description</label>
@@ -97,10 +102,8 @@ export default function CreateSessionPage() {
         <label>Lieu</label>
         <AddressAutocomplete
           value={form.location}
-          onSelect={(location, latitude, longitude) =>
-            setForm({ ...form, location, latitude, longitude })
-          }
-          />
+          onSelect={handleAddressSelect}
+        />
 
         <label>Date</label>
         <input type="date" name="date" value={form.date} onChange={handleChange} required />
@@ -108,16 +111,40 @@ export default function CreateSessionPage() {
         <label>Heure de début</label>
         <input type="time" name="start_time" value={form.start_time} onChange={handleChange} required />
 
-        <div className="checkbox-group">
-          <label>
-            <input type="checkbox" name="is_public" checked={form.is_public} onChange={handleChange} />
-            Public
-          </label>
-          <label>
-            <input type="checkbox" name="team_mode" checked={form.team_mode} onChange={handleChange} />
-            Mode équipe
-          </label>
-        </div>
+        {/* 🔹 Choix de visibilité (uniquement si coach/admin) */}
+        {(user.role === 'coach' || user.role === 'admin') && (
+          <>
+            <label>Visibilité</label>
+            <select name="visibility" value={form.visibility} onChange={handleChange}>
+              <option value="PUBLIC">Publique</option>
+              <option value="PRIVATE">Privée</option>
+              <option value="GROUP">Groupe</option>
+            </select>
+
+            {/* 🔹 Si visibilité = GROUP → choix du groupe */}
+            {form.visibility === 'GROUP' && (
+              <div>
+                <label>Groupe</label>
+                <select
+                  name="group_id"
+                  value={form.group_id}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Sélectionner un groupe</option>
+                  {groups.map((g) => (
+                    <option key={g.id} value={g.id}>{g.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </>
+        )}
+
+        <label>
+          <input type="checkbox" name="team_mode" checked={form.team_mode} onChange={handleChange} />
+          Mode équipe
+        </label>
 
         <label>Max joueurs</label>
         <input type="number" name="max_players" min="1" value={form.max_players} onChange={handleChange} required />

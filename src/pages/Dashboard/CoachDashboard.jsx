@@ -1,7 +1,7 @@
 // pages/Dashboard/CoachDashboard.jsx
 import { useState, useEffect } from "react";
-import { getSessions } from "../../api/sessionService";
-import { getGroupsByCoach } from "../../api/groupService"; // 🆕 à créer côté API
+import { getSessions, publishSession, cancelSession } from "../../api/sessionService";
+import { getGroupsByCoach } from "../../api/groupService";
 import "../../styles/CoachDashboard.css";
 
 export default function CoachDashboard() {
@@ -9,26 +9,51 @@ export default function CoachDashboard() {
   const [groups, setGroups] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const fetchData = async () => {
+    try {
+      // 🔹 Groupes du coach
+      const g = await getGroupsByCoach();
+      setGroups(g);
+
+      // 🔹 Sessions créées par le coach
+      const s = await getSessions({ mine: true }); // ✅ Backend renvoie seulement ses sessions
+      setSessions(s);
+    } catch (err) {
+      console.error("Erreur chargement dashboard coach :", err);
+      setError("Erreur de chargement des données.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const g = await getGroupsByCoach();
-        setGroups(g);
-
-        const s = await getSessions({ coach: true }); // Optionnel : filtre backend
-        setSessions(s);
-      } catch (error) {
-        console.error("Erreur chargement dashboard coach :", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
   }, []);
 
+  const handlePublish = async (id) => {
+    try {
+      await publishSession(id);
+      alert("✅ Session publiée !");
+      fetchData();
+    } catch (error) {
+      alert("❌ Erreur publication : " + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  const handleCancel = async (id) => {
+    try {
+      await cancelSession(id);
+      alert("⚠️ Session annulée !");
+      fetchData();
+    } catch (error) {
+      alert("❌ Erreur annulation : " + (error.response?.data?.detail || error.message));
+    }
+  };
+
   if (loading) return <p className="text-center mt-10">Chargement…</p>;
+  if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
 
   return (
     <div className="coach-dashboard">
@@ -76,6 +101,16 @@ export default function CoachDashboard() {
                   <h3>{s.title}</h3>
                   <p>📅 {s.date} à {s.start_time}</p>
                   <p>📍 {s.location}</p>
+                  <p>Status : {s.status}</p>
+
+                  <div className="coach-actions">
+                    {s.status === "DRAFT" && (
+                      <button onClick={() => handlePublish(s.id)}>🚀 Publier</button>
+                    )}
+                    {s.status !== "CANCELLED" && (
+                      <button onClick={() => handleCancel(s.id)}>❌ Annuler</button>
+                    )}
+                  </div>
                 </div>
               ))
             ) : (
