@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { getSessions, publishSession, cancelSession } from "../../api/sessionService";
 import { getGroupsByCoach } from "../../api/groupService";
 import "../../styles/CoachDashboard.css";
+import CoachCalendar from "../../components/CoachCalendar";
 
 export default function CoachDashboard() {
   const [activeTab, setActiveTab] = useState("groups");
@@ -13,12 +14,10 @@ export default function CoachDashboard() {
 
   const fetchData = async () => {
     try {
-      // 🔹 Groupes du coach
       const g = await getGroupsByCoach();
       setGroups(g);
 
-      // 🔹 Sessions créées par le coach
-      const s = await getSessions({ mine: true }); // ✅ Backend renvoie seulement ses sessions
+      const s = await getSessions({ mine: true }); // sessions du coach
       setSessions(s);
     } catch (err) {
       console.error("Erreur chargement dashboard coach :", err);
@@ -28,9 +27,7 @@ export default function CoachDashboard() {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useEffect(() => { fetchData(); }, []);
 
   const handlePublish = async (id) => {
     try {
@@ -61,17 +58,14 @@ export default function CoachDashboard() {
 
       {/* Navigation interne */}
       <div className="coach-nav">
-        <button
-          className={activeTab === "groups" ? "active" : ""}
-          onClick={() => setActiveTab("groups")}
-        >
+        <button className={activeTab === "groups" ? "active" : ""} onClick={() => setActiveTab("groups")}>
           📋 Mes Groupes
         </button>
-        <button
-          className={activeTab === "sessions" ? "active" : ""}
-          onClick={() => setActiveTab("sessions")}
-        >
+        <button className={activeTab === "sessions" ? "active" : ""} onClick={() => setActiveTab("sessions")}>
           📅 Mes Sessions
+        </button>
+        <button className={activeTab === "calendar" ? "active" : ""} onClick={() => setActiveTab("calendar")}>
+          🗓️ Calendrier
         </button>
       </div>
 
@@ -107,7 +101,7 @@ export default function CoachDashboard() {
                     {s.status === "DRAFT" && (
                       <button onClick={() => handlePublish(s.id)}>🚀 Publier</button>
                     )}
-                    {s.status !== "CANCELLED" && (
+                    {s.status !== "CANCELED" && (
                       <button onClick={() => handleCancel(s.id)}>❌ Annuler</button>
                     )}
                   </div>
@@ -117,6 +111,10 @@ export default function CoachDashboard() {
               <p className="empty">Aucune session trouvée.</p>
             )}
           </div>
+        )}
+
+        {activeTab === "calendar" && (
+          <CoachCalendar />
         )}
       </div>
     </div>

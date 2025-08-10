@@ -56,3 +56,9 @@ export const publishSession = (id) => {
 export const cancelSession = (id) => {
   return axiosClient.post(`/sport_sessions/${id}/cancel/`);
 };
+
+// calendrier settup pour le coach
+export const getMySessionsInRange = async ({ start, end }) => {
+  const params = { mine: true, date_from: start, date_to: end };
+  return getSessions(params); // réutilise déjà axiosClient + base URL
+};
