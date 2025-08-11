@@ -1,153 +1,88 @@
-/* ===== Dashboard Coach (dark + rouge) ===== */
-:root{
-  --bg: #0b0b0c;
-  --card: #141416;
-  --card-soft: #191a1d;
-  --border: #2a2b2f;
-  --text: #ffffff;
-  --muted: #9ca3af;
-  --muted-2: #6b7280;
-  --primary: #ff2d2d;
-  --primary-600: #e02525;
-  --ring: rgba(255,45,45,.35);
-}
+/* layout de base */
+.coach-dashboard { display: grid; gap: 14px; }
+.coach-title { margin: 0 0 4px; }
 
-.coach-dashboard{
-  padding: 20px;
-  background: var(--bg);
-  color: var(--text);
+/* stats bar */
+.stats-bar {
+  display: flex; align-items: center; gap: 12px;
+  background: #171717; border: 1px solid #262626; border-radius: 12px; padding: 10px;
 }
+.stats-bar .stat { display: grid; gap: 2px; text-align: center; min-width: 70px; }
+.stats-bar .k { font-size: 18px; font-weight: 700; }
 
-/* Title */
-.coach-title{
-  text-align:center;
-  margin-bottom: 18px;
-  font-size: 1.375rem;
-  font-weight: 700;
-  letter-spacing:.2px;
+/* nav */
+.coach-nav { display: flex; gap: 8px; }
+.coach-nav button {
+  background: #1b1b1b; border: 1px solid #2a2a2a; color: #ddd;
+  padding: 8px 12px; border-radius: 10px; cursor: pointer;
 }
+.coach-nav .active { border-color: #ff2d2d; color: #fff; }
 
-/* Nav tabs (segmented) */
-.coach-nav{
-  display:flex; justify-content:center; gap:10px;
-  position: sticky; top:0; z-index: 5;
-  padding: 8px 0 14px;
-  background: linear-gradient(var(--bg), var(--bg));
-  border-bottom:1px solid var(--border);
+/* toolbar */
+.coach-toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.input {
+  background: #141414; color: #eaeaea; border: 1px solid #2a2a2a; border-radius: 10px;
+  padding: 8px 10px;
 }
+.input.search { min-width: 240px; flex: 1 1 260px; }
 
-/* Button base */
-.coach-nav button{
-  position:relative;
-  padding: 10px 16px;
-  border:none; cursor:pointer;
-  border-radius:10px;
-  background: var(--card);
-  color: var(--text);
-  font-weight:600; font-size:14px;
-  transition: background .2s ease, color .2s ease, transform .05s ease, box-shadow .2s ease;
-  border:1px solid var(--border);
+/* grid + card */
+.coach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.coach-card {
+  background: #161616; border: 1px solid #262626; border-radius: 14px; padding: 14px; display: grid; gap: 10px;
 }
-.coach-nav button:hover{
-  background: var(--card-soft);
-  box-shadow: 0 3px 12px rgba(0,0,0,.25);
-}
-.coach-nav button:active{ transform: translateY(1px); }
+.cc-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cc-title { margin: 0; font-size: 16px; font-weight: 700; }
+.cc-desc { margin: 0; color: #cfcfcf; }
 
-/* Active tab: filled + underline accent */
-.coach-nav button.active{
-  background: var(--primary);
-  border-color: var(--primary);
-  color:#fff;
-  box-shadow: 0 0 0 3px var(--ring);
-}
-.coach-nav button.active::after{
-  content:"";
-  position:absolute; left:12px; right:12px; bottom:-12px;
-  height:3px; border-radius:3px;
-  background:#ff2d2d;
-}
+.badge { font-size: 12px; padding: 3px 8px; border: 1px solid #2a2a2a; border-radius: 999px; }
+.status { font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid #2a2a2a; }
+.status.draft { background: #201b12; border-color: #382b12; color: #ffd79a; }
+.status.published { background: #102015; border-color: #1f3a24; color: #a6f3b2; }
+.status.canceled { background: #2a1616; border-color: #4a2222; color: #ffb1b1; }
 
-/* Section grid responsive */
-.coach-section{
-  margin-top: 24px;
-  display:grid; gap:16px;
-  grid-template-columns: repeat(12, 1fr);
-}
-@media (max-width: 1200px){
-  .coach-section{ grid-template-columns: repeat(8, 1fr); }
-}
-@media (max-width: 768px){
-  .coach-section{ grid-template-columns: repeat(4, 1fr); }
-}
+.cc-meta { display: grid; gap: 6px; }
+.cc-meta .row { display: flex; align-items: center; gap: 8px; color: #e6e6e6; font-size: 14px; }
 
-/* Cards */
-.coach-card{
-  grid-column: span 4; /* 3 cards par ligne en desktop */
-  background: var(--card);
-  border:1px solid var(--border);
-  padding:16px;
-  border-radius:14px;
-  box-shadow: 0 6px 16px rgba(0,0,0,.25);
-  transition: border-color .2s ease, transform .05s ease, box-shadow .2s ease, background .2s ease;
-}
-.coach-card:hover{
-  background: var(--card-soft);
-  border-color:#3a3b40;
-  box-shadow: 0 10px 24px rgba(0,0,0,.35);
-}
-@media (max-width: 1200px){ .coach-card{ grid-column: span 4; } } /* 2/ligne */
-@media (max-width: 768px){ .coach-card{ grid-column: span 4; } }  /* 1/ligne */
+/* actions */
+.cc-actions { display: flex; gap: 8px; justify-content: space-between; align-items: center; }
+.btn { border-radius: 10px; padding: 8px 12px; cursor: pointer; border: 1px solid #2a2a2a; background: transparent; color: #eaeaea; }
+.btn.ghost { }
+.btn.primary { background: #ff2d2d; border-color: #ff2d2d; color: white; }
+.btn.danger { background: #3a1515; border-color: #5c1f1f; color: #ffdcdc; }
+.btn:disabled { opacity: .6; cursor: not-allowed; }
+.ml-auto { margin-left: auto; }
 
-/* Card header + meta */
-.coach-card .card-title{
-  font-size: 15px; font-weight:700; margin:0 0 6px;
-}
-.coach-card .card-sub{
-  font-size: 12px; color: var(--muted); margin-bottom: 10px;
-}
+/* empty */
+.empty { text-align: center; border: 1px dashed #2a2a2a; border-radius: 12px; padding: 24px; color: #cfcfcf; display: grid; gap: 6px; }
 
-/* Actions dans card */
-.coach-card .card-actions{
-  display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;
+/* skeleton */
+.skeleton .sk-line { height: 12px; border-radius: 8px;
+  background: linear-gradient(90deg, rgba(255,255,255,.04), rgba(255,255,255,.08), rgba(255,255,255,.04));
+  background-size: 200% 100%; animation: sk 1.2s linear infinite;
 }
-.coach-card .btn{
-  border:none; border-radius:8px;
-  padding:8px 10px; cursor:pointer; font-size:12px; font-weight:700;
-  transition: background .15s ease, transform .05s ease;
-}
-.coach-card .btn:active{ transform: translateY(1px); }
-.coach-card .btn-primary{ background: var(--primary); color:#fff; }
-.coach-card .btn-primary:hover{ background: var(--primary-600); }
-.coach-card .btn-ghost{
-  background: transparent; color: var(--text);
-  border:1px solid var(--border);
-}
-.coach-card .btn-ghost:hover{ background:#0f0f11; }
+.skeleton .w-30{ width:30% } .skeleton .w-40{ width:40% } .skeleton .w-60{ width:60% } .skeleton .w-80{ width:80% }
+@keyframes sk { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
 
-/* Badges statut (cohérents avec le calendrier) */
-.coach-card .badge{
-  display:inline-block; font-size:10px; padding:3px 8px; border-radius:999px;
-  border:1px solid rgba(255,45,45,.35); color: var(--primary);
-  background: rgba(255,45,45,.10); font-weight:700; letter-spacing:.2px;
+/* modal */
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  display: grid; place-items: center; z-index: 50;
 }
+.modal {
+  width: min(520px, 92%); background: #171717; border: 1px solid #2a2a2a;
+  border-radius: 14px; padding: 16px; display: grid; gap: 10px;
+}
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
 
-/* Empty state */
-.coach-empty{
-  border:1px dashed var(--border);
-  background: transparent;
-  color: var(--muted);
-  border-radius:12px; padding:28px; text-align:center;
+/* toast */
+.toast {
+  position: fixed; right: 12px; bottom: 12px; z-index: 60;
+  display: flex; align-items: center; gap: 10px;
+  background: #141414; border: 1px solid #2a2a2a; color: #eaeaea;
+  border-radius: 12px; padding: 10px 12px;
 }
-
-/* Input / select (si tu as des filtres) */
-.coach-input, .coach-select{
-  width:100%; background:#0f0f11; color: var(--text);
-  border:1px solid var(--border); border-radius:10px;
-  padding:10px 12px; font-size:14px;
-  outline:none; transition: box-shadow .15s ease, border-color .15s ease, background .15s ease;
-}
-.coach-input:focus, .coach-select:focus{
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--ring);
-}
+.toast.success { border-color: #1e3a2a; }
+.toast.warn { border-color: #4a2a1e; }
+.toast.error { border-color: #4a2222; }
+.toast button { background: transparent; border: 0; color: #cfcfcf; cursor: pointer; }

@@ -1,49 +1,301 @@
+/* ======================
+   CARD — polish & colors
+   ====================== */
+
+/* état "full" (complet) */
+.session-card.is-full { opacity: .96; }
+
+/* titre + small spacing */
+.session-card h2 {
+  font-size: 1.25rem;
+  line-height: 1.25;
+  margin: 6px 0 8px;
+  color: #fff; /* on garde le rouge pour le hover uniquement */
+}
+.session-card:hover h2 { color: #ff2d2d; }
+
+/* mini séparateurs visuels sur les <p> */
+.session-card p { position: relative; padding-left: 2px; }
+
+/* améliorer le hover global */
 .session-card {
-  background-color: #1a1a1a;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  border: 1px solid #242424;
+  background:
+    linear-gradient(180deg, rgba(255,45,45,0.05) 0%, rgba(255,45,45,0) 100%),
+    #1a1a1a;
+  border-radius: 14px; /* 🔹 coins arrondis */
+  padding: 18px;       /* 🔹 espace intérieur */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  gap: 10px;           /* 🔹 espace entre blocs internes */
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-
 .session-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+  box-shadow:
+    0 6px 16px rgba(0,0,0,.6),
+    0 0 0 1px rgba(255,45,45,.08) inset;
 }
 
-.session-card h2 {
-  font-size: 1.5rem;
-  margin-bottom: 10px;
+/* ======================
+   TOP ROW — créateur + badges
+   ====================== */
+
+.session-creator-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.creator-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid #2a2a2a;
+  object-fit: cover;
+  background: #121212;
+}
+.creator-name {
+  color: #e6e6e6;
+  font-size: .95rem;
+  font-weight: 600;
+}
+
+.session-badges {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Badge base */
+.badge {
+  background: #1f1f1f;
+  color: #cfcfcf;
+  border: 1px solid #2b2b2b;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+.badge-outline { background: transparent; }
+.badge-danger  { background: #3a1515; border-color: #5c1f1f; color: #ffdcdc; }
+
+/* petit accent rouge discret au hover des badges */
+.badge:hover {
+  border-color: #393939;
+  box-shadow: 0 0 0 1px rgba(255,45,45,.08) inset;
+}
+
+/* ======================
+   SPORT ICON
+   ====================== */
+
+.sport-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin: 6px 0 2px;
+  border: 1px solid #2a2a2a;
+  background: #141414;
+}
+
+/* ======================
+   COUNTERS — places restantes (vert/orange/rouge)
+   ====================== */
+
+/* colorise la ligne "👥 x/y — n restants" selon le texte */
+.session-card p:has(> span.avail) { display: flex; gap: 6px; }
+
+/* wrappers optionnels si tu veux cibler via classes dans le JSX
+   (<span class="avail avail--ok">…</span> etc.)
+   mais même sans ça, les couleurs ci-dessous gardent un style soft */
+.avail { font-weight: 600; }
+.avail--ok { color: #9ee493; }       /* vert doux */
+.avail--mid { color: #ffd27d; }      /* orange soft */
+.avail--low { color: #ff9b9b; }      /* rouge soft */
+
+/* ======================
+   ACTION — bouton Détails + pill info
+   ====================== */
+
+.session-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-details {
+  background-color: transparent;
+  border: 1px solid #ff2d2d; /* rouge vif */
   color: #ff2d2d;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-weight: bold;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.25s ease;
 }
-
-.session-card img {
-  width: 48px;
-  height: 48px;
-  margin: 5px 0;
-}
-
-.session-card p {
-  font-size: 0.95rem;
-  margin: 4px 0;
-  color: #ccc;
-}
-
-.session-card button {
-  margin-top: 12px;
-  padding: 10px 16px;
+.btn-details:hover {
   background-color: #ff2d2d;
   color: white;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  box-shadow: 0 0 10px rgba(255,45,45,0.4);
+}
+.btn-details:active { transform: translateY(1px); }
+
+.pill {
+  background: #1f1f1f;
+  border: 1px solid #2a2a2a;
+  color: #bdbdbd;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
 }
 
-.session-card button:hover {
-  background-color: #e02525;
+/* ======================
+   RESPONSIVE TWEAKS
+   ====================== */
+
+@media (max-width: 420px) {
+  .session-creator-row { flex-wrap: wrap; }
+  .session-badges { width: 100%; justify-content: flex-start; }
+}
+
+
+/* Chip sport = badge un peu plus visible en haut */
+.badge-sport {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #211818;             /* subtil rouge/brun */
+  border: 1px solid #3a2a2a;
+  color: #ffd7d7;                   /* texte un peu plus clair */
+}
+.badge-sport-icon {
+  width: 14px; height: 14px;
+  border-radius: 3px;
+  object-fit: cover;
+  background: #141414;
+  border: 1px solid #2a2a2a;
+}
+.badge-sport-emoji { font-size: .9rem; line-height: 1; }
+.badge-sport-label { font-weight: 700; font-size: .72rem; letter-spacing: .2px; }
+
+/* hover doux pour cohérence visuelle (non cliquable) */
+.badge-sport:hover {
+  border-color: #4a3a3a;
+  box-shadow: 0 0 0 1px rgba(255,45,45,.08) inset;
+}
+
+/* ===== Layout compact & spacing ===== */
+.sc-row { display: flex; align-items: center; gap: 8px; }
+.sc-row-top { justify-content: space-between; margin-bottom: 6px; }
+
+.sc-title {
+  font-size: 1.15rem;
+  margin: 6px 0 6px;
+  color: #fff;
+}
+.session-card:hover .sc-title { color: #ff2d2d; }
+
+.sc-meta { display: grid; gap: 6px; margin-top: 2px; }
+.meta-row { display: inline-flex; align-items: center; gap: 8px; color: #c9c9c9; font-size: .95rem; }
+.meta-location { line-height: 1.3; }
+
+/* ===== Creator + badges ===== */
+.sc-creator { display: inline-flex; align-items: center; gap: 8px; }
+.sc-creator-avatar { width: 24px; height: 24px; border-radius: 50%; border: 1px solid #2a2a2a; object-fit: cover; background: #121212; }
+.sc-creator-name { color: #e6e6e6; font-size: .95rem; font-weight: 600; }
+
+.sc-badges { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.sc-badge {
+  background: #1f1f1f; color: #cfcfcf; border: 1px solid #2b2b2b;
+  border-radius: 999px; padding: 4px 10px; font-size: .72rem; font-weight: 700; letter-spacing: .2px;
+}
+.sc-badge-outline { background: transparent; }
+.sc-badge-soft { background: #1b2631; border-color: #2a3a4a; color: #cfe1ff; }
+.sc-badge-danger { background: #3a1515; border-color: #5c1f1f; color: #ffdcdc; }
+
+/* ===== Sport chip (ligne 2) ===== */
+.badge-sport {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  background: #211818; border: 1px solid #3a2a2a; color: #ffd7d7;
+}
+.badge-sport-icon { width: 14px; height: 14px; border-radius: 3px; object-fit: cover; background: #141414; border: 1px solid #2a2a2a; }
+.badge-sport-emoji { font-size: .9rem; line-height: 1; }
+.badge-sport-label { font-weight: 700; font-size: .72rem; letter-spacing: .2px; }
+.badge-sport:hover { border-color: #4a3a3a; box-shadow: 0 0 0 1px rgba(255,45,45,.08) inset; }
+
+/* ===== Capacity bar ===== */
+.sc-capacity { margin-top: 8px; }
+.capacity-track {
+  width: 100%; height: 8px; border-radius: 6px;
+  background: #151515; border: 1px solid #2a2a2a; overflow: hidden;
+}
+.capacity-fill {
+  height: 100%; background: linear-gradient(90deg, #ff2d2d, #ff6a6a);
+  transition: width .25s ease;
+}
+.capacity-legend {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 6px; font-size: .9rem; color: #cfcfcf;
+}
+.avail { font-weight: 700; }
+.avail--ok  { color: #9ee493; }
+.avail--mid { color: #ffd27d; }
+.avail--low { color: #ff9b9b; }
+
+/* ===== Button align (déjà stylé ailleurs) ===== */
+.session-card-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
+
+/* Aligne le badge sport à droite */
+.badge-sport {
+  margin-left: auto; /* pousse le badge sport à droite */
+}
+
+
+/* --- Teaser UX --- */
+.mask-text {
+  filter: blur(3.5px) brightness(.85);
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px;
+  padding: 2px 6px;
+  user-select: none;
+}
+
+/* squelette pour la barre de capacité */
+.capacity-skeleton {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.12), rgba(255,255,255,.06));
+  background-size: 200% 100%;
+  animation: shimmer 1.2s linear infinite;
+}
+@keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+
+/* ruban lock */
+.sc-ribbon {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.5);
+  border: 1px solid #2a2a2a;
+  color: #eaeaea;
+  font-size: 12px;
 }

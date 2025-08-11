@@ -1,54 +1,160 @@
-body {
-  margin: 0;
-  background-color: #121212;
-  color: white;
-  font-family: 'Segoe UI', sans-serif;
+/* =========================
+   THEME
+   ========================= */
+:root{
+  --bg:#121212;
+  --panel:#1a1a1a;
+  --panel-2:#151516;
+  --border:#262728;
+  --text:#ffffff;
+  --muted:#cfcfcf;
+  --accent:#ff2d2d;
 }
 
-.sessions-wrapper {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 40px 20px;
+body{
+  margin:0;
+  background-color:var(--bg);
+  color:var(--text);
+  font-family:'Segoe UI',sans-serif;
 }
 
-.sessions-title {
-  font-size: 2.5rem;
-  text-align: center;
-  margin-bottom: 30px;
+/* =========================
+   WRAPPER + TITLE
+   ========================= */
+.sessions-wrapper{
+  max-width:1200px;
+  margin:0 auto;
+  padding:32px 20px 40px;
+}
+.sessions-title{
+  font-size:2.2rem;
+  text-align:center;
+  margin-bottom:18px;
+  letter-spacing:.3px;
+  color:var(--text);
+  text-shadow:0 0 16px rgba(255,45,45,.08);
 }
 
-.sport-filters {
+/* =========================
+   SEARCH + FILTER BAR
+   ========================= */
+.search-input{
+  width:100%;
+  background:
+    linear-gradient(180deg, rgba(255,45,45,.04), rgba(255,45,45,0) 70%),
+    var(--panel-2);
+  border:1px solid var(--border);
+  color:#eaeaea;
+  border-radius:12px;
+  padding:12px 14px;
+  font-size:1rem;
+  outline:none;
+  transition:box-shadow .2s ease, border-color .2s ease, transform .06s ease;
+  box-shadow:0 6px 16px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,45,45,.03);
+  margin: 0 0 14px;
+}
+.search-input::placeholder{ color:#9a9a9a; }
+.search-input:focus{
+  border-color:rgba(255,45,45,.55);
+  box-shadow:0 0 0 3px rgba(255,45,45,.12), 0 8px 22px rgba(0,0,0,.45);
+}
+
+/* barre de filtres */
+.sport-filters{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+  margin: 10px 0 18px;
+  background:
+    linear-gradient(180deg, rgba(255,45,45,.03), rgba(255,45,45,0) 70%),
+    var(--panel);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:10px;
+  box-shadow:0 6px 18px rgba(0,0,0,.4), inset 0 0 0 1px rgba(255,45,45,.03);
+}
+
+/* boutons de sport */
+.sport-button{
+  padding:10px 16px;
+  background-color:#1b1b1c;
+  color:#fff;
+  border:1px solid #2e2f31;
+  border-radius:999px;
+  font-size:.95rem;
+  cursor:pointer;
+  transition:transform .08s ease, box-shadow .2s ease, background-color .2s ease, border-color .2s ease;
+}
+.sport-button:hover{
+  background-color:#222224;
+  border-color:#3a3b3d;
+  box-shadow:0 0 0 1px rgba(255,45,45,.08) inset;
+}
+.sport-button.active{
+  background-color:var(--accent);
+  color:#fff;
+  border-color:var(--accent);
+  box-shadow:0 0 10px rgba(255,45,45,.35);
+  transform:translateY(-1px);
+}
+
+/* =========================
+   MAP WRAPPER (si tu l’utilises)
+   ========================= */
+.session-map,
+.sessions-map,
+.leaflet-container { /* sécurise le rendu */
+  border-radius:14px !important;
+  border:1px solid var(--border);
+  overflow:hidden;
+  box-shadow:0 8px 22px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,45,45,.03);
+  background:var(--panel);
+}
+.session-map + .sessions-grid{ margin-top:16px; }
+
+/* =========================
+   GRID + CARDS
+   ========================= */
+.sessions-grid{
+  display:grid;
+  gap:14px;
+  grid-template-columns:repeat(auto-fit, minmax(280px,1fr));
+}
+
+/* (tes .session-card ont déjà leurs styles premium via SessionCard.css)
+   Ajout d’un léger hover ambiance pour l’ensemble du container */
+.sessions-grid .session-card{
+  transition:transform .2s ease, box-shadow .2s ease;
+}
+.sessions-grid .session-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 10px 24px rgba(0,0,0,.7), 0 0 0 1px rgba(255,45,45,.08) inset;
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+@media (max-width:480px){
+  .sessions-wrapper{ padding:24px 14px 32px; }
+  .sessions-title{ font-size:1.8rem; }
+  .sport-filters{ padding:8px; gap:8px; }
+  .sport-button{ padding:9px 14px; font-size:.9rem; }
+}
+
+
+/* src/styles/Sessions.css (ou dans SessionPage.css si tu préfères) */
+.sessions-toolbar {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  margin-bottom: 40px;
+  margin-bottom: 10px;
 }
-
-.sport-button {
-  padding: 10px 20px;
-  background-color: #1a1a1a;
-  color: white;
-  border: 1px solid #333;
-  border-radius: 20px;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.sport-button:hover {
-  background-color: #ff2d2d;
-  border-color: #ff2d2d;
-}
-
-.sport-button.active {
-  background-color: #ff2d2d;
-  color: white;
-  border: none;
-}
-
-.sessions-grid {
-  display: grid;
-  gap: 20px;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+.sessions-filters {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
 }

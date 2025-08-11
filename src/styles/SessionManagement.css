@@ -3,31 +3,31 @@
   --card: #151515;
   --muted: #9b9b9b;
   --text: #ffffff;
-  --red: #e11d2e;
+  --red: #e11d2e;   /* rouge principal */
   --red-700: #b21926;
   --line: #262626;
   --shadow: 0 8px 24px rgba(0,0,0,.35);
 }
 
-.sport-wrap { color: var(--text); }
-.sport-head {
+.adm-wrap { color: var(--text); }
+.adm-head {
   display: flex; align-items: center; justify-content: space-between;
   gap: 12px; margin: 8px 0 16px;
 }
-.sport-actions { display: flex; gap: 8px; }
+.adm-actions { display: flex; gap: 8px; }
 
-.sport-search {
+.adm-search {
   background: var(--card); color: var(--text);
   border: 1px solid var(--line);
   border-radius: 10px; padding: 10px 12px; width: 280px;
   outline: none;
 }
-.sport-search:focus { border-color: var(--red); box-shadow: 0 0 0 2px rgba(225,29,46,.2); }
+.adm-search:focus { border-color: var(--red); box-shadow: 0 0 0 2px rgba(225,29,46,.2); }
 
 .muted { color: var(--muted); margin: 10px 2px; }
 .err { color: #ff6b6b; margin: 10px 2px; }
 
-.admin-table {
+.adm-table {
   width: 100%;
   border-collapse: collapse;
   background: var(--card);
@@ -36,19 +36,19 @@
   overflow: hidden;
   box-shadow: var(--shadow);
 }
-.admin-table thead th {
+.adm-table thead th {
   background: #1b1b1b; color: var(--muted);
   text-align: left; font-weight: 600; font-size: 13px;
   padding: 12px;
   border-bottom: 1px solid var(--line);
 }
-.admin-table tbody td {
+.adm-table tbody td {
   padding: 12px; border-bottom: 1px solid var(--line);
   font-size: 14px;
 }
-.admin-table tbody tr:hover { background: #171717; }
+.adm-table tbody tr:hover { background: #171717; }
 .cell-actions { display: flex; gap: 8px; }
-.cell-ellipsis { max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cell-ellipsis { max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .btn {
   background: #1a1a1a; color: var(--text);
@@ -75,7 +75,7 @@
   display: grid; place-items: center; z-index: 50;
 }
 .modal {
-  width: 96%; max-width: 520px;
+  width: 96%; max-width: 560px;
   background: var(--card); color: var(--text);
   border: 1px solid var(--line); border-radius: 16px;
   box-shadow: var(--shadow);
@@ -86,21 +86,14 @@
 .modal label {
   display: block; margin: 10px 0 6px; color: var(--muted); font-size: 13px;
 }
-.modal input[type="text"], .modal input[type="file"] {
+.modal input, .modal select {
   width: 100%; background: #111; color: var(--text);
   border: 1px solid var(--line); border-radius: 10px;
   padding: 10px 12px; outline: none;
 }
-.modal input:focus {
+.modal input:focus, .modal select:focus {
   border-color: var(--red);
   box-shadow: 0 0 0 2px rgba(225,29,46,.2);
-}
-
-.icon-row { display: grid; gap: 8px; }
-.icon-preview { display: flex; align-items: center; gap: 10px; }
-.icon-preview img, .sport-icon {
-  width: 36px; height: 36px; object-fit: contain;
-  border-radius: 6px; border: 1px solid var(--line); background: #0f0f0f;
 }
 
 .modal-buttons {

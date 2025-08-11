@@ -1,3 +1,4 @@
+// src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import LoginPage from "./pages/Login";
@@ -23,15 +24,10 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
+          {/* ✅ Liste des sessions : PUBLIQUE */}
+          <Route path="/sessions" element={<SessionsPage />} />
+
           {/* Pages privées */}
-          <Route
-            path="/sessions"
-            element={
-              <PrivateRoute>
-                <SessionsPage />
-              </PrivateRoute>
-            }
-          />
           <Route
             path="/sessions/create"
             element={

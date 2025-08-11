@@ -13,7 +13,7 @@ export default function ProfilePage() {
   const [msg, setMsg] = useState(null);
   const [err, setErr] = useState(null);
 
-  // Avatar state
+  // Avatar
   const initialAvatar = user?.avatar_src || fallbackAvatar;
   const [avatarPreview, setAvatarPreview] = useState(initialAvatar);
   const [avatarUrlInput, setAvatarUrlInput] = useState('');
@@ -157,143 +157,142 @@ export default function ProfilePage() {
 
   return (
     <div className="profile-wrapper">
-      <div className="profile-card">
-        {/* Avatar + actions */}
-        <div className="profile-avatar">
-          <img
-            src={avatarPreview}
-            alt="Avatar"
-            className="avatar-img"
-            onError={(e) => {
-              if (e.currentTarget.src !== fallbackAvatar) {
-                e.currentTarget.src = fallbackAvatar;
-              }
-            }}
-          />
+      <div className="profile-shell">
+        <header className="profile-head">
+          <div>
+            <h1 className="profile-title">Mon profil</h1>
+            <p className="profile-subtitle">Gère ton identité et ton avatar.</p>
+          </div>
+          <div className="profile-head-actions">
+            {editing ? (
+              <>
+                <button className="profile-button outline" onClick={cancelEdit} disabled={saving}>
+                  Annuler
+                </button>
+                <button
+                  className="profile-button"
+                  onClick={onSave}
+                  disabled={saving || !dirty}
+                  title={!dirty ? "Aucun changement" : ""}
+                >
+                  {saving ? '...' : 'Sauvegarder'}
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="profile-button" onClick={startEdit}>Modifier</button>
+                <button className="profile-button outline" onClick={logout}>Se déconnecter</button>
+              </>
+            )}
+          </div>
+        </header>
 
-          {editing && (
-            <div className="avatar-actions">
-              <label className="avatar-upload-btn">
-                Uploader une image
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={onSelectFile}
-                  style={{ display: 'none' }}
-                />
-              </label>
-
-              <form onSubmit={onSetAvatarUrl} className="avatar-url-form">
-                <input
-                  type="url"
-                  placeholder="https://exemple.com/mon-image.jpg"
-                  value={avatarUrlInput}
-                  onChange={(e) => setAvatarUrlInput(e.target.value)}
-                />
-                <button type="submit" className="profile-button">Utiliser URL</button>
-              </form>
-
-              <button className="profile-button outline" onClick={onResetAvatar}>
-                Réinitialiser
-              </button>
+        <div className="profile-card two-col">
+          {/* Col gauche : avatar */}
+          <aside className="profile-avatar">
+            <div className="avatar-frame">
+              <img
+                src={avatarPreview}
+                alt="Avatar"
+                className="avatar-img"
+                onError={(e) => {
+                  if (e.currentTarget.src !== fallbackAvatar) {
+                    e.currentTarget.src = fallbackAvatar;
+                  }
+                }}
+              />
             </div>
-          )}
-        </div>
 
-        <h1 className="profile-title">Mon profil</h1>
-        <p className="profile-subtitle">Informations liées à ton compte</p>
+            {editing && (
+              <div className="avatar-actions">
+                <label className="avatar-upload-btn">
+                  Uploader une image
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={onSelectFile}
+                    style={{ display: 'none' }}
+                  />
+                </label>
 
-        <div className="profile-info">
-          {/* Username */}
-          <div className="profile-row">
-            <label className="profile-label">Identifiant</label>
-            {editing ? (
-              <input
-                className="profile-input"
-                name="username"
-                value={form.username}
-                onChange={onChange}
-                placeholder="ex: john_doe"
-                autoComplete="username"
-              />
-            ) : (
-              <span className="profile-value">@{user.username}</span>
+                <form onSubmit={onSetAvatarUrl} className="avatar-url-form">
+                  <input
+                    type="url"
+                    placeholder="https://exemple.com/mon-image.jpg"
+                    value={avatarUrlInput}
+                    onChange={(e) => setAvatarUrlInput(e.target.value)}
+                  />
+                  <button type="submit" className="profile-button">Utiliser URL</button>
+                </form>
+
+                <button className="profile-button ghost" onClick={onResetAvatar}>
+                  Réinitialiser l’avatar
+                </button>
+              </div>
             )}
-          </div>
+          </aside>
 
-          {/* First name */}
-          <div className="profile-row">
-            <label className="profile-label">Prénom</label>
-            {editing ? (
-              <input
-                className="profile-input"
-                name="first_name"
-                value={form.first_name}
-                onChange={onChange}
-                autoComplete="given-name"
-              />
-            ) : (
-              <span className="profile-value">{user.first_name}</span>
-            )}
-          </div>
+          {/* Col droite : infos */}
+          <section className="profile-info">
+            <div className="profile-row">
+              <span className="profile-label">Identifiant</span>
+              {editing ? (
+                <input
+                  className="profile-input"
+                  name="username"
+                  value={form.username}
+                  onChange={onChange}
+                  placeholder="ex: john_doe"
+                  autoComplete="username"
+                />
+              ) : (
+                <span className="profile-value">@{user.username}</span>
+              )}
+            </div>
 
-          {/* Last name */}
-          <div className="profile-row">
-            <label className="profile-label">Nom</label>
-            {editing ? (
-              <input
-                className="profile-input"
-                name="last_name"
-                value={form.last_name}
-                onChange={onChange}
-                autoComplete="family-name"
-              />
-            ) : (
-              <span className="profile-value">{user.last_name}</span>
-            )}
-          </div>
+            <div className="profile-row">
+              <span className="profile-label">Prénom</span>
+              {editing ? (
+                <input
+                  className="profile-input"
+                  name="first_name"
+                  value={form.first_name}
+                  onChange={onChange}
+                  autoComplete="given-name"
+                />
+              ) : (
+                <span className="profile-value">{user.first_name || <em>—</em>}</span>
+              )}
+            </div>
 
-          {/* Email (lecture seule) */}
-          <div className="profile-row">
-            <label className="profile-label">Email</label>
-            <span className="profile-value">{user.email}</span>
-          </div>
+            <div className="profile-row">
+              <span className="profile-label">Nom</span>
+              {editing ? (
+                <input
+                  className="profile-input"
+                  name="last_name"
+                  value={form.last_name}
+                  onChange={onChange}
+                  autoComplete="family-name"
+                />
+              ) : (
+                <span className="profile-value">{user.last_name || <em>—</em>}</span>
+              )}
+            </div>
 
-          {/* Rôle (lecture seule) */}
-          <div className="profile-row">
-            <label className="profile-label">Rôle</label>
-            <span className="profile-value">{user.role}</span>
-          </div>
+            <div className="profile-row">
+              <span className="profile-label">Email</span>
+              <span className="profile-value">{user.email}</span>
+            </div>
 
-          {msg && <p className="profile-success">{msg}</p>}
-          {err && <p className="profile-error">{err}</p>}
-        </div>
+            <div className="profile-row">
+              <span className="profile-label">Rôle</span>
+              <span className="profile-value">{user.role}</span>
+            </div>
 
-        <div className="profile-actions">
-          {editing ? (
-            <>
-              <button className="profile-button outline" onClick={cancelEdit} disabled={saving}>
-                Annuler
-              </button>
-              <button
-                className="profile-button"
-                onClick={onSave}
-                disabled={saving || !dirty}
-                title={!dirty ? "Aucun changement" : ""}
-              >
-                {saving ? '...' : 'Sauvegarder'}
-              </button>
-            </>
-          ) : (
-            <>
-              <button className="profile-button" onClick={startEdit}>
-                Modifier
-              </button>
-              <button className="profile-button outline" onClick={logout}>
-                Se déconnecter
-              </button>
-            </>
-          )}
+            {msg && <p className="profile-success">{msg}</p>}
+            {err && <p className="profile-error">{err}</p>}
+          </section>
         </div>
       </div>
     </div>

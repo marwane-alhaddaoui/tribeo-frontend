@@ -4,6 +4,7 @@ import SportFilter from "./SportFilter";
 import SessionCard from "./SessionCard";
 import "../../styles/SessionPage.css";
 import SessionMap from "../../components/SessionMap";
+import CreateSessionCTA from "../../components/CreateSessionCTA"; // 👈 NEW
 
 export default function SessionsPage() {
   const [sessions, setSessions] = useState([]);
@@ -11,12 +12,12 @@ export default function SessionsPage() {
   const [search, setSearch] = useState("");
 
   const fetchSessions = () => {
-  const filters = { is_public: true }; // 🔥 On force public pour tout le monde
-  if (selectedSport) filters.sport_id = selectedSport;
-  if (search.trim()) filters.search = search.trim();
+    const filters = { is_public: true }; // 🔥 forcer public (visiteurs OK)
+    if (selectedSport) filters.sport_id = selectedSport;
+    if (search.trim()) filters.search = search.trim();
 
-  getSessions(filters).then(setSessions).catch(console.error);
-};
+    getSessions(filters).then(setSessions).catch(console.error);
+  };
 
   useEffect(() => {
     fetchSessions();
@@ -44,22 +45,30 @@ export default function SessionsPage() {
 
   return (
     <div className="sessions-wrapper">
-      <h1 className="sessions-title">Trouve ta prochaine session sportive</h1>
+      {/* Toolbar haut de page */}
+      <div className="sessions-toolbar">
+        <h1 className="sessions-title">Trouve ta prochaine session sportive</h1>
+        {/* Bouton créer (redirige /login si visiteur, sinon /sessions/create) */}
+        <CreateSessionCTA variant="button" />
+      </div>
 
-      {/* Champ de recherche */}
-      <input
-        type="text"
-        placeholder="Rechercher une session..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="search-input"
-      />
+      {/* Barre de recherche + filtre sport */}
+      <div className="sessions-filters">
+        <input
+          type="text"
+          placeholder="Rechercher une session…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="search-input"
+        />
 
-      <SportFilter selected={selectedSport} onSelect={setSelectedSport} />
+        <SportFilter selected={selectedSport} onSelect={setSelectedSport} />
+      </div>
 
       {/* Carte des sessions */}
       <SessionMap sessions={sessions} />
 
+      {/* Grille des cartes */}
       <div className="sessions-grid">
         {Array.isArray(sessions) &&
           sessions.map((s) => (
@@ -71,6 +80,9 @@ export default function SessionsPage() {
             />
           ))}
       </div>
+
+      {/* FAB mobile / action rapide */}
+      <CreateSessionCTA variant="fab" />
     </div>
   );
 }

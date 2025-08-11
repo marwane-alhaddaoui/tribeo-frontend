@@ -1,215 +1,454 @@
 // pages/Sessions/SessionDetailPage.jsx
 import { useParams } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getSessionById, joinSession, leaveSession } from "../../api/sessionService";
-import SessionSlots from "../../components/SessionSlots"; // cf. plus bas
-import "../../components/SessionSlots.css";
+import "../../styles/SessionDetailPage.css";
 
 export default function SessionDetailPage() {
   const { id } = useParams();
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
-  // suppose que tu stockes l'email user (ex. après login)
   const currentUserEmail = useMemo(() => {
     try { return JSON.parse(localStorage.getItem("user"))?.email ?? null; } catch { return null; }
   }, []);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const { data } = await getSessionById(id);
-        setSession(data);
-      } catch (e) {
-        console.error(e);
-        setError("Impossible de charger la session.");
-      } finally {
-        setLoading(false);
-      }
-    })();
+  const refetch = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const { data } = await getSessionById(id);
+      setSession(normalizeSession(data));
+    } catch (e) {
+      console.error(e);
+      setError("Impossible de charger la session.");
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
+
+  useEffect(() => { refetch(); }, [refetch]);
+
+  const isIn = useMemo(() => {
+    if (!session || !currentUserEmail) return false;
+    return (session.participants || []).some(p => p.email === currentUserEmail);
+  }, [session, currentUserEmail]);
+
+  const full = useMemo(() => {
+    if (!session) return false;
+    const n = Array.isArray(session.participants) ? session.participants.length : 0;
+    return n >= (session.max_players || 0);
+  }, [session]);
 
   const handleJoin = async () => {
     if (!currentUserEmail) return alert("Connecte-toi pour rejoindre.");
+    if (busy || full || isIn) return;
+    setBusy(true);
     try {
-      // Optimistic UI (ajoute l'email si place dispo)
+      // Optimistic UI: on pousse un objet minimal (API corrigera au refetch)
       setSession(prev => {
         if (!prev) return prev;
-        const alreadyIn = (prev.participants || []).includes(currentUserEmail);
-        const full = (prev.participants?.length || 0) >= (prev.max_players || 0);
-        if (alreadyIn || full) return prev;
-        return {
-          ...prev,
-          participants: [...(prev.participants || []), currentUserEmail],
-          available_slots: Math.max((prev.available_slots ?? 0) - 1, 0),
+        if ((prev.participants || []).some(p => p.email === currentUserEmail)) return prev;
+        if ((prev.participants?.length || 0) >= (prev.max_players || 0)) return prev;
+        const me = {
+          id: currentUserEmail,
+          email: currentUserEmail,
+          username: usernameFromEmail(currentUserEmail),
+          avatar_url: null,
         };
+        return { ...prev, participants: [...(prev.participants || []), me] };
       });
-      await joinSession(id); // POST /sessions/:id/join
+      await joinSession(id);
     } catch (e) {
-      // rollback simple: refetch
-      const { data } = await getSessionById(id);
-      setSession(data);
-      alert("Impossible de rejoindre (session pleine ou autre règle).");
+      console.error(e);
+      await refetch();
+      alert("Impossible de rejoindre.");
+    } finally {
+      setBusy(false);
     }
   };
 
   const handleLeave = async () => {
-    if (!currentUserEmail) return;
+    if (!currentUserEmail || busy || !isIn) return;
+    setBusy(true);
     try {
       setSession(prev => {
         if (!prev) return prev;
-        return {
-          ...prev,
-          participants: (prev.participants || []).filter(p => p !== currentUserEmail),
-          available_slots: (prev.available_slots ?? 0) + 1,
-        };
+        return { ...prev, participants: (prev.participants || []).filter(p => p.email !== currentUserEmail) };
       });
-      await leaveSession(id); // POST /sessions/:id/leave
+      await leaveSession(id);
     } catch (e) {
-      const { data } = await getSessionById(id);
-      setSession(data);
+      console.error(e);
+      await refetch();
       alert("Impossible de quitter.");
+    } finally {
+      setBusy(false);
     }
   };
 
-  if (loading) return <p className="text-center mt-10">Chargement...</p>;
-  if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
+  if (loading) return <p className="session-loading">Chargement…</p>;
+  if (error) return (
+    <div className="session-error">
+      <p className="session-error-text">{error}</p>
+      <button onClick={refetch} className="session-detail-button">Réessayer</button>
+    </div>
+  );
   if (!session) return null;
 
   const dateStr = fmtDate(session.date, session.start_time);
-  const isIn = (session.participants || []).includes(currentUserEmail);
+  const countdown = toCountdown(session.date, session.start_time);
 
-  // Construire les "slots visuels" à partir des participants (emails) + max_players
-  const slots = toSlots(session.participants, session.max_players, currentUserEmail);
+  const capacity = session.max_players || 0;
+  const count = Array.isArray(session.participants) ? session.participants.length : 0;
+  const remaining = Math.max(capacity - count, 0);
+
+  const teamCount = Number(session.team_count) > 0 ? Number(session.team_count) : (session.team_mode ? 2 : 1);
+  const perTeam = Math.max(1, Math.floor(capacity / Math.max(teamCount, 1)));
+
+  // participants -> objets {id,email,username,avatar,isMe}
+  const participantObjs = mapParticipants(session.participants, currentUserEmail);
+
+  // build teams (lignes d’équipes)
+  const teams = buildTeams(participantObjs, teamCount, perTeam);
+
+  // créateur (objet direct)
+  const creator = session.creator || { username: "—", avatar_url: null };
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <header className="space-y-2">
-        <h1 className="text-2xl font-bold">{session.title}</h1>
+    <div className="session-detail-wrapper">
+      <div className="session-detail-grid">
+        {/* Colonne gauche — Aperçu & actions */}
+        <section className="session-col-left">
+          <header className="session-header">
+            <div className="session-header-top">
+              <h1 className="session-detail-title">{session.title}</h1>
+              <div className="session-badges">
+                {isFull(count, capacity) && <span className="session-badge session-badge-red">Complet</span>}
+                {session.visibility && String(session.visibility).toLowerCase() !== "public" && (
+                  <span className="session-badge">Privée</span>
+                )}
+                {session.format && <span className="session-badge session-badge-outline">{prettyFormat(session.format)}</span>}
+              </div>
+            </div>
 
-        <div className="flex flex-wrap gap-3 text-gray-400">
-          <Meta label="Sport" value={session.sport?.name ?? "—"} />
-          <Meta label="Lieu" value={session.location ?? "—"} />
-          <Meta label="Date" value={dateStr ?? "—"} />
-          <Meta label="Capacité" value={`${session.max_players ?? 0} places`} />
-          <Meta label="Restant" value={`${session.available_slots ?? Math.max((session.max_players||0) - (session.participants?.length||0), 0)}`} />
-          {session.visibility && <Meta label="Visibilité" value={session.visibility} />}
-          {session.format && <Meta label="Format" value={session.format} />}
-        </div>
+            <div className="meta-list">
+              <Meta
+                label="Créateur"
+                value={
+                  <span className="meta-with-avatar">
+                    <img
+                      src={creator.avatar_url || dicebearAvatar(creator.username)}
+                      alt={creator.username}
+                      className="meta-avatar"
+                      referrerPolicy="no-referrer"
+                    />
+                    <span>{creator.username}</span>
+                  </span>
+                }
+              />
+              <Meta label="Sport" value={session.sport?.name ?? "—"} />
+              <Meta label="Lieu" value={session.location ?? "—"} />
+              <Meta label="Date" value={dateStr ?? "—"} />
+              <Meta label="Capacité" value={`${capacity} places`} />
+              <Meta label="Restant" value={`${remaining}`} />
+              {countdown && <Meta label="Début dans" value={countdown} />}
+            </div>
 
-        <div className="flex gap-8 items-center mt-2">
-          {!isIn ? (
-            <button
-              onClick={handleJoin}
-              className="px-4 py-2 rounded-md border border-[#ff2d2d] text-white hover:bg-[#ff2d2d] transition"
-              disabled={(session.participants?.length || 0) >= (session.max_players || 0)}
-            >
-              Rejoindre
-            </button>
-          ) : (
-            <button
-              onClick={handleLeave}
-              className="px-4 py-2 rounded-md border border-[#2a2a2a] text-white hover:bg-[#151515] transition"
-            >
-              Quitter
-            </button>
+            {/* Barre de capacité */}
+            <div className="capacity-bar">
+              <div
+                className="capacity-bar-fill"
+                style={{ width: `${capacity ? Math.min(100, Math.round((count / capacity) * 100)) : 0}%` }}
+              />
+            </div>
+
+            {/* Actions */}
+            <div className="session-actions">
+              {!isIn ? (
+                <button
+                  onClick={handleJoin}
+                  className="session-detail-button"
+                  disabled={busy || full}
+                >
+                  Rejoindre
+                </button>
+              ) : (
+                <button
+                  onClick={handleLeave}
+                  className="session-secondary-btn"
+                  disabled={busy}
+                >
+                  Quitter
+                </button>
+              )}
+
+              <button onClick={refetch} className="session-secondary-btn">Rafraîchir</button>
+              <button onClick={() => copyInvite(id)} className="session-secondary-btn">Copier lien</button>
+
+              {session.location && (
+                <a
+                  className="session-secondary-btn"
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(session.location)}`}
+                  target="_blank" rel="noreferrer"
+                >
+                  Ouvrir dans Maps
+                </a>
+              )}
+            </div>
+          </header>
+
+          {/* Description */}
+          {session.description && (
+            <div className="session-desc">
+              <h2 className="session-section-title">Description</h2>
+              <p className="session-desc-text">{session.description}</p>
+            </div>
           )}
-        </div>
-      </header>
-
-      {/* Slots visuels : auto-assign (click = join/leave) */}
-      <section>
-        <SessionSlots
-          sport={(session.sport?.slug || session.sport?.name || "generic").toLowerCase()}
-          mode={mapFormatToMode(session.format, session.team_mode)}
-          capacity={session.max_players}
-          slots={slots}
-          currentUserId={currentUserEmail}        // ici on utilise l'email comme id
-          onJoin={() => handleJoin()}             // click sur un slot vide => join()
-          onLeave={() => handleLeave()}           // click sur ton slot => leave()
-        />
-      </section>
-
-      {/* Participants (emails) */}
-      <section className="space-y-2">
-        <h2 className="text-xl font-semibold">Participants</h2>
-        {Array.isArray(session.participants) && session.participants.length ? (
-          <ul className="grid gap-2">
-            {session.participants.map((email) => (
-              <li key={email} className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full border border-[#2a2a2a] grid place-items-center text-sm">
-                  {initials(email)}
-                </div>
-                <span className="text-gray-100">{email}</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-500">Aucun participant pour le moment.</p>
-        )}
-      </section>
-
-      {/* Description */}
-      {session.description && (
-        <section className="prose prose-invert max-w-none">
-          <h2>Description</h2>
-          <p>{session.description}</p>
         </section>
-      )}
+
+        {/* Colonne droite — Équipes & Participants */}
+        <section className="session-col-right">
+          {/* Bouton Quitter dédié (optionnel) */}
+          {isIn && (
+            <div className="team-actions">
+              <button className="session-secondary-btn session-danger" onClick={handleLeave}>
+                Quitter la session
+              </button>
+            </div>
+          )}
+
+          {/* Board d’équipes : lignes par équipe + VS */}
+          <TeamBoard
+            teams={teams}
+            perTeam={perTeam}
+            onClickEmpty={() => handleJoin()}
+            onClickMine={() => handleLeave()}
+          />
+
+          {/* Liste participants (usernames only) */}
+          <div className="session-participants">
+            <h2 className="session-section-title">Participants</h2>
+            {participantObjs.length ? (
+              <div className="participants-row">
+                {participantObjs.map(u => (
+                  <div key={u.id} className="participant-chip">
+                    <img
+                      src={u.avatar}
+                      alt={u.username}
+                      className="participant-avatar"
+                      referrerPolicy="no-referrer"
+                    />
+                    <span className="participant-username">{u.username}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="session-empty">Aucun participant pour le moment.</p>
+            )}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
 
-/* ---------- UI bits ---------- */
+/* ====================== TEAM BOARD ====================== */
+function TeamBoard({ teams, perTeam, onClickEmpty, onClickMine }) {
+  if (!Array.isArray(teams) || !teams.length) return null;
+
+  const pairs = [];
+  for (let i = 0; i < teams.length; i += 2) {
+    pairs.push(teams.slice(i, i + 2));
+  }
+
+  return (
+    <div className="team-board">
+      {pairs.map((pair, idx) => (
+        <div key={idx} className="team-pair">
+          <TeamRow
+            teamIndex={idx * 2}
+            users={pair[0] || []}
+            perTeam={perTeam}
+            onClickEmpty={onClickEmpty}
+            onClickMine={onClickMine}
+          />
+
+          <div className="team-vs">VS</div>
+
+          <TeamRow
+            teamIndex={idx * 2 + 1}
+            users={pair[1] || []}
+            perTeam={perTeam}
+            onClickEmpty={onClickEmpty}
+            onClickMine={onClickMine}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TeamRow({ teamIndex, users, perTeam, onClickEmpty, onClickMine }) {
+  const slots = Array.from({ length: perTeam }, (_, i) => users[i] || null);
+
+  return (
+    <div className="team-row">
+      <span className="team-label">Équipe {teamIndex + 1}</span>
+      <div className="team-slots">
+        {slots.map((u, i) =>
+          u ? (
+            <SlotBubble
+              key={i}
+              avatar={u.avatar}
+              label={u.username}
+              isMe={u.isMe}
+              onClick={() => (u.isMe ? onClickMine?.() : null)}
+            />
+          ) : (
+            <EmptySlot key={i} onClick={() => onClickEmpty?.()} />
+          )
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SlotBubble({ avatar, label, isMe, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`slot-bubble${isMe ? " slot-bubble-me" : ""}`}
+      title={label}
+    >
+      <img src={avatar} alt={label} className="slot-avatar" referrerPolicy="no-referrer" />
+      <span className="slot-label">{label}</span>
+    </button>
+  );
+}
+
+function EmptySlot({ onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className="slot-empty"
+      title="Rejoindre ce slot"
+    >
+      +
+    </button>
+  );
+}
+
+/* ====================== UI Helpers ====================== */
 function Meta({ label, value }) {
   return (
-    <span className="inline-flex items-center gap-2">
-      <span className="text-gray-500">{label} :</span>
-      <span className="text-gray-200">{value ?? "—"}</span>
+    <span className="meta-item">
+      <span className="meta-label">{label} :</span>
+      <span className="meta-value">{value ?? "—"}</span>
     </span>
   );
 }
 
-function initials(emailOrName = "") {
-  const s = String(emailOrName);
-  if (s.includes("@")) return s[0].toUpperCase();
-  return s.split(/\s+/).map(w => w[0]?.toUpperCase() || "").join("").slice(0,2) || "U";
+/* ====================== Data Mapping ====================== */
+function mapParticipants(participants = [], currentUserEmail = null) {
+  return (participants || []).map(u => {
+    // u est déjà {id, email, username, avatar_url}
+    const username = u.username || usernameFromEmail(u.email);
+    const avatar = u.avatar_url || dicebearAvatar(username);
+    return {
+      id: u.id ?? u.email,
+      email: u.email,
+      username,
+      avatar,
+      isMe: u.email === currentUserEmail,
+    };
+  });
 }
 
+function buildTeams(users = [], teamCount = 2, perTeam = 1) {
+  const teams = Array.from({ length: teamCount }, () => []);
+  let ti = 0;
+  users.forEach(u => {
+    if (teams[ti].length < perTeam) {
+      teams[ti].push(u);
+    } else {
+      let placed = false;
+      for (let k = 0; k < teamCount; k++) {
+        if (teams[k].length < perTeam) {
+          teams[k].push(u);
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) {
+        // toutes pleines: ignore ou gérer autrement
+      }
+    }
+    ti = (ti + 1) % teamCount;
+  });
+  return teams;
+}
+
+/* ====================== Utils ====================== */
+function isFull(count, total) { return total ? count >= total : false; }
+function usernameFromEmail(email) {
+  const s = String(email || "");
+  if (!s.includes("@")) return s || "user";
+  return s.split("@")[0] || "user";
+}
+function dicebearAvatar(seed) {
+  const s = encodeURIComponent(String(seed || "user"));
+  return `https://api.dicebear.com/7.x/initials/svg?seed=${s}`;
+}
 function fmtDate(date, time) {
   try {
-    // si tu stockes séparé: date (YYYY-MM-DD) + start_time (HH:MM:SS)
     const iso = date ? `${date}${time ? "T"+time : ""}` : null;
     const d = iso ? new Date(iso) : (date ? new Date(date) : null);
-    return d ? d.toLocaleString() : null;
+    return d ? d.toLocaleString(undefined, {
+      weekday: "short", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit"
+    }) : null;
   } catch { return null; }
 }
-
-/* ---------- mapping & slots ---------- */
-function mapFormatToMode(format, team_mode) {
-  // adapte si tu as des valeurs d’enum différentes
-  // VERSUS_1V1 → "1v1", VERSUS_TEAM → "5v5" (ou selon max_players), SOLO/FFA -> "solo"/"ffa"
-  if (!format) return team_mode ? "5v5" : "solo";
-  const f = String(format).toLowerCase();
-  if (f.includes("1v1")) return "1v1";
-  if (f.includes("versus")) return team_mode ? "5v5" : "ffa";
-  if (f.includes("solo")) return "solo";
-  if (f.includes("ffa")) return "ffa";
-  return team_mode ? "5v5" : "solo";
+function toCountdown(date, time) {
+  try {
+    const iso = date ? `${date}${time ? "T"+time : ""}` : null;
+    if (!iso) return null;
+    const target = new Date(iso).getTime();
+    const now = Date.now();
+    const diff = target - now;
+    if (diff <= 0) return "en cours / passé";
+    const h = Math.floor(diff / (1000 * 60 * 60));
+    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    return h ? `${h}h${m.toString().padStart(2,"0")}` : `${m} min`;
+  } catch { return null; }
 }
-
-function toSlots(participants, max, currentUserEmail) {
-  const total = Number(max) || 0;
-  const arr = Array.from({ length: total }, (_, i) => ({ index: i, user: null }));
-  const list = Array.isArray(participants) ? participants.slice(0, total) : [];
-  for (let i = 0; i < list.length; i++) {
-    const email = list[i];
-    arr[i] = {
-      index: i,
-      user: { id: email, name: email, avatar: null, isMe: email === currentUserEmail },
-    };
-  }
-  return arr;
+function prettyFormat(format) {
+  try { return String(format).replaceAll("_", " ").replace(/\b\w/g, c => c.toUpperCase()); }
+  catch { return format; }
+}
+function copyInvite(id) {
+  const url = `${window.location.origin}/sessions/${id}`;
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(url).then(() => alert("Lien copié !")).catch(() => fallbackCopy(url));
+  } else fallbackCopy(url);
+}
+function fallbackCopy(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand("copy");
+  document.body.removeChild(ta);
+  alert("Lien copié !");
+}
+function normalizeSession(s) {
+  return {
+    ...s,
+    participants: Array.isArray(s?.participants) ? s.participants : [],
+    max_players: Number(s?.max_players) || 0,
+    team_count: Number(s?.team_count) || (s?.team_mode ? 2 : 1),
+    creator: s?.creator || null,
+    team_mode: !!s?.team_mode,
+  };
 }

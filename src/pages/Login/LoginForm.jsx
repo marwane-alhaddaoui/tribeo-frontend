@@ -1,24 +1,22 @@
 import { useState } from 'react';
 
 export default function LoginForm({ onSubmit }) {
-  const [identifier, setIdentifier] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(identifier.trim(), password);
+    onSubmit(email, password);
   };
 
   return (
     <form onSubmit={handleSubmit} className="login-form">
       <div className="input-group">
-        <label>Email ou username</label>
+        <label>Email</label>
         <input
-          type="text"
-          value={identifier}
-          onChange={(e) => setIdentifier(e.target.value)}
-          placeholder="email ou @username"
-          autoComplete="username"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
       </div>
@@ -29,8 +27,6 @@ export default function LoginForm({ onSubmit }) {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="••••••••"
-          autoComplete="current-password"
           required
         />
       </div>

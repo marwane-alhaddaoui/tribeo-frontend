@@ -1,0 +1,60 @@
+/* src/components/sessions/createSessionCta.css */
+
+/* Bouton barre (en haut de page) */
+.btn-create-session {
+  background: #ff2d2d;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter .15s ease, transform .15s ease;
+}
+.btn-create-session:hover { filter: brightness(1.06); }
+.btn-create-session:active { transform: translateY(1px); }
+
+/* État visiteur : grisé + cadenas (reste cliquable pour login) */
+.btn-create-session.is-visitor {
+  background: #2a2a2a;
+  color: #bdbdbd;
+  cursor: pointer;            /* on garde cliquable pour rediriger */
+  border: 1px solid #333;
+}
+.btn-create-session.is-visitor:hover {
+  filter: none;               /* pas de highlight au hover en visiteur */
+}
+
+/* FAB en bas à droite */
+.fab-create-session {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  width: 54px;
+  height: 54px;
+  border-radius: 999px;
+  border: 1px solid #ff2d2d;
+  background: #ff2d2d;
+  color: #fff;
+  font-size: 28px;
+  line-height: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(255,45,45,.25);
+  z-index: 30;
+  transition: transform .15s ease, filter .15s ease;
+}
+.fab-create-session:hover { transform: translateY(-1px); }
+
+/* FAB visiteur grisé */
+.fab-create-session.is-visitor {
+  background: #2a2a2a;
+  border-color: #333;
+  color: #bdbdbd;
+  box-shadow: 0 10px 20px rgba(0,0,0,.25);
+}
+.fab-create-session.is-visitor:hover { transform: none; }
+
+/* éviter que le FAB masque le bas de page */
+.sessions-page, .sessions-wrapper { padding-bottom: 80px; }

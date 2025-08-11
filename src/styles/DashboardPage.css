@@ -1,78 +1,193 @@
-body {
-  background-color: #121212;
-  color: white;
-  font-family: 'Segoe UI', sans-serif;
+/* =========================
+   THEME
+   ========================= */
+:root{
+  --bg:#121212;
+  --panel:#1a1a1a;
+  --panel-2:#151516;
+  --border:#262728;
+  --text:#ffffff;
+  --muted:#cfcfcf;
+  --accent:#ff2d2d;
 }
 
-.dashboard-wrapper {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 40px 20px;
+body{
+  background-color:var(--bg);
+  color:var(--text);
+  font-family:'Segoe UI',sans-serif;
 }
 
-.dashboard-title {
-  font-size: 2.5rem;
-  text-align: center;
-  margin-bottom: 30px;
+/* =========================
+   WRAPPER + TITRES
+   ========================= */
+.dashboard-wrapper{
+  max-width:1200px;
+  margin:0 auto;
+  padding:32px 20px 40px;
 }
 
-.dashboard-section {
-  margin-bottom: 50px;
+.dashboard-title{
+  font-size:2.2rem;
+  text-align:center;
+  margin-bottom:22px;
+  letter-spacing:.3px;
+  color:var(--text);
+  text-shadow:0 0 16px rgba(255,45,45,0.08);
 }
 
-.dashboard-subtitle {
-  font-size: 1.8rem;
-  margin-bottom: 20px;
-  text-align: left;
+/* topbar optionnelle (si tu l’ajoutes plus tard) */
+.dash-topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  background:
+    linear-gradient(180deg, rgba(255,45,45,.06), rgba(255,45,45,0) 66%),
+    var(--panel-2);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px 18px;
+  box-shadow:0 6px 20px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,45,45,.04);
+  margin-bottom:18px;
 }
 
-.dashboard-grid {
-  display: grid;
-  gap: 20px;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+/* =========================
+   SECTIONS
+   ========================= */
+.dashboard-section{
+  margin-bottom:32px;
+  padding:16px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:
+    linear-gradient(180deg, rgba(255,45,45,.03), rgba(255,45,45,0) 70%),
+    var(--panel);
+  box-shadow:0 8px 22px rgba(0,0,0,.4), inset 0 0 0 1px rgba(255,45,45,.03);
 }
 
-.dashboard-card {
-  background-color: #1a1a1a;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+.dashboard-subtitle{
+  font-size:1.25rem;
+  margin:4px 0 12px;
+  color:#eaeaea;
+  display:flex;
+  align-items:center;
+  gap:8px;
 }
 
-.dashboard-card h3 {
-  font-size: 1.5rem;
-  margin-bottom: 10px;
-  color: #ff2d2d;
+/* petit soulignement discret */
+.dashboard-subtitle::after{
+  content:"";
+  flex:1;
+  height:1px;
+  margin-left:8px;
+  background:linear-gradient(90deg, rgba(255,45,45,.35), transparent 70%);
+  border-radius:999px;
 }
 
-.dashboard-card p {
-  font-size: 0.95rem;
-  margin: 4px 0;
-  color: #ccc;
+/* =========================
+   GRILLES
+   ========================= */
+.dashboard-grid,
+.sessions-grid{ /* on harmonise avec la page sessions */
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(280px,1fr));
+  gap:14px;
 }
 
-.dashboard-link {
-  margin-top: 12px;
-  padding: 10px 16px;
-  background-color: #ff2d2d;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  text-align: center;
-  text-decoration: none;
-  transition: background-color 0.3s ease;
+/* =========================
+   CARDS (fallback au cas où tu utilises encore .dashboard-card)
+   ========================= */
+.dashboard-card{
+  background:
+    linear-gradient(180deg, rgba(255,45,45,.05) 0%, rgba(255,45,45,0) 100%),
+    var(--panel);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:18px;
+  box-shadow:0 6px 16px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,45,45,.04);
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  transition:transform .2s ease, box-shadow .2s ease;
+}
+.dashboard-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 10px 24px rgba(0,0,0,.7), 0 0 0 1px rgba(255,45,45,.08) inset;
 }
 
-.dashboard-link:hover {
-  background-color: #e02525;
+.dashboard-card h3{
+  font-size:1.15rem;
+  margin:6px 0 8px;
+  color:var(--text);
+}
+.dashboard-card h3:hover{ color:var(--accent); }
+
+.dashboard-card p{
+  font-size:.95rem;
+  margin:4px 0;
+  color:var(--muted);
 }
 
-.dashboard-empty {
-  font-style: italic;
-  color: #888;
-  text-align: center;
+/* =========================
+   BOUTONS/LINKS
+   ========================= */
+.dashboard-link{
+  margin-top:12px;
+  padding:10px 16px;
+  background-color:transparent;
+  color:var(--accent);
+  border:1px solid var(--accent);
+  border-radius:10px;
+  font-weight:700;
+  text-align:center;
+  text-decoration:none;
+  transition:all .25s ease;
+}
+.dashboard-link:hover{
+  background-color:var(--accent);
+  color:#fff;
+  box-shadow:0 0 10px rgba(255,45,45,0.35);
+}
+.dashboard-link:active{ transform:translateY(1px); }
+
+/* =========================
+   EMPTY STATES
+   ========================= */
+.dashboard-empty{
+  font-style:italic;
+  color:#9a9a9a;
+  text-align:center;
+  padding:8px 0;
+}
+
+/* =========================
+   STATS (optionnel si tu ajoutes un bloc stats)
+   ========================= */
+.dash-stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(180px,1fr));
+  gap:12px;
+  margin:0 0 14px;
+}
+.stat-card{
+  background:var(--panel-2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px 14px;
+  box-shadow:0 4px 12px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,45,45,.03);
+}
+.stat-number{
+  font-size:1.4rem; font-weight:800; color:#fff; letter-spacing:.3px;
+}
+.stat-label{
+  font-size:.85rem; color:#bdbdbd; margin-top:2px;
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+@media (max-width:480px){
+  .dashboard-wrapper{ padding:24px 14px 32px; }
+  .dashboard-title{ font-size:1.8rem; }
+  .dashboard-section{ padding:12px; }
 }
