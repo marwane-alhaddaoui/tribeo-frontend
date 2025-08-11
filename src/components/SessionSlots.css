@@ -1,0 +1,16 @@
+.slots-wrap { display: grid; gap: 12px; }
+.field { position: relative; background: #0f0f0f; border: 1px solid #2a2a2a; border-radius: 12px; padding: 18px; min-height: 260px; }
+.slot { width: 48px; height: 48px; border-radius: 999px; border: 2px dashed #ff2d2d; background: transparent; color: #fff; display: grid; place-items: center; font-weight: 600; transition: transform .12s ease, background .12s ease, border-color .12s ease; }
+.slot:hover { transform: scale(1.06); border-color: #ff5252; }
+.slot.filled { border-style: solid; background: #151515; }
+.slot.mine { border-color: #ff2d2d; box-shadow: 0 0 0 2px rgba(255,45,45,.25) inset; }
+.slot img { width: 100%; height: 100%; border-radius: 999px; object-fit: cover; }
+.legend { display: flex; gap: 16px; align-items: center; color: #ccc; font-size: 14px; }
+.legend .dot { width: 12px; height: 12px; border-radius: 999px; display: inline-block; }
+.legend .empty { border: 2px dashed #ff2d2d; }
+.legend .filled { background: #ff2d2d; }
+.legend .mine { outline: 2px solid #ff2d2d; }
+.slots-grid .field { display: grid; grid-template-columns: repeat(auto-fit, minmax(48px, 1fr)); gap: 14px; }
+.slots-line .field { display: flex; flex-wrap: wrap; gap: 14px; }
+.slots-circle .field { display: grid; place-items: center; }
+.slots-half .field { display: grid; grid-template-columns: repeat(10, 1fr); grid-auto-rows: 56px; gap: 6px; }

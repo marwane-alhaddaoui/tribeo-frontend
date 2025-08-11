@@ -1,41 +1,81 @@
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useMemo } from 'react';
 import { loginUser, getProfile } from '../api/authService';
 import { saveToken, getToken, clearToken } from '../utils/storage';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
   const [token, setToken] = useState(getToken());
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Bootstrap session on mount / token change
   useEffect(() => {
-    if (token) {
-      getProfile()
-        .then((res) => setUser(res.data))
-        .catch(() => logout());
-    }
-    setLoading(false);
+    let alive = true;
+
+    const init = async () => {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const res = await getProfile();
+        if (!alive) return;
+        setUser(res.data);
+      } catch {
+        // token invalide → purge + reset
+        logout();
+      } finally {
+        if (alive) setLoading(false);
+      }
+    };
+
+    setLoading(true);
+    init();
+    return () => {
+      alive = false;
+    };
   }, [token]);
 
-  const login = async (email, password) => {
-    const res = await loginUser({ email, password });
-    if (res.data.access) {
-      saveToken(res.data.access);
-      setToken(res.data.access);  // ✅ MAJ immédiate du state
+  // Login avec un seul champ "identifier" (email OU username)
+  const login = async (identifier, password) => {
+  try {
+    const res = await loginUser({ identifier, password });
+    const access = res?.data?.access ?? res?.data?.token;
+    if (access) {
+      saveToken(access);
+      setToken(access);
       const profile = await getProfile();
       setUser(profile.data);
     }
-  };
+    return res;
+  } catch (err) {
+    console.error('LOGIN 400 ->', err.response?.data || err.message);
+    throw err;
+  }
+};
 
   const logout = () => {
     clearToken();
-    setToken(null);
     setUser(null);
+    setToken(null);
   };
 
+  const value = useMemo(
+    () => ({
+      user,
+      token,
+      loading,
+      login,
+      logout,
+      setUser, // utile après update profil
+      isAuthenticated: Boolean(user && token),
+    }),
+    [user, token, loading]
+  );
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={value}>
       {!loading && children}
     </AuthContext.Provider>
   );
