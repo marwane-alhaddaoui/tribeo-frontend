@@ -25,3 +25,22 @@ export const getProfile = () => {
 export const updateMe = (partial) => {
   return axiosClient.patch('/auth/profile/', partial);
 };
+
+
+// --- Avatar helpers ---
+// Upload d'un fichier (FormData)
+export const uploadAvatar = (file) => {
+  const fd = new FormData();
+  fd.append('avatar', file);
+  return axiosClient.patch('/auth/profile/', fd); // multipart auto via axiosClient
+};
+
+// Définir une URL distante comme avatar
+export const setAvatarUrl = (url) => {
+  return axiosClient.patch('/auth/profile/', { avatar_url: String(url || '').trim() });
+};
+
+// Réinitialiser l'avatar (revient au logo par défaut envoyé par l'API via avatar_src)
+export const resetAvatar = () => {
+  return axiosClient.patch('/auth/profile/', { avatar: null, avatar_url: null });
+};

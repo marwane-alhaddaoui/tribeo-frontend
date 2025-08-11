@@ -1,6 +1,7 @@
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { updateMe } from '../../api/authService';
+import fallbackAvatar from '../../assets/avatar.png';
 import '../../styles/ProfilePage.css';
 
 const USERNAME_RX = /^[a-z0-9_]{3,20}$/;
@@ -12,11 +13,16 @@ export default function ProfilePage() {
   const [msg, setMsg] = useState(null);
   const [err, setErr] = useState(null);
 
+  // Avatar state
+  const initialAvatar = user?.avatar_src || fallbackAvatar;
+  const [avatarPreview, setAvatarPreview] = useState(initialAvatar);
+  const [avatarUrlInput, setAvatarUrlInput] = useState('');
+
+  // Form profil
   const [form, setForm] = useState(() => ({
     username: user?.username || '',
     first_name: user?.first_name || '',
     last_name: user?.last_name || '',
-    // email en lecture seule côté backend -> on ne l'édite pas ici
   }));
 
   const dirty = useMemo(() => {
@@ -27,6 +33,10 @@ export default function ProfilePage() {
       form.last_name !== (user.last_name || '')
     );
   }, [form, user]);
+
+  useEffect(() => {
+    setAvatarPreview(user?.avatar_src || fallbackAvatar);
+  }, [user]);
 
   if (!user) return <div className="profile-loading">Chargement...</div>;
 
@@ -47,16 +57,70 @@ export default function ProfilePage() {
 
   const cancelEdit = () => {
     setMsg(null); setErr(null);
+    setAvatarPreview(user?.avatar_src || fallbackAvatar);
+    setAvatarUrlInput('');
     setEditing(false);
   };
 
+  // ---- Avatar handlers ----
+  const onSelectFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarPreview(URL.createObjectURL(file));
+    setMsg(null); setErr(null);
+    try {
+      const fd = new FormData();
+      fd.append('avatar', file);
+      const { data } = await updateMe(fd);
+      setUser?.(data);
+      setAvatarPreview(data.avatar_src || fallbackAvatar);
+      setMsg('Avatar mis à jour ✅');
+      setAvatarUrlInput('');
+    } catch {
+      setErr('Upload impossible');
+      setAvatarPreview(user?.avatar_src || fallbackAvatar);
+    } finally {
+      e.target.value = '';
+    }
+  };
+
+  const onSetAvatarUrl = async (e) => {
+    e.preventDefault();
+    const url = avatarUrlInput.trim();
+    if (!url) return;
+    setMsg(null); setErr(null);
+    try {
+      const { data } = await updateMe({ avatar_url: url });
+      setUser?.(data);
+      setAvatarPreview(data.avatar_src || fallbackAvatar);
+      setMsg('Avatar URL enregistré ✅');
+      setAvatarUrlInput('');
+    } catch (error) {
+      const api = error?.response?.data || {};
+      setErr(api.avatar_url?.[0] || api.detail || 'URL invalide ou non acceptée');
+    }
+  };
+
+  const onResetAvatar = async () => {
+    setMsg(null); setErr(null);
+    try {
+      const { data } = await updateMe({ avatar: null, avatar_url: null });
+      setUser?.(data);
+      setAvatarPreview(data.avatar_src || fallbackAvatar);
+      setMsg('Avatar réinitialisé ✅');
+      setAvatarUrlInput('');
+    } catch {
+      setErr('Impossible de réinitialiser');
+    }
+  };
+
+  // ---- Sauvegarde profil ----
   const onSave = async (e) => {
     e?.preventDefault?.();
     setSaving(true);
     setMsg(null);
     setErr(null);
 
-    // validations
     const u = form.username.trim().toLowerCase();
     if (!USERNAME_RX.test(u)) {
       setSaving(false);
@@ -94,6 +158,48 @@ export default function ProfilePage() {
   return (
     <div className="profile-wrapper">
       <div className="profile-card">
+        {/* Avatar + actions */}
+        <div className="profile-avatar">
+          <img
+            src={avatarPreview}
+            alt="Avatar"
+            className="avatar-img"
+            onError={(e) => {
+              if (e.currentTarget.src !== fallbackAvatar) {
+                e.currentTarget.src = fallbackAvatar;
+              }
+            }}
+          />
+
+          {editing && (
+            <div className="avatar-actions">
+              <label className="avatar-upload-btn">
+                Uploader une image
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={onSelectFile}
+                  style={{ display: 'none' }}
+                />
+              </label>
+
+              <form onSubmit={onSetAvatarUrl} className="avatar-url-form">
+                <input
+                  type="url"
+                  placeholder="https://exemple.com/mon-image.jpg"
+                  value={avatarUrlInput}
+                  onChange={(e) => setAvatarUrlInput(e.target.value)}
+                />
+                <button type="submit" className="profile-button">Utiliser URL</button>
+              </form>
+
+              <button className="profile-button outline" onClick={onResetAvatar}>
+                Réinitialiser
+              </button>
+            </div>
+          )}
+        </div>
+
         <h1 className="profile-title">Mon profil</h1>
         <p className="profile-subtitle">Informations liées à ton compte</p>
 

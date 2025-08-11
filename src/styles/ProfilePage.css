@@ -120,3 +120,82 @@ body {
   font-size: 0.95rem;
   text-align: center;
 }
+
+
+/* Avatar bloc */
+.profile-avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.avatar-img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #ff2d2d;
+}
+
+.avatar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.avatar-upload-btn {
+  cursor: pointer;
+  background: #ff2d2d;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 6px;
+  text-align: center;
+  transition: background-color 0.3s;
+}
+
+.avatar-upload-btn:hover {
+  background-color: #e02525;
+}
+
+.avatar-url-form {
+  display: flex;
+  gap: 8px;
+}
+
+.avatar-url-form input {
+  flex: 1;
+  padding: 10px 12px;
+  background: #111;
+  border: 1px solid #2a2a2a;
+  color: #fff;
+  border-radius: 8px;
+  outline: none;
+}
+
+.avatar-url-form input:focus {
+  border-color: #ff2d2d;
+  box-shadow: 0 0 0 3px rgba(255,45,45,0.15);
+}
+
+/* Déjà présents mais rappel utile si tu as écrasé */
+.profile-row { display: flex; flex-direction: column; }
+.profile-label { color: #bbb; font-size: 0.95rem; margin-bottom: 5px; }
+.profile-value { color: #eee; font-weight: 500; }
+.profile-input {
+  width: 100%;
+  padding: 10px 12px;
+  background: #111;
+  border: 1px solid #2a2a2a;
+  color: #fff;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.profile-input:focus {
+  border-color: #ff2d2d;
+  box-shadow: 0 0 0 3px rgba(255,45,45,0.15);
+}
+.profile-actions { display: flex; justify-content: center; gap: 12px; }
