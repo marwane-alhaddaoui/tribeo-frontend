@@ -11,10 +11,10 @@ function dicebearAvatar(seed) {
   return `https://api.dicebear.com/7.x/initials/svg?seed=${s}`;
 }
 
-export default function SessionCard({ session }) {
+export default function SessionCard({ session, onFocus }) { // 👈 onFocus
   const { user } = useContext(AuthContext);
   const email = user?.email;
-  const teaser = !user; // 👈 visiteur => mode teaser
+  const teaser = !user;
   const navigate = useNavigate();
   const locationRouter = useLocation();
 
@@ -38,7 +38,6 @@ export default function SessionCard({ session }) {
   const creatorName = session?.creator?.username || session?.creator?.email || "—";
   const creatorAvatar = session?.creator?.avatar_url || dicebearAvatar(creatorName);
 
-  // classes de couleur pour "restants"
   const remaining = available;
   const remainingClass =
     remaining === 0 ? "avail avail--low" :
@@ -61,7 +60,6 @@ export default function SessionCard({ session }) {
     }
   }, [session?.date, session?.start_time]);
 
-  // Adresse: en teaser on ne montre que la ville (dernière partie après la virgule)
   const locationLabel = useMemo(() => {
     const loc = session.location;
     if (!loc) return teaser ? "Adresse après connexion" : "—";
@@ -71,8 +69,22 @@ export default function SessionCard({ session }) {
     return city ? `${city} — détail après connexion` : "Adresse après connexion";
   }, [session?.location, teaser]);
 
+  // 👇 zoom dispo seulement si on a des coords
+  const hasCoords = session?.latitude != null && session?.longitude != null;
+  const triggerFocus = () => {
+    if (hasCoords) onFocus?.(session);
+  };
+
   return (
-    <div className={`session-card ${full ? "is-full" : ""}`}>
+    <div
+      className={`session-card ${full ? "is-full" : ""}`}
+      onClick={triggerFocus}                          // 👈 flyTo carte
+      role={hasCoords ? "button" : undefined}
+      tabIndex={hasCoords ? 0 : undefined}
+      onKeyDown={(e) => { if (hasCoords && e.key === "Enter") triggerFocus(); }}
+      style={{ cursor: hasCoords ? "pointer" : "default" }}
+      title={hasCoords ? "Zoomer sur la carte" : undefined}
+    >
       {/* ROW 1 — Créateur + badges compacts */}
       <div className="sc-row sc-row-top">
         <div className="sc-creator">
@@ -89,7 +101,7 @@ export default function SessionCard({ session }) {
         </div>
       </div>
 
-      {/* ROW 2 — Chip Sport (sous la 1ère ligne) */}
+      {/* ROW 2 — Chip Sport */}
       <div className="sc-row">
         <span className="badge-sport">
           {sportIcon ? (
@@ -131,16 +143,22 @@ export default function SessionCard({ session }) {
       </div>
 
       {/* Actions */}
-      <div className="session-card-actions">
+      <div className="session-card-actions" onClick={(e) => e.stopPropagation() /* 👈 n’empêche pas le zoom global */}>
         {teaser ? (
           <button
             className="btn-details"
-            onClick={() => navigate("/login", { state: { from: locationRouter } })}
+            onClick={(e) => { e.stopPropagation(); navigate("/login", { state: { from: locationRouter } }); }}
           >
             Connecte-toi pour les détails
           </button>
         ) : (
-          <Link to={`/sessions/${session.id}`} className="btn-details">Détails</Link>
+          <Link
+            to={`/sessions/${session.id}`}
+            className="btn-details"
+            onClick={(e) => e.stopPropagation()}  // 👈 ne déclenche pas le zoom
+          >
+            Détails
+          </Link>
         )}
 
         {isParticipant && !teaser && <span className="pill">Tu participes déjà</span>}
