@@ -1,28 +1,28 @@
-import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useMemo, useState, useContext } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   getGroup,
   joinGroup,
   leaveGroup,
-  // members
   addMember,
   removeMember,
-  // join requests
   listJoinRequests,
   approveJoinReq,
   rejectJoinReq,
-  // external members
   listExternalMembers,
   addExternalMember,
   deleteExternalMember,
+  deleteGroup,
 } from "../../api/groupService";
 
+import { AuthContext } from "../../context/AuthContext";
 import GroupMembers from "../../components/GroupMembers";
 import GroupJoinRequests from "../../components/GroupJoinRequests";
 import ExternalMembers from "../../components/ExternalMembers";
 import UserPicker from "../../components/UserPicker";
 import "../../styles/GroupDetail.css";
-// ---------- helpers (safe) ----------
+
+// ---------- helpers ----------
 function fmtDate(iso) {
   if (!iso) return "—";
   try {
@@ -47,7 +47,9 @@ function FactCard({ label, value, hint }) {
 
 export default function GroupDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const groupId = Number(id);
+  const { user } = useContext(AuthContext);
 
   const [group, setGroup] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -55,11 +57,9 @@ export default function GroupDetail() {
   const [err, setErr] = useState(null);
   const [msg, setMsg] = useState(null);
 
-  // onglet courant : "overview" | "members" | "requests" | "externals"
+  // onglet: "overview" | "members" | "requests" | "externals"
   const [tab, setTab] = useState("overview");
-
-  // compteur demandes (remonté par le composant enfant)
-  const [reqCount, setReqCount] = useState(null);
+  const [reqCount, setReqCount] = useState(null); // compteur demandes (réglé par enfant)
 
   const reload = async () => {
     try {
@@ -90,19 +90,17 @@ export default function GroupDetail() {
 
   const typeLabel =
     group?.group_type === "PRIVATE" ? "Privé" :
-    group?.group_type === "COACH"   ? "Coach‑only" : "Public";
-
+    group?.group_type === "COACH"   ? "Coach-only" : "Public";
   const typeClass =
     group?.group_type === "PRIVATE" ? "chip-private" :
     group?.group_type === "COACH"   ? "chip-coach"   : "chip-public";
 
   const sportLabel = group?.sport_name ?? group?.sport?.name ?? group?.sport ?? "—";
-const membersCount = Array.isArray(group?.members) ? group.members.length : (group?.members_count ?? 0);
+  const membersCount = Array.isArray(group?.members) ? group.members.length : (group?.members_count ?? 0);
   const members = useMemo(() => group?.members ?? [], [group]);
 
   const coachLabel =
     group?.coach?.username || group?.coach?.email || group?.coach_name || "Coach";
-
   const joinPolicy =
     group?.group_type === "PRIVATE" ? "Sur demande (validation requise)" :
     group?.group_type === "COACH"   ? "Sur invitation du coach" :
@@ -111,9 +109,24 @@ const membersCount = Array.isArray(group?.members) ? group.members.length : (gro
   const createdAt = fmtDate(group?.created_at);
   const updatedAt = fmtDate(group?.updated_at);
 
-  // ---- Actions: rejoindre / quitter ----
+  // ---- Permissions robustes pour supprimer ----
+  const userEmail = user?.email?.toLowerCase?.() || "";
+  const coachEmail = (group?.coach?.email || "").toLowerCase();
+  const rolesStr = (user?.roles || user?.role || []).toString().toUpperCase();
+
+  const isAdminLike =
+    user?.is_superuser === true ||
+    user?.is_staff === true ||
+    user?.is_admin === true ||
+    rolesStr.includes("ADMIN");
+
+  const isCoachOwner = !!user && (!!coachEmail && coachEmail === userEmail || rolesStr.includes("COACH"));
+
+  const canDelete = isOwnerOrManager || isAdminLike || isCoachOwner;
+
+  // ---- Actions principales ----
   const handleJoin = async () => {
-    if (!group || group.group_type === "COACH") return; // invitation only
+    if (!group || group.group_type === "COACH") return;
     setOpLoading(true); setErr(null); setMsg(null);
     try {
       await joinGroup(groupId);
@@ -140,14 +153,14 @@ const membersCount = Array.isArray(group?.members) ? group.members.length : (gro
     }
   };
 
-  // ---- Actions: gestion des membres ----
-  const handleAddMember = async (user) => {
-    if (!user?.id) return;
+  // ---- Gestion des membres ----
+  const handleAddMember = async (u) => {
+    if (!u?.id) return;
     try {
       setOpLoading(true);
-      await addMember(groupId, user.id);
+      await addMember(groupId, u.id);
       await reload();
-      setMsg(`Membre ajouté: ${user.username || user.email || user.id}`);
+      setMsg(`Membre ajouté: ${u.username || u.email || u.id}`);
     } catch {
       setErr("Ajout du membre impossible.");
     } finally {
@@ -155,16 +168,30 @@ const membersCount = Array.isArray(group?.members) ? group.members.length : (gro
     }
   };
 
-  const handleRemoveMember = async (member) => {
-    if (!member?.id) return;
+  const handleRemoveMember = async (m) => {
+    if (!m?.id) return;
     if (!window.confirm("Retirer ce membre du groupe ?")) return;
     try {
       setOpLoading(true);
-      await removeMember(groupId, member.id); // POST /members/remove/ { user_id }
+      await removeMember(groupId, m.id);
       await reload();
       setMsg("Membre retiré.");
     } catch {
       setErr("Suppression du membre impossible.");
+    } finally {
+      setOpLoading(false);
+    }
+  };
+
+  // ---- Suppression du groupe ----
+  const handleDeleteGroup = async () => {
+    if (!window.confirm("Supprimer ce groupe ? Cette action est définitive.")) return;
+    setOpLoading(true); setErr(null); setMsg(null);
+    try {
+      await deleteGroup(groupId);
+      navigate("/groups");
+    } catch {
+      setErr("Suppression du groupe impossible.");
     } finally {
       setOpLoading(false);
     }
@@ -210,14 +237,10 @@ const membersCount = Array.isArray(group?.members) ? group.members.length : (gro
         </div>
       </header>
 
-      {/* Nav tabs */}
+      {/* Tabs */}
       <nav className="gd-tabs">
-        <button onClick={() => setTab("overview")}  className={tab==="overview"  ? "active" : ""}>
-          Aperçu
-        </button>
-        <button onClick={() => setTab("members")}   className={tab==="members"   ? "active" : ""}>
-          Membres ({membersCount})
-        </button>
+        <button onClick={() => setTab("overview")}  className={tab==="overview"  ? "active" : ""}>Aperçu</button>
+        <button onClick={() => setTab("members")}   className={tab==="members"   ? "active" : ""}>Membres ({membersCount})</button>
         {isOwnerOrManager && (
           <>
             <button onClick={() => setTab("requests")}  className={tab==="requests"  ? "active" : ""}>
@@ -240,12 +263,8 @@ const membersCount = Array.isArray(group?.members) ? group.members.length : (gro
             <div className="gd-rules">
               <h3>Règles d’accès</h3>
               <ul>
-                <li>
-                  <span className="dot" /> <strong>Adhésion :</strong> {joinPolicy}
-                </li>
-                <li>
-                  <span className="dot" /> <strong>Type :</strong> {typeLabel}
-                </li>
+                <li><span className="dot" /> <strong>Adhésion :</strong> {joinPolicy}</li>
+                <li><span className="dot" /> <strong>Type :</strong> {typeLabel}</li>
               </ul>
             </div>
           </div>
@@ -270,11 +289,7 @@ const membersCount = Array.isArray(group?.members) ? group.members.length : (gro
               <UserPicker onSelect={handleAddMember} placeholder="Ajouter un membre (username / email)" />
             </div>
           )}
-          <GroupMembers
-            members={members}
-            canManage={isOwnerOrManager}
-            onRemove={handleRemoveMember}
-          />
+          <GroupMembers members={members} canManage={isOwnerOrManager} onRemove={handleRemoveMember} />
         </section>
       )}
 
@@ -284,7 +299,7 @@ const membersCount = Array.isArray(group?.members) ? group.members.length : (gro
             groupId={groupId}
             loader={reload}
             api={{ listJoinRequests, approveJoinReq, rejectJoinReq }}
-            onCount={setReqCount}    // ← compteur dynamique
+            onCount={setReqCount}
           />
         </section>
       )}
@@ -296,6 +311,17 @@ const membersCount = Array.isArray(group?.members) ? group.members.length : (gro
             loader={reload}
             api={{ listExternalMembers, addExternalMember, deleteExternalMember }}
           />
+        </section>
+      )}
+
+      {/* Danger zone — visible si droits */}
+      {canDelete && (
+        <section className="gd-section danger-zone">
+          <h2>Zone dangereuse</h2>
+          <p>La suppression est <strong>définitive</strong>. Vérifie bien avant de continuer.</p>
+          <button className="gd-btn danger" onClick={handleDeleteGroup} disabled={opLoading}>
+            🗑 Supprimer le groupe
+          </button>
         </section>
       )}
     </div>

@@ -34,3 +34,20 @@ export const updateSession = async (id, data) => {
   return res.data;
 };
 
+// 🆕 Delete a group (admin route first, fallback to public if needed)
+export const deleteGroupAdmin = async (id) => {
+  try {
+    // If your backend has a dedicated admin route:
+    const res = await axiosClient.delete(`/admin/groups/${id}/`);
+    return res.data;
+  } catch (e) {
+    const status = e?.response?.status;
+    // If the admin route doesn’t exist, try the public one with a force flag (if your API supports it)
+    if (status === 404) {
+      const res = await axiosClient.delete(`/groups/${id}/`, { params: { force: 1 } });
+      return res.data;
+    }
+    // 403 here usually means current token isn’t admin/staff. Let the caller handle it.
+    throw e;
+  }
+};

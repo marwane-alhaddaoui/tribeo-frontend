@@ -111,3 +111,5 @@ export const getGroupsByCoach = async () => {
   const data = await listGroups({ scope: "my" }).catch(() => listGroups());
   return Array.isArray(data) ? data.filter((g) => g?.is_owner_or_manager) : [];
 };
+
+

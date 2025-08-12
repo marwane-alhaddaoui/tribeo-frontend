@@ -1,6 +1,15 @@
+// src/pages/Dashboard/CoachDashboard.jsx
 import { useEffect, useMemo, useState } from "react";
-import { getSessions, publishSession, cancelSession } from "../../api/sessionService";
-import { getGroupsByCoach } from "../../api/groupService";
+import {
+  getSessions,
+  publishSession,
+  cancelSession,
+  deleteSession,        // 🆕
+} from "../../api/sessionService";
+import {
+  getGroupsByCoach,
+  deleteGroup,          // 🆕
+} from "../../api/groupService";
 import "../../styles/CoachDashboard.css";
 import CoachCalendar from "../../components/CoachCalendar";
 import { Link, useNavigate } from "react-router-dom";
@@ -27,7 +36,7 @@ function fmtDate(date, time) {
 }
 
 export default function CoachDashboard() {
-  const [activeTab, setActiveTab] = useState("sessions"); // default: sessions
+  const [activeTab, setActiveTab] = useState("sessions"); // sessions | groups | calendar
   const [groups, setGroups] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,10 +52,7 @@ export default function CoachDashboard() {
     setLoading(true);
     setError("");
     try {
-      const [g, s] = await Promise.all([
-        getGroupsByCoach(),
-        getSessions({ mine: true }),
-      ]);
+      const [g, s] = await Promise.all([getGroupsByCoach(), getSessions({ mine: true })]);
       setGroups(Array.isArray(g) ? g : []);
       setSessions(Array.isArray(s) ? s : []);
     } catch (err) {
@@ -67,7 +73,6 @@ export default function CoachDashboard() {
       return { ...s, _isPast: start < now };
     });
 
-    // search
     const needle = q.trim().toLowerCase();
     let filtered = needle
       ? all.filter((s) =>
@@ -77,14 +82,12 @@ export default function CoachDashboard() {
         )
       : all;
 
-    // status
     if (statusFilter !== "ALL") {
       if (statusFilter === "UPCOMING") filtered = filtered.filter((s) => !s._isPast && s.status !== "CANCELED");
       else if (statusFilter === "PAST") filtered = filtered.filter((s) => s._isPast);
       else filtered = filtered.filter((s) => s.status === statusFilter);
     }
 
-    // tri : à venir d’abord par date, puis passées
     filtered.sort((a, b) => {
       const da = new Date(`${a.date}T${a.start_time || "00:00"}`).getTime();
       const db = new Date(`${b.date}T${b.start_time || "00:00"}`).getTime();
@@ -102,7 +105,7 @@ export default function CoachDashboard() {
     return { list: filtered, stats };
   }, [sessions, q, statusFilter]);
 
-  // Actions avec modale + update optimiste
+  // ---- Actions sessions ----
   const doPublish = async (id) => {
     setBusy(true);
     const prev = sessions;
@@ -137,22 +140,74 @@ export default function CoachDashboard() {
     }
   };
 
-  const openConfirm = (type, session) => {
+  const doDeleteSession = async (id) => {
+    setBusy(true);
+    const prev = sessions;
+    try {
+      setSessions((arr) => arr.filter((s) => s.id !== id)); // optimiste
+      await deleteSession(id);
+      setToast({ kind: "success", msg: "Session supprimée 🗑️" });
+    } catch (e) {
+      console.error(e);
+      setSessions(prev); // rollback
+      setToast({ kind: "error", msg: e?.response?.data?.detail || "Suppression impossible." });
+    } finally {
+      setBusy(false);
+      setConfirm(null);
+    }
+  };
+
+  // ---- Actions groupes ----
+  const doDeleteGroup = async (id) => {
+    setBusy(true);
+    const prev = groups;
+    try {
+      setGroups((arr) => arr.filter((g) => g.id !== id)); // optimiste
+      await deleteGroup(id);
+      setToast({ kind: "success", msg: "Groupe supprimé 🗑️" });
+    } catch (e) {
+      console.error(e);
+      setGroups(prev);
+      setToast({ kind: "error", msg: e?.response?.data?.detail || "Suppression du groupe impossible." });
+    } finally {
+      setBusy(false);
+      setConfirm(null);
+    }
+  };
+
+  // ---- Confirm factory ----
+  const openConfirm = (type, entity) => {
     if (type === "publish") {
       setConfirm({
         title: "Publier la session ?",
-        desc: `“${session.title}” sera visible par tes membres (et/ou en public selon la config).`,
+        desc: `“${entity.title}” sera visible par tes membres (et/ou en public).`,
         actionLabel: "Publier",
         kind: "primary",
-        onConfirm: () => doPublish(session.id),
+        onConfirm: () => doPublish(entity.id),
       });
-    } else {
+    } else if (type === "cancel") {
       setConfirm({
         title: "Annuler la session ?",
-        desc: `“${session.title}” sera marquée comme annulée pour tous les participants.`,
+        desc: `“${entity.title}” sera marquée comme annulée pour tous les participants.`,
         actionLabel: "Annuler",
         kind: "danger",
-        onConfirm: () => doCancel(session.id),
+        onConfirm: () => doCancel(entity.id),
+      });
+    } else if (type === "delete-session") {
+      setConfirm({
+        title: "Supprimer la session ?",
+        desc: `Action définitive. “${entity.title}” sera supprimée.`,
+        actionLabel: "Supprimer",
+        kind: "danger",
+        onConfirm: () => doDeleteSession(entity.id),
+      });
+    } else if (type === "delete-group") {
+      setConfirm({
+        title: "Supprimer le groupe ?",
+        desc: `Action définitive. “${entity.name}” sera supprimé.`,
+        actionLabel: "Supprimer",
+        kind: "danger",
+        onConfirm: () => doDeleteGroup(entity.id),
       });
     }
   };
@@ -176,10 +231,8 @@ export default function CoachDashboard() {
     <div className="coach-dashboard">
       <h1 className="coach-title">🏆 Coach Dashboard</h1>
 
-      {/* Aperçu stats rapide */}
       <StatsBar stats={derived.stats} onCreate={() => navigate("/sessions/create")} />
 
-      {/* Navigation interne */}
       <div className="coach-nav">
         <button className={activeTab === "sessions" ? "active" : ""} onClick={() => setActiveTab("sessions")}>📅 Mes Sessions</button>
         <button className={activeTab === "groups" ? "active" : ""} onClick={() => setActiveTab("groups")}>📋 Mes Groupes</button>
@@ -212,25 +265,19 @@ export default function CoachDashboard() {
 
                     <div className="cc-actions">
                       <Link to={`/sessions/${s.id}`} className="btn ghost">Détails</Link>
-
                       {s.status === "DRAFT" && (
-                        <button
-                          className="btn primary"
-                          disabled={busy}
-                          onClick={() => openConfirm("publish", s)}
-                        >
+                        <button className="btn primary" disabled={busy} onClick={() => openConfirm("publish", s)}>
                           🚀 Publier
                         </button>
                       )}
                       {s.status !== "CANCELED" && (
-                        <button
-                          className="btn danger"
-                          disabled={busy}
-                          onClick={() => openConfirm("cancel", s)}
-                        >
+                        <button className="btn danger" disabled={busy} onClick={() => openConfirm("cancel", s)}>
                           ❌ Annuler
                         </button>
                       )}
+                      <button className="btn danger" disabled={busy} onClick={() => openConfirm("delete-session", s)}>
+                        🗑 Supprimer
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -247,32 +294,53 @@ export default function CoachDashboard() {
         )}
 
         {activeTab === "groups" && (
-          <div className="coach-grid">
-            {groups.length ? (
-              groups.map((g) => (
-                <div key={g.id} className="coach-card">
-                  <div className="cc-head">
-                    <h3 className="cc-title">{g.name}</h3>
-                    <span className="badge">👥 {g.members?.length || 0}</span>
-                  </div>
-                  <p className="cc-desc">{g.description || "—"}</p>
-                </div>
-              ))
-            ) : (
-              <Empty
-                title="Aucun groupe"
-                subtitle="Crée un groupe pour organiser tes athlètes."
-                actionLabel="Créer une session"
-                onAction={() => navigate("/sessions/create")}
-              />
-            )}
+          <div>
+            <div className="coach-toolbar" style={{ marginBottom: "12px" }}>
+              <button className="btn primary" onClick={() => navigate("/groups/new")} title="Créer un groupe">
+                + Nouveau groupe
+              </button>
+            </div>
+
+            <div className="coach-grid">
+              {groups.length ? (
+                groups.map((g) => {
+                  const members = Array.isArray(g.members) ? g.members.length : (g.members_count ?? 0);
+                  const sport = g?.sport?.name || g.sport_name || g.sport || "—";
+                  return (
+                    <div key={g.id} className="coach-card">
+                      <div className="cc-head">
+                        <h3 className="cc-title">{g.name}</h3>
+                        <span className="badge">👥 {members}</span>
+                      </div>
+                      <div className="cc-meta">
+                        <div className="row"><span>🏆</span><span>{sport}</span></div>
+                        <div className="row"><span>📍</span><span>{g.city || "—"}</span></div>
+                      </div>
+                      <div className="cc-actions">
+                        <Link to={`/groups/${g.id}`} className="btn ghost">Gérer</Link>
+                        <Link to={`/sessions/create?group=${g.id}`} className="btn primary">+ Session</Link>
+                        <button className="btn danger" disabled={busy} onClick={() => openConfirm("delete-group", g)}>
+                          🗑 Supprimer
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <Empty
+                  title="Aucun groupe"
+                  subtitle="Crée un groupe pour organiser tes athlètes."
+                  actionLabel="Créer un groupe"
+                  onAction={() => navigate("/groups/new")}
+                />
+              )}
+            </div>
           </div>
         )}
 
         {activeTab === "calendar" && <CoachCalendar />}
       </div>
 
-      {/* Modale de confirmation */}
       {confirm && (
         <ConfirmModal
           title={confirm.title}
@@ -285,7 +353,6 @@ export default function CoachDashboard() {
         />
       )}
 
-      {/* Toast */}
       {toast && (
         <Toast kind={toast.kind} onClose={() => setToast(null)}>
           {toast.msg}
@@ -319,11 +386,7 @@ function Toolbar({ q, setQ, statusFilter, setStatusFilter, onCreate }) {
         value={q}
         onChange={(e) => setQ(e.target.value)}
       />
-      <select
-        className="input"
-        value={statusFilter}
-        onChange={(e) => setStatusFilter(e.target.value)}
-      >
+      <select className="input" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
         <option value="ALL">Tous les statuts</option>
         <option value="UPCOMING">À venir</option>
         <option value="DRAFT">Brouillons</option>
@@ -389,3 +452,4 @@ function Toast({ kind = "info", children, onClose }) {
     </div>
   );
 }
+

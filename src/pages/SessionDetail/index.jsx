@@ -1,19 +1,103 @@
-// pages/Sessions/SessionDetailPage.jsx
-import { useParams } from "react-router-dom";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { getSessionById, joinSession, leaveSession } from "../../api/sessionService";
+// src/pages/Sessions/SessionDetailPage.jsx
+import { useParams, useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState, useContext } from "react";
+import {
+  getSessionById,
+  joinSession,
+  leaveSession,
+  deleteSession, // 🗑
+} from "../../api/sessionService";
 import "../../styles/SessionDetailPage.css";
+import { AuthContext } from "../../context/AuthContext";
 
+/* ====================== Utils ====================== */
+function isFull(count, total) { return total ? count >= total : false; }
+function usernameFromEmail(email) {
+  const s = String(email || "");
+  if (!s.includes("@")) return s || "user";
+  return s.split("@")[0] || "user";
+}
+function dicebearAvatar(seed) {
+  const s = encodeURIComponent(String(seed || "user"));
+  return `https://api.dicebear.com/7.x/initials/svg?seed=${s}`;
+}
+function fmtDate(date, time) {
+  try {
+    const iso = date ? `${date}${time ? "T"+time : ""}` : null;
+    const d = iso ? new Date(iso) : (date ? new Date(date) : null);
+    return d ? d.toLocaleString(undefined, {
+      weekday: "short", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit"
+    }) : null;
+  } catch { return null; }
+}
+function toCountdown(date, time) {
+  try {
+    const iso = date ? `${date}${time ? "T"+time : ""}` : null;
+    if (!iso) return null;
+    const target = new Date(iso).getTime();
+    const now = Date.now();
+    const diff = target - now;
+    if (diff <= 0) return "en cours / passé";
+    const h = Math.floor(diff / (1000 * 60 * 60));
+    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    return h ? `${h}h${m.toString().padStart(2,"0")}` : `${m} min`;
+  } catch { return null; }
+}
+function prettyFormat(format) {
+  try { return String(format).replaceAll("_", " ").replace(/\b\w/g, c => c.toUpperCase()); }
+  catch { return format; }
+}
+function copyInvite(id) {
+  const url = `${window.location.origin}/sessions/${id}`;
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(url).then(() => alert("Lien copié !")).catch(() => fallbackCopy(url));
+  } else fallbackCopy(url);
+}
+function fallbackCopy(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand("copy");
+  document.body.removeChild(ta);
+  alert("Lien copié !");
+}
+function normalizeSession(s) {
+  return {
+    ...s,
+    participants: Array.isArray(s?.participants) ? s.participants : [],
+    max_players: Number(s?.max_players) || 0,
+    team_count: Number(s?.team_count) || (s?.team_mode ? 2 : 1),
+    creator: s?.creator ?? null, // peut être un objet ou un id
+    team_mode: !!s?.team_mode,
+  };
+}
+
+/* robust eq (insensible à la casse / trim) */
+const eq = (a, b) => String(a ?? "").trim().toLowerCase() === String(b ?? "").trim().toLowerCase();
+
+/* ====================== Page ====================== */
 export default function SessionDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
+
+  // on privilégie AuthContext si présent, sinon fallback localStorage (pour ne rien casser)
+  const { user: ctxUser } = useContext(AuthContext) || {};
+  const localUser = useMemo(() => {
+    try { return JSON.parse(localStorage.getItem("user")) ?? null; } catch { return null; }
+  }, []);
+  const currentUser = ctxUser || localUser;
+
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
-  const currentUserEmail = useMemo(() => {
-    try { return JSON.parse(localStorage.getItem("user"))?.email ?? null; } catch { return null; }
-  }, []);
+  const me = {
+    id: currentUser?.id ?? null,
+    email: currentUser?.email ?? null,
+    username: currentUser?.username ?? (currentUser?.email ? usernameFromEmail(currentUser.email) : null),
+  };
 
   const refetch = useCallback(async () => {
     setLoading(true);
@@ -31,10 +115,35 @@ export default function SessionDetailPage() {
 
   useEffect(() => { refetch(); }, [refetch]);
 
+  // détecte si l'utilisateur courant EST le créateur (match id OU email OU username)
+  const isCreator = useMemo(() => {
+    if (!session || !currentUser) return false;
+
+    const c = session.creator;
+    // cas 1: objet { id, email, username }
+    if (c && typeof c === "object") {
+      if (me.id   != null && c.id   != null && Number(me.id) === Number(c.id)) return true;
+      if (me.email && c.email && eq(me.email, c.email)) return true;
+      if (me.username && c.username && eq(me.username, c.username)) return true;
+      return false;
+    }
+    // cas 2: id numérique ou chaîne
+    if (c != null && me.id != null && Number(c) === Number(me.id)) return true;
+    // (si l’API renvoyait un email/username “brut”, on tente quand même)
+    if (typeof c === "string") {
+      if (me.email && eq(me.email, c)) return true;
+      if (me.username && eq(me.username, c)) return true;
+    }
+    return false;
+  }, [session, currentUser, me.id, me.email, me.username]);
+
+  // ✅ tu as demandé: seul le créateur peut supprimer
+  const canDelete = isCreator === true;
+
   const isIn = useMemo(() => {
-    if (!session || !currentUserEmail) return false;
-    return (session.participants || []).some(p => p.email === currentUserEmail);
-  }, [session, currentUserEmail]);
+    if (!session || !me.email) return false;
+    return (session.participants || []).some(p => eq(p.email, me.email));
+  }, [session, me.email]);
 
   const full = useMemo(() => {
     if (!session) return false;
@@ -43,22 +152,22 @@ export default function SessionDetailPage() {
   }, [session]);
 
   const handleJoin = async () => {
-    if (!currentUserEmail) return alert("Connecte-toi pour rejoindre.");
+    if (!me.email) return alert("Connecte-toi pour rejoindre.");
     if (busy || full || isIn) return;
     setBusy(true);
     try {
-      // Optimistic UI: on pousse un objet minimal (API corrigera au refetch)
+      // Optimistic UI
       setSession(prev => {
         if (!prev) return prev;
-        if ((prev.participants || []).some(p => p.email === currentUserEmail)) return prev;
+        if ((prev.participants || []).some(p => eq(p.email, me.email))) return prev;
         if ((prev.participants?.length || 0) >= (prev.max_players || 0)) return prev;
-        const me = {
-          id: currentUserEmail,
-          email: currentUserEmail,
-          username: usernameFromEmail(currentUserEmail),
+        const mine = {
+          id: me.id ?? me.email,
+          email: me.email,
+          username: me.username || usernameFromEmail(me.email),
           avatar_url: null,
         };
-        return { ...prev, participants: [...(prev.participants || []), me] };
+        return { ...prev, participants: [...(prev.participants || []), mine] };
       });
       await joinSession(id);
     } catch (e) {
@@ -71,18 +180,34 @@ export default function SessionDetailPage() {
   };
 
   const handleLeave = async () => {
-    if (!currentUserEmail || busy || !isIn) return;
+    if (!me.email || busy || !isIn) return;
     setBusy(true);
     try {
       setSession(prev => {
         if (!prev) return prev;
-        return { ...prev, participants: (prev.participants || []).filter(p => p.email !== currentUserEmail) };
+        return { ...prev, participants: (prev.participants || []).filter(p => !eq(p.email, me.email)) };
       });
       await leaveSession(id);
     } catch (e) {
       console.error(e);
       await refetch();
       alert("Impossible de quitter.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // 🗑 Danger Zone — suppression (créateur uniquement)
+  const handleDelete = async () => {
+    if (!canDelete) return;
+    if (!window.confirm("Supprimer cette session ? Cette action est définitive.")) return;
+    setBusy(true);
+    try {
+      await deleteSession(id);
+      navigate("/sessions");
+    } catch (e) {
+      console.error(e);
+      alert(e?.response?.data?.detail || "Suppression impossible.");
     } finally {
       setBusy(false);
     }
@@ -107,14 +232,11 @@ export default function SessionDetailPage() {
   const teamCount = Number(session.team_count) > 0 ? Number(session.team_count) : (session.team_mode ? 2 : 1);
   const perTeam = Math.max(1, Math.floor(capacity / Math.max(teamCount, 1)));
 
-  // participants -> objets {id,email,username,avatar,isMe}
-  const participantObjs = mapParticipants(session.participants, currentUserEmail);
-
-  // build teams (lignes d’équipes)
+  const participantObjs = mapParticipants(session.participants, me.email);
   const teams = buildTeams(participantObjs, teamCount, perTeam);
-
-  // créateur (objet direct)
-  const creator = session.creator || { username: "—", avatar_url: null };
+  const creator = session.creator && typeof session.creator === "object"
+    ? session.creator
+    : { username: "—", avatar_url: null };
 
   return (
     <div className="session-detail-wrapper">
@@ -206,11 +328,21 @@ export default function SessionDetailPage() {
               <p className="session-desc-text">{session.description}</p>
             </div>
           )}
+
+          {/* 🛑 Danger Zone — CREATOR ONLY */}
+          {canDelete && (
+            <section className="danger-zone" style={{ marginTop: 24 }}>
+              <h2>Zone dangereuse</h2>
+              <p>La suppression est <strong>définitive</strong>. Vérifie bien avant de continuer.</p>
+              <button className="gd-btn danger" onClick={handleDelete} disabled={busy}>
+                🗑 Supprimer la session
+              </button>
+            </section>
+          )}
         </section>
 
         {/* Colonne droite — Équipes & Participants */}
         <section className="session-col-right">
-          {/* Bouton Quitter dédié (optionnel) */}
           {isIn && (
             <div className="team-actions">
               <button className="session-secondary-btn session-danger" onClick={handleLeave}>
@@ -219,7 +351,6 @@ export default function SessionDetailPage() {
             </div>
           )}
 
-          {/* Board d’équipes : lignes par équipe + VS */}
           <TeamBoard
             teams={teams}
             perTeam={perTeam}
@@ -227,7 +358,6 @@ export default function SessionDetailPage() {
             onClickMine={() => handleLeave()}
           />
 
-          {/* Liste participants (usernames only) */}
           <div className="session-participants">
             <h2 className="session-section-title">Participants</h2>
             {participantObjs.length ? (
@@ -274,9 +404,7 @@ function TeamBoard({ teams, perTeam, onClickEmpty, onClickMine }) {
             onClickEmpty={onClickEmpty}
             onClickMine={onClickMine}
           />
-
           <div className="team-vs">VS</div>
-
           <TeamRow
             teamIndex={idx * 2 + 1}
             users={pair[1] || []}
@@ -292,7 +420,6 @@ function TeamBoard({ teams, perTeam, onClickEmpty, onClickMine }) {
 
 function TeamRow({ teamIndex, users, perTeam, onClickEmpty, onClickMine }) {
   const slots = Array.from({ length: perTeam }, (_, i) => users[i] || null);
-
   return (
     <div className="team-row">
       <span className="team-label">Équipe {teamIndex + 1}</span>
@@ -330,11 +457,7 @@ function SlotBubble({ avatar, label, isMe, onClick }) {
 
 function EmptySlot({ onClick }) {
   return (
-    <button
-      onClick={onClick}
-      className="slot-empty"
-      title="Rejoindre ce slot"
-    >
+    <button onClick={onClick} className="slot-empty" title="Rejoindre ce slot">
       +
     </button>
   );
@@ -353,7 +476,6 @@ function Meta({ label, value }) {
 /* ====================== Data Mapping ====================== */
 function mapParticipants(participants = [], currentUserEmail = null) {
   return (participants || []).map(u => {
-    // u est déjà {id, email, username, avatar_url}
     const username = u.username || usernameFromEmail(u.email);
     const avatar = u.avatar_url || dicebearAvatar(username);
     return {
@@ -361,7 +483,7 @@ function mapParticipants(participants = [], currentUserEmail = null) {
       email: u.email,
       username,
       avatar,
-      isMe: u.email === currentUserEmail,
+      isMe: currentUserEmail ? eq(u.email, currentUserEmail) : false,
     };
   });
 }
@@ -382,73 +504,10 @@ function buildTeams(users = [], teamCount = 2, perTeam = 1) {
         }
       }
       if (!placed) {
-        // toutes pleines: ignore ou gérer autrement
+        // toutes pleines: ignore
       }
     }
     ti = (ti + 1) % teamCount;
   });
   return teams;
-}
-
-/* ====================== Utils ====================== */
-function isFull(count, total) { return total ? count >= total : false; }
-function usernameFromEmail(email) {
-  const s = String(email || "");
-  if (!s.includes("@")) return s || "user";
-  return s.split("@")[0] || "user";
-}
-function dicebearAvatar(seed) {
-  const s = encodeURIComponent(String(seed || "user"));
-  return `https://api.dicebear.com/7.x/initials/svg?seed=${s}`;
-}
-function fmtDate(date, time) {
-  try {
-    const iso = date ? `${date}${time ? "T"+time : ""}` : null;
-    const d = iso ? new Date(iso) : (date ? new Date(date) : null);
-    return d ? d.toLocaleString(undefined, {
-      weekday: "short", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit"
-    }) : null;
-  } catch { return null; }
-}
-function toCountdown(date, time) {
-  try {
-    const iso = date ? `${date}${time ? "T"+time : ""}` : null;
-    if (!iso) return null;
-    const target = new Date(iso).getTime();
-    const now = Date.now();
-    const diff = target - now;
-    if (diff <= 0) return "en cours / passé";
-    const h = Math.floor(diff / (1000 * 60 * 60));
-    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    return h ? `${h}h${m.toString().padStart(2,"0")}` : `${m} min`;
-  } catch { return null; }
-}
-function prettyFormat(format) {
-  try { return String(format).replaceAll("_", " ").replace(/\b\w/g, c => c.toUpperCase()); }
-  catch { return format; }
-}
-function copyInvite(id) {
-  const url = `${window.location.origin}/sessions/${id}`;
-  if (navigator.clipboard?.writeText) {
-    navigator.clipboard.writeText(url).then(() => alert("Lien copié !")).catch(() => fallbackCopy(url));
-  } else fallbackCopy(url);
-}
-function fallbackCopy(text) {
-  const ta = document.createElement("textarea");
-  ta.value = text;
-  document.body.appendChild(ta);
-  ta.select();
-  document.execCommand("copy");
-  document.body.removeChild(ta);
-  alert("Lien copié !");
-}
-function normalizeSession(s) {
-  return {
-    ...s,
-    participants: Array.isArray(s?.participants) ? s.participants : [],
-    max_players: Number(s?.max_players) || 0,
-    team_count: Number(s?.team_count) || (s?.team_mode ? 2 : 1),
-    creator: s?.creator || null,
-    team_mode: !!s?.team_mode,
-  };
 }

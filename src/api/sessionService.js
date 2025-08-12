@@ -62,3 +62,8 @@ export const getMySessionsInRange = async ({ start, end }) => {
   const params = { mine: true, date_from: start, date_to: end };
   return getSessions(params); // réutilise déjà axiosClient + base URL
 };
+
+// 🗑 Supprimer une session
+export const deleteSession = (id) => {
+  return axiosClient.delete(`/sport_sessions/${id}/`);
+};

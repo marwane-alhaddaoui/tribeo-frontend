@@ -37,10 +37,10 @@ export default function Header() {
           {isAuthed ? (
             <>
               {user.role === 'admin' && (
-                <Link to="/admin/dashboard" onClick={closeMenu}>Dashboard Admin</Link>
+                <Link to="/admin/dashboard" onClick={closeMenu}>Dashboard</Link>
               )}
               {user.role === 'coach' && (
-                <Link to="/dashboard" onClick={closeMenu}>Dashboard Coach</Link>
+                <Link to="/dashboard" onClick={closeMenu}>Dashboard</Link>
               )}
               {user.role === 'user' && (
                 <Link to="/dashboard" onClick={closeMenu}>Dashboard</Link>
@@ -86,8 +86,8 @@ export default function Header() {
 
             {isAuthed ? (
               <>
-                {user.role === 'admin' && <Link to="/admin/dashboard" onClick={closeMenu}>Dashboard Admin</Link>}
-                {user.role === 'coach' && <Link to="/dashboard" onClick={closeMenu}>Dashboard Coach</Link>}
+                {user.role === 'admin' && <Link to="/admin/dashboard" onClick={closeMenu}>Dashboard</Link>}
+                {user.role === 'coach' && <Link to="/dashboard" onClick={closeMenu}>Dashboard</Link>}
                 {user.role === 'user' && <Link to="/dashboard" onClick={closeMenu}>Dashboard</Link>}
                 <Link to="/profile" onClick={closeMenu}>Profile</Link>
                 <button

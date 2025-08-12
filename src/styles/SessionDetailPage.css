@@ -269,3 +269,20 @@ body{ background:var(--bg); color:var(--text); }
   color:#fff;
   box-shadow:0 0 10px rgba(255,45,45,.3);
 }
+
+
+.session-danger-zone{
+  margin-top:16px;
+  padding:14px;
+  border:1px solid rgba(255,45,45,.45);
+  border-radius:12px;
+  background:linear-gradient(180deg, rgba(255,45,45,.06), rgba(255,45,45,0) 66%);
+}
+.session-section-title.danger{ color:#ff2d2d; }
+.session-danger-text{ color:#cfcfcf; margin:6px 0 10px; }
+.session-danger-btn{
+  background:#ff2d2d; color:#fff; border:1px solid #ff2d2d;
+  padding:10px 12px; border-radius:12px; font-weight:700; cursor:pointer;
+}
+.session-danger-btn:hover{ filter:saturate(1.05); }
+.session-danger-btn:disabled{ opacity:.6; cursor:not-allowed; }
