@@ -13,7 +13,7 @@ import ProfilePage from "./pages/Profile/ProfilePage";
 import AdminRoute from "./routes/AdminRoute";
 import AdminDashboard from "./pages/Dashboard/AdminDashboard";
 
-// ✅ Ajouts Groupes
+// ✅ Groupes
 import GroupsPage from "./pages/Groups/GroupsPage";
 import GroupDetail from "./pages/Groups/GroupDetail";
 import GroupForm from "./pages/Groups/GroupForm";
@@ -29,8 +29,11 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* ✅ Liste des sessions : PUBLIQUE */}
+          {/* ✅ Sessions : PUBLIQUE */}
           <Route path="/sessions" element={<SessionsPage />} />
+
+          {/* ✅ Groups : LISTE PUBLIQUE (prévisualisation/flou côté UI) */}
+          <Route path="/groups" element={<GroupsPage />} />
 
           {/* Pages privées */}
           <Route
@@ -76,15 +79,7 @@ function App() {
             }
           />
 
-          {/* ✅ Groupes (protégés) */}
-          <Route
-            path="/groups"
-            element={
-              <PrivateRoute>
-                <GroupsPage />
-              </PrivateRoute>
-            }
-          />
+          {/* ✅ Groupes protégés (création & détails) */}
           <Route
             path="/groups/new"
             element={

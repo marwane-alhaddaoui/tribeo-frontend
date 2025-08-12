@@ -1,0 +1,20 @@
+:root{ --panel-2:#151516; --border:#262728; --accent:#ff2d2d; --text:#ffffff; }
+
+/* LISTE DEMANDES */
+.gjr-wrap{ }
+.gjr-empty{ color:#aaa; }
+
+.gjr-list{ list-style:none; padding:0; margin:0; display:grid; gap:10px; }
+.gjr-item{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  background:#121214; border:1px solid #202025; border-radius:14px; padding:12px;
+}
+.gjr-name{ color:#fff; font-weight:700; }
+.gjr-meta, .gjr-status{ color:#9a9a9a; font-size:13px; }
+.gjr-actions{ display:flex; gap:8px; }
+
+.gjr-btn{
+  background:#101013; color:#fff; border:1px solid #2a2a2f; padding:8px 10px; border-radius:10px; cursor:pointer;
+}
+.gjr-btn.primary{ background:var(--accent); border-color:var(--accent); }
+.gjr-btn:disabled{ opacity:.6; cursor:not-allowed; }

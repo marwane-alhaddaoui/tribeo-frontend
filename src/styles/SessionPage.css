@@ -158,3 +158,28 @@ body{
   flex-wrap: wrap;
   margin-bottom: 12px;
 }
+
+
+.sessions-filters.is-disabled { opacity:.7; }
+.pointer-block { pointer-events:none; }
+.sessions-grid.grid-locked { filter: blur(3px) saturate(.85) brightness(.95); pointer-events:none; user-select:none; }
+
+/* ===== Bandeau visiteur (Sessions) ===== */
+.sessions-locked-banner{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  background:linear-gradient(180deg, rgba(255,45,45,.06), rgba(255,45,45,0) 66%), var(--panel-2);
+  border:1px solid var(--border); border-radius:14px; padding:12px 14px; margin:8px 0 12px;
+  box-shadow:0 6px 20px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,45,45,.04);
+}
+.slb-text{ color:#eaeaea; }
+.slb-actions{ display:flex; gap:8px; }
+
+/* Filtres désactivés */
+.sessions-filters.is-disabled { opacity:.7; }
+.pointer-block { pointer-events:none; }
+
+/* Grille verrouillée (teaser) */
+.sessions-grid.grid-locked{
+  filter: blur(3px) saturate(.85) brightness(.95);
+  pointer-events: none; user-select: none;
+}

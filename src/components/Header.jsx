@@ -30,11 +30,9 @@ export default function Header() {
         {/* NAV DESKTOP */}
         <nav className="header__nav">
           {!isAuthed && <Link to="/" onClick={closeMenu}>Accueil</Link>}
+          {/* Sessions et Groupes toujours visibles */}
           <Link to="/sessions" onClick={closeMenu}>Sessions</Link>
-
-          {isAuthed && (
-            <Link to="/groups" onClick={closeMenu}>Groupes</Link>
-          )}
+          <Link to="/groups" onClick={closeMenu}>Groupes</Link>
 
           {isAuthed ? (
             <>
@@ -82,11 +80,9 @@ export default function Header() {
 
           <div className="mobile-links">
             {!isAuthed && <Link to="/" onClick={closeMenu}>Accueil</Link>}
+            {/* Sessions et Groupes toujours visibles */}
             <Link to="/sessions" onClick={closeMenu}>Sessions</Link>
-
-            {isAuthed && (
-              <Link to="/groups" onClick={closeMenu}>Groupes</Link>
-            )}
+            <Link to="/groups" onClick={closeMenu}>Groupes</Link>
 
             {isAuthed ? (
               <>

@@ -1,0 +1,22 @@
+:root{ --panel:#1a1a1a; --panel-2:#151516; --border:#262728; --text:#ffffff; --muted:#cfcfcf; --accent:#ff2d2d; }
+
+.em-wrap{ }
+.em-form{ display:grid; grid-template-columns:1fr 1fr 1.2fr auto; gap:8px; margin-bottom:10px; }
+.em-form input{
+  background:#0d0d0f; color:#eee; border:1px solid #222; border-radius:12px; padding:10px 12px;
+}
+.em-btn{
+  background:#101013; color:#fff; border:1px solid #2a2a2f; padding:10px 12px; border-radius:12px; cursor:pointer;
+}
+.em-btn.primary{ background:var(--accent); border-color:var(--accent); }
+.em-tools{ margin:8px 0; }
+.em-filter{ width:100%; background:#0d0d0f; color:#eee; border:1px solid #222; border-radius:12px; padding:10px 12px; }
+.em-empty{ color:#aaa; }
+
+.em-list{ list-style:none; padding:0; margin:10px 0 0; display:grid; gap:8px; }
+.em-item{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  background:#121214; border:1px solid #202025; border-radius:12px; padding:10px 12px;
+}
+.em-name{ color:#fff; font-weight:700; }
+.em-note{ color:#9a9a9a; font-size:13px; }

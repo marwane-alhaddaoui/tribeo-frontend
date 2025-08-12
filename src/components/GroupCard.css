@@ -1,109 +1,59 @@
-/* ======================
-   CARD — polish & colors (DA noir/rouge)
-   ====================== */
+:root{ --panel:#1a1a1a; --panel-2:#151516; --border:#262728; --text:#ffffff; --accent:#ff2d2d; }
 
-.group-card {
-  border: 1px solid #242424;
-  background:
-    linear-gradient(180deg, rgba(255,45,45,0.05) 0%, rgba(255,45,45,0) 100%),
-    #1a1a1a;
-  border-radius: 14px;
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color .2s ease;
+/* CARD */
+.gc-card{
+  background:linear-gradient(180deg, rgba(255,45,45,.05) 0%, rgba(255,45,45,0) 100%), var(--panel);
+  border:1px solid var(--border); border-radius:16px; padding:16px; color:#eee;
+  box-shadow:0 6px 16px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,45,45,.04);
+  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
 }
-.group-card:hover {
-  transform: translateY(-3px);
-  box-shadow:
-    0 6px 16px rgba(0,0,0,.6),
-    0 0 0 1px rgba(255,45,45,.08) inset;
-  border-color: #2a2a2a;
+.gc-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 10px 24px rgba(0,0,0,.72), 0 0 0 1px rgba(255,45,45,.08) inset;
+  border-color:rgba(255,45,45,.22);
 }
 
-/* ======================
-   TOP ROW — titre + chip
-   ====================== */
+/* HEADER */
+.gc-header{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
+.gc-title{ margin:6px 0 4px; font-size:1.1rem; color:var(--text); }
+.gc-title:hover{ color:var(--accent); }
+.gc-sub{ margin:0; color:#bdbdbd; display:flex; align-items:center; gap:8px; }
 
-.gc-row { display: flex; align-items: center; gap: 8px; }
-.gc-row-top { justify-content: space-between; margin-bottom: 6px; }
-
-.gc-title {
-  font-size: 1.15rem;
-  line-height: 1.25;
-  margin: 6px 0 6px;
-  color: #fff;
-  font-weight: 700;
+/* CHIPS */
+.gc-chip{
+  font-size:.76rem; padding:6px 10px; border-radius:999px; border:1px solid var(--border);
+  background:var(--panel-2); color:#ddd; letter-spacing:.2px;
 }
-.group-card:hover .gc-title { color: #ff2d2d; }
+.gc-chip.is-private{ border-color:#8a1b22; background:rgba(255,45,45,.10); color:#ffb3ba; }
+.gc-chip.is-open{ border-color:#2a2a2f; }
+.gc-chip.is-coach{ border-color:#3a3a3f; color:#bbb; }
 
-/* Chip à droite (ville, sport, etc.) */
-.gc-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: #211818;
-  border: 1px solid #3a2a2a;
-  color: #ffd7d7;
-  font-weight: 700;
-  font-size: .72rem;
-  letter-spacing: .2px;
+/* MEMBERS + ACTIONS */
+.gc-members{ display:flex; align-items:center; gap:8px; color:#a9a9a9; }
+.group-card-actions{ margin-top:12px; display:flex; gap:8px; }
+.gc-btn-details{
+  display:inline-block; text-decoration:none; font-weight:700;
+  background:transparent; color:var(--accent); border:1px solid var(--accent);
+  padding:8px 12px; border-radius:12px; transition:all .18s ease;
 }
-.gc-chip-emoji { font-size: .9rem; line-height: 1; }
-.gc-chip:hover {
-  border-color: #4a3a3a;
-  box-shadow: 0 0 0 1px rgba(255,45,45,.08) inset;
+.gc-btn-details:hover{ background:var(--accent); color:#fff; box-shadow:0 0 10px rgba(255,45,45,0.35); }
+
+/* Lock state (au cas où on applique le blur par carte) */
+.gc-locked{
+  position: relative;
+  filter: blur(1.5px) saturate(.8);
 }
-
-/* ======================
-   META
-   ====================== */
-
-.gc-meta { display: grid; gap: 6px; margin-top: 2px; }
-.meta-row {
-  display: inline-flex; align-items: center; gap: 8px;
-  color: #c9c9c9; font-size: .95rem;
+.gc-disabled{
+  color:#9a9a9a !important;
+  border-color:#3a3a3f !important;
+  background:transparent !important;
+  cursor:not-allowed !important;
+  box-shadow:none !important;
+  opacity:.8;
 }
-.gc-desc { color: #bfbfbf; font-size: .9rem; line-height: 1.45; }
-
-/* ======================
-   ACTION — bouton Détails
-   ====================== */
-
-.group-card-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.gc-btn-details {
-  background-color: transparent;
-  border: 1px solid #ff2d2d;
-  color: #ff2d2d;
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-weight: 700;
-  text-decoration: none;
-  text-align: center;
-  transition: all 0.25s ease;
-}
-.gc-btn-details:hover {
-  background-color: #ff2d2d;
-  color: white;
-  box-shadow: 0 0 10px rgba(255,45,45,0.4);
-}
-.gc-btn-details:active { transform: translateY(1px); }
-
-/* ======================
-   RESPONSIVE TWEAKS
-   ====================== */
-
-@media (max-width: 420px) {
-  .gc-row-top { flex-wrap: wrap; gap: 6px; }
-  .gc-chip { margin-left: auto; }
+.gc-lock-overlay{
+  position:absolute; inset:0; border-radius:16px;
+  background:linear-gradient(180deg, rgba(21,21,22,.45), rgba(21,21,22,.55));
+  border:1px solid rgba(38,39,40,.8);
+  pointer-events:none;
 }
