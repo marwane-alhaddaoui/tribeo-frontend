@@ -47,7 +47,7 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-wrapper">
-      <h1 className="dashboard-title">🏠 Mon tableau de bord</h1>
+      <h1 className="dashboard-title">Mon tableau de bord</h1>
 
       {/* 👟 Mes sessions à venir */}
       <section className="dashboard-section">

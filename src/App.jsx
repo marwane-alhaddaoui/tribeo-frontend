@@ -13,6 +13,11 @@ import ProfilePage from "./pages/Profile/ProfilePage";
 import AdminRoute from "./routes/AdminRoute";
 import AdminDashboard from "./pages/Dashboard/AdminDashboard";
 
+// ✅ Ajouts Groupes
+import GroupsPage from "./pages/Groups/GroupsPage";
+import GroupDetail from "./pages/Groups/GroupDetail";
+import GroupForm from "./pages/Groups/GroupForm";
+
 function App() {
   return (
     <Router>
@@ -68,6 +73,32 @@ function App() {
               <AdminRoute>
                 <AdminDashboard />
               </AdminRoute>
+            }
+          />
+
+          {/* ✅ Groupes (protégés) */}
+          <Route
+            path="/groups"
+            element={
+              <PrivateRoute>
+                <GroupsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/groups/new"
+            element={
+              <PrivateRoute>
+                <GroupForm />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/groups/:id"
+            element={
+              <PrivateRoute>
+                <GroupDetail />
+              </PrivateRoute>
             }
           />
         </Route>

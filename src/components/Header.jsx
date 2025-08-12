@@ -32,6 +32,10 @@ export default function Header() {
           {!isAuthed && <Link to="/" onClick={closeMenu}>Accueil</Link>}
           <Link to="/sessions" onClick={closeMenu}>Sessions</Link>
 
+          {isAuthed && (
+            <Link to="/groups" onClick={closeMenu}>Groupes</Link>
+          )}
+
           {isAuthed ? (
             <>
               {user.role === 'admin' && (
@@ -43,7 +47,6 @@ export default function Header() {
               {user.role === 'user' && (
                 <Link to="/dashboard" onClick={closeMenu}>Dashboard</Link>
               )}
-              {/* (création déplacée sur la page Sessions) */}
               <Link to="/profile" onClick={closeMenu}>Profile</Link>
               <button onClick={logout}>Déconnexion</button>
             </>
@@ -81,12 +84,15 @@ export default function Header() {
             {!isAuthed && <Link to="/" onClick={closeMenu}>Accueil</Link>}
             <Link to="/sessions" onClick={closeMenu}>Sessions</Link>
 
+            {isAuthed && (
+              <Link to="/groups" onClick={closeMenu}>Groupes</Link>
+            )}
+
             {isAuthed ? (
               <>
                 {user.role === 'admin' && <Link to="/admin/dashboard" onClick={closeMenu}>Dashboard Admin</Link>}
                 {user.role === 'coach' && <Link to="/dashboard" onClick={closeMenu}>Dashboard Coach</Link>}
                 {user.role === 'user' && <Link to="/dashboard" onClick={closeMenu}>Dashboard</Link>}
-                {/* (création déplacée sur la page Sessions) */}
                 <Link to="/profile" onClick={closeMenu}>Profile</Link>
                 <button
                   className="mobile-logout"

@@ -1,0 +1,88 @@
+/* ===== Empty state ===== */
+.gm-empty {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #a1a1aa;            /* zinc-400 */
+  font-size: .9rem;
+  background: #171717;       /* proche #121212 mais lisible */
+  border: 1px solid #222222; /* sobre */
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+/* ===== List wrapper ===== */
+.gm-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ===== Item ===== */
+.gm-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  background:
+    linear-gradient(180deg, rgba(255,45,45,.04) 0%, rgba(255,45,45,0) 100%),
+    #121212;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 10px 12px;
+  transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+
+.gm-item:hover {
+  border-color: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px rgba(255,45,45,.06) inset;
+}
+
+/* ===== Email "pill" ===== */
+.gm-email {
+  color: #e5e5e5;
+  font-size: .92rem;
+  font-weight: 600;
+  letter-spacing: .1px;
+
+  padding: 6px 10px;
+  background: #1a1a1a;
+  border: 1px solid #262626;
+  border-radius: 999px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ===== Remove button ===== */
+.gm-remove {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  color: #ff2d2d;
+  background: transparent;
+  border: 1px solid #3a1f1f;
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-size: .85rem;
+  font-weight: 700;
+
+  transition: all .2s ease;
+}
+.gm-remove:hover {
+  background: #ff2d2d;
+  color: #fff;
+  border-color: #ff2d2d;
+  box-shadow: 0 0 10px rgba(255,45,45,.25);
+}
+.gm-remove:active { transform: translateY(1px); }
+.gm-remove-label { display: none; }
+@media (min-width: 460px) {
+  .gm-remove-label { display: inline; }
+}

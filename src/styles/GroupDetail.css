@@ -1,0 +1,133 @@
+/* ===== Wrapper ===== */
+.gd-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+/* ===== Header ===== */
+.gd-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.gd-titlebox { flex: 1; min-width: 0; }
+.gd-title {
+  color: #fff;
+  font-size: 1.6rem;
+  line-height: 1.2;
+  margin: 0 0 6px;
+  font-weight: 800;
+}
+.gd-sub {
+  color: #9ca3af;
+  font-size: .95rem;
+  margin: 0;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.gd-label { color: #a8a8a8; }
+.gd-value { color: #fff; font-weight: 700; }
+.gd-sep { color: #5f5f5f; }
+.gd-desc {
+  color: #cfcfcf;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+.gd-actions { display: flex; gap: 8px; align-items: center; }
+
+/* ===== Buttons (DA) ===== */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #b91c1c;
+  color: #fff;
+  font-weight: 700;
+  border: 1px solid #b91c1c;
+  transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+.btn-primary:hover {
+  background: #ef4444;
+  box-shadow: 0 6px 16px rgba(239,68,68,.25);
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  background: #141414;
+  color: #e5e5e5;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 700;
+  transition: all .2s ease;
+}
+.btn-ghost:hover { border-color: #b91c1c; background: #171717; transform: translateY(-1px); }
+
+/* ===== Grid ===== */
+.gd-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 860px) {
+  .gd-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== Card ===== */
+.gd-card {
+  border: 1px solid #242424;
+  background:
+    linear-gradient(180deg, rgba(255,45,45,0.05) 0%, rgba(255,45,45,0) 100%),
+    #1a1a1a;
+  border-radius: 14px;
+  padding: 18px;
+  transition: box-shadow .2s ease, border-color .2s ease;
+}
+.gd-card:hover {
+  border-color: #2a2a2a;
+  box-shadow: 0 0 0 1px rgba(255,45,45,.06) inset;
+}
+
+/* ===== Titles inside cards ===== */
+.gd-h2, .gd-h3 {
+  color: #fff;
+  font-weight: 800;
+  margin: 0 0 10px;
+}
+.gd-h2 { font-size: 1.15rem; }
+.gd-h3 { font-size: 1.05rem; }
+.gd-count { color: #a1a1aa; font-weight: 600; }
+
+/* ===== Add member form ===== */
+.gd-form { display: grid; gap: 10px; }
+.gd-label {
+  color: #d4d4d8;
+  font-size: .92rem;
+  font-weight: 700;
+}
+.gd-input {
+  background: #121212;
+  color: #e5e5e5;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.gd-input::placeholder { color: #a1a1aa; }
+.gd-input:focus {
+  border-color: #3a3a3a;
+  box-shadow: 0 0 0 1px rgba(255,45,45,.08) inset;
+}
+.gd-hint {
+  color: #9ca3af;
+  font-size: .85rem;
+}
+
+/* ===== States ===== */
+.gd-loading { color: #a1a1aa; }

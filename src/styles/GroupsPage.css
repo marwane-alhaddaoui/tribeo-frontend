@@ -1,0 +1,196 @@
+/* ===== Container ===== */
+.groups-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+/* ===== Header ===== */
+.groups-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.groups-title {
+  color: #fff;
+  font-size: 1.6rem;
+  line-height: 1.2;
+  margin: 0 0 4px;
+  font-weight: 800;
+}
+.groups-sub {
+  color: #9ca3af;
+  font-size: .95rem;
+  margin: 0;
+}
+
+/* ===== CTA boutons ===== */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #b91c1c;
+  color: #fff;
+  font-weight: 700;
+  border: 1px solid #b91c1c;
+  transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
+  text-decoration: none;
+}
+.btn-primary:hover {
+  background: #ef4444;
+  box-shadow: 0 6px 16px rgba(239,68,68,.25);
+  transform: translateY(-1px);
+}
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #2a2a2a;
+  color: #ff2d2d;
+  text-decoration: none;
+  transition: all .2s ease;
+}
+.btn-ghost:hover {
+  background: #ff2d2d; color: #fff; border-color: #ff2d2d;
+}
+
+/* ===== Filtres ===== */
+.groups-filters {
+  display: grid;
+  grid-template-columns: 1fr 180px 180px auto;
+  gap: 10px;
+  margin: 12px 0 12px;
+}
+@media (max-width: 900px) {
+  .groups-filters { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 520px) {
+  .groups-filters { grid-template-columns: 1fr; }
+}
+
+.gf-input {
+  background: #121212;
+  color: #e5e5e5;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.gf-input::placeholder { color: #a1a1aa; }
+.gf-input:focus {
+  border-color: #3a3a3a;
+  box-shadow: 0 0 0 1px rgba(255,45,45,.08) inset;
+}
+
+.gf-actions {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+}
+.gf-button {
+  background: #0f0f0f;
+  color: #fff;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 700;
+  transition: border-color .2s ease, background .2s ease, transform .2s ease;
+}
+.gf-button:hover {
+  border-color: #b91c1c;
+  background: #141414;
+  transform: translateY(-1px);
+}
+.gf-reset {
+  background: #141414;
+  color: #e5e5e5;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 10px 12px;
+  transition: all .2s ease;
+}
+.gf-reset:hover { border-color: #444; }
+
+/* ===== Résumé résultats + chips ===== */
+.groups-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 6px 0 16px;
+}
+.groups-count {
+  color: #a1a1aa;
+  font-size: .95rem;
+}
+.groups-active-filters {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.chip {
+  background: #1f1f1f;
+  color: #cfcfcf;
+  border: 1px solid #2b2b2b;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+/* ===== Grid de cartes ===== */
+.groups-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+@media (max-width: 820px) {
+  .groups-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== États ===== */
+.groups-loading {
+  color: #a1a1aa;
+  font-size: .95rem;
+  padding: 12px;
+}
+.groups-empty {
+  border: 1px solid #242424;
+  background:
+    linear-gradient(180deg, rgba(255,45,45,0.05) 0%, rgba(255,45,45,0) 100%),
+    #1a1a1a;
+  border-radius: 14px;
+  padding: 18px;
+  color: #a1a1aa;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.groups-empty-actions {
+  display: inline-flex; gap: 8px; flex-wrap: wrap;
+}
+@media (max-width: 520px) {
+  .groups-empty { flex-direction: column; gap: 10px; align-items: flex-start; }
+}
+
+/* ===== Skeleton cards ===== */
+.sk-card {
+  height: 140px;
+  border-radius: 14px;
+  border: 1px solid #242424;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.12), rgba(255,255,255,.06));
+  background-size: 200% 100%;
+  animation: shimmer 1.2s linear infinite;
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
