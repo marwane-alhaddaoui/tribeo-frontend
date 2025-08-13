@@ -316,8 +316,7 @@ export default function GroupDetail() {
               <UserPicker onSelect={handleAddMember} placeholder="Ajouter un membre (username / email)" />
             </div>
           )}
-          <GroupMembers members={useMemo(() => group?.members ?? [], [group])} canManage={isOwnerOrManager} onRemove={handleRemoveMember} />
-        </section>
+<GroupMembers members={members} canManage={isOwnerOrManager} onRemove={handleRemoveMember} />        </section>
       )}
 
       {tab === "requests" && isOwnerOrManager && (
