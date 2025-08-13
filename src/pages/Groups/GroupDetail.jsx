@@ -1,4 +1,3 @@
-// src/pages/Groups/GroupDetail.jsx
 import { useEffect, useMemo, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -17,16 +16,21 @@ import {
 } from "../../api/groupService";
 
 import { AuthContext } from "../../context/AuthContext";
-import GroupMembers from "../../components/GroupMembers";
-import GroupJoinRequests from "../../components/GroupJoinRequests";
-import ExternalMembers from "../../components/ExternalMembers";
-import UserPicker from "../../components/UserPicker";
 import "../../styles/GroupDetail.css";
 
 // 👇 Chat
 import chatService from "../../api/chatService";
 import ChatPanel from "../../components/ChatPanel";
 import "../../styles/ChatPanel.css";
+
+// 👇 Sessions du groupe (TRAINING)
+import GroupSessionsTab from "../../components/GroupSessionsTab";
+
+// 👇 Membres combinés
+import AllMembers from "../../components/AllMembers";
+
+//invitation
+import GroupJoinRequests from "../../components/GroupJoinRequests";
 
 // ---------- helpers ----------
 function fmtDate(iso) {
@@ -63,9 +67,12 @@ export default function GroupDetail() {
   const [err, setErr] = useState(null);
   const [msg, setMsg] = useState(null);
 
-  // onglet: "overview" | "members" | "requests" | "externals"
+  // 🔢 compteur d'externes (remonté par ExternalMembers)
+  const [externalCount, setExternalCount] = useState(0);
+
+  // onglet: "overview" | "members" | "chat" | "requests" | "sessions"
   const [tab, setTab] = useState("overview");
-  const [reqCount, setReqCount] = useState(null); // compteur demandes (réglé par enfant)
+  const [reqCount, setReqCount] = useState(null);
 
   const reload = async () => {
     try {
@@ -102,20 +109,14 @@ export default function GroupDetail() {
     group?.group_type === "COACH"   ? "chip-coach"   : "chip-public";
 
   const sportLabel = group?.sport_name ?? group?.sport?.name ?? group?.sport ?? "—";
-  const membersCount = Array.isArray(group?.members) ? group.members.length : (group?.members_count ?? 0);
   const members = useMemo(() => group?.members ?? [], [group]);
 
-  const coachLabel =
-    group?.coach?.username || group?.coach?.email || group?.coach_name || "Coach";
   const joinPolicy =
     group?.group_type === "PRIVATE" ? "Sur demande (validation requise)" :
     group?.group_type === "COACH"   ? "Sur invitation du coach" :
     "Ouvert";
 
-  const createdAt = fmtDate(group?.created_at);
-  const updatedAt = fmtDate(group?.updated_at);
-
-  // ---- Permissions robustes pour supprimer ----
+  // ---- Permissions robustes ----
   const userEmail = user?.email?.toLowerCase?.() || "";
   const coachEmail = (group?.coach?.email || "").toLowerCase();
   const rolesStr = (user?.roles || user?.role || []).toString().toUpperCase();
@@ -126,9 +127,11 @@ export default function GroupDetail() {
     user?.is_admin === true ||
     rolesStr.includes("ADMIN");
 
-  const isCoachOwner = !!user && (!!coachEmail && coachEmail === userEmail || rolesStr.includes("COACH"));
+  // 👇 c'est le créateur/coach du groupe ?
+  const isGroupCoach = group?.is_group_coach === true || (!!coachEmail && coachEmail === userEmail) || rolesStr.includes("COACH");
 
-  const canDelete = isOwnerOrManager || isAdminLike || isCoachOwner;
+  const canDelete = isOwnerOrManager || isAdminLike || isGroupCoach;
+  const canCreateTraining = group?.group_type === "COACH" && group?.is_group_coach === true;
 
   // ---- Actions principales ----
   const handleJoin = async () => {
@@ -159,7 +162,6 @@ export default function GroupDetail() {
     }
   };
 
-  // ---- Gestion des membres ----
   const handleAddMember = async (u) => {
     if (!u?.id) return;
     try {
@@ -189,7 +191,6 @@ export default function GroupDetail() {
     }
   };
 
-  // ---- Suppression du groupe ----
   const handleDeleteGroup = async () => {
     if (!window.confirm("Supprimer ce groupe ? Cette action est définitive.")) return;
     setOpLoading(true); setErr(null); setMsg(null);
@@ -206,6 +207,10 @@ export default function GroupDetail() {
   if (loading) return <div className="gd-skel">Chargement…</div>;
   if (!group)   return <div className="gd-empty">Groupe introuvable.</div>;
 
+  // 👉 total internes + externes pour l’affichage
+  const internalCount = group?.members_count ?? (group?.members?.length ?? 0);
+  const totalMembers = internalCount + (externalCount || 0);
+
   return (
     <div className="gd">
       {(msg || err) && (
@@ -219,6 +224,7 @@ export default function GroupDetail() {
         </div>
 
         <div className="gd-actions">
+          {/* 🔒 Le créateur/coach ne voit pas "Quitter" */}
           {!isMember ? (
             group.group_type === "COACH" ? (
               <button className="gd-btn" disabled title="Invitation requise par le coach">
@@ -230,40 +236,43 @@ export default function GroupDetail() {
               </button>
             )
           ) : (
-            <button className="gd-btn" onClick={handleLeave} disabled={opLoading}>
-              Quitter
-            </button>
+            !isGroupCoach && (
+              <button className="gd-btn" onClick={handleLeave} disabled={opLoading}>
+                Quitter
+              </button>
+            )
           )}
         </div>
       </header>
 
       {/* Meta ligne sous le header */}
       <div className="gd-meta">
-        <span className={`gd-chip ${
-          group?.group_type === "PRIVATE" ? "chip-private" :
-          group?.group_type === "COACH"   ? "chip-coach" : "chip-public"
-        }`}>
-          {group?.group_type === "PRIVATE" ? "Privé" :
-           group?.group_type === "COACH"   ? "Coach-only" : "Public"}
+        <span className={`gd-chip ${typeClass}`}>
+          {typeLabel}
         </span>
         <span className="gd-meta-sub">
-          {safe(group.city)} • {group?.sport_name ?? group?.sport?.name ?? "—"} • {(group?.members_count ?? 0)} membre{(group?.members_count ?? 0) > 1 ? "s" : ""}
+          {safe(group.city)} • {sportLabel} • {totalMembers} membre{totalMembers > 1 ? "s" : ""}
         </span>
       </div>
 
       {/* Tabs */}
       <nav className="gd-tabs">
         <button onClick={() => setTab("overview")}  className={tab==="overview"  ? "active" : ""}>Aperçu</button>
-        <button onClick={() => setTab("members")}   className={tab==="members"   ? "active" : ""}>Membres ({group?.members_count ?? (group?.members?.length ?? 0)})</button>
+        <button onClick={() => setTab("members")}   className={tab==="members"   ? "active" : ""}>
+          Membres ({totalMembers})
+        </button>
+        <button onClick={() => setTab("chat")} className={tab==="chat" ? "active" : ""}>
+          Chat
+        </button>
+        {isMember && (
+          <button onClick={() => setTab("sessions")} className={tab==="sessions" ? "active" : ""}>
+            Sessions
+          </button>
+        )}
         {isOwnerOrManager && (
-          <>
-            <button onClick={() => setTab("requests")}  className={tab==="requests"  ? "active" : ""}>
-              Demandes{reqCount !== null ? ` (${reqCount})` : ""}
-            </button>
-            <button onClick={() => setTab("externals")} className={tab==="externals" ? "active" : ""}>
-              Externes
-            </button>
-          </>
+          <button onClick={() => setTab("requests")}  className={tab==="requests"  ? "active" : ""}>
+            Demandes{reqCount !== null ? ` (${reqCount})` : ""}
+          </button>
         )}
       </nav>
 
@@ -277,31 +286,20 @@ export default function GroupDetail() {
             <div className="gd-rules">
               <h3>Règles d’accès</h3>
               <ul>
-                <li><span className="dot" /> <strong>Adhésion :</strong> {group?.group_type === "PRIVATE" ? "Sur demande (validation requise)" :
-                  group?.group_type === "COACH" ? "Sur invitation du coach" : "Ouvert"}</li>
-                <li><span className="dot" /> <strong>Type :</strong> {group?.group_type === "PRIVATE" ? "Privé" :
-                  group?.group_type === "COACH" ? "Coach-only" : "Public"}</li>
+                <li><span className="dot" /> <strong>Adhésion :</strong> {joinPolicy}</li>
+                <li><span className="dot" /> <strong>Type :</strong> {typeLabel}</li>
               </ul>
             </div>
 
-            {/* 👇 Chat du groupe : réservé aux membres (et modération owner/manager) */}
-            <div style={{ marginTop: 24 }}>
-              <h3>Chat du groupe</h3>
-              <ChatPanel
-              api={chatService.group(groupId)}
-              canRead={isMember}
-              canWrite={isMember}
-              canModerate={isOwnerOrManager}
-              />
-            </div>
+            {/* ❌ Section "Entraînements du groupe" retirée */}
           </div>
 
           <aside className="gd-over-right">
             <div className="gd-facts">
               <FactCard label="Coach" value={safe(group?.coach?.username || group?.coach?.email || group?.coach_name || "Coach")} />
-              <FactCard label="Sport" value={safe(group?.sport_name ?? group?.sport?.name ?? group?.sport)} />
+              <FactCard label="Sport" value={safe(sportLabel)} />
               <FactCard label="Ville" value={safe(group?.city)} />
-              <FactCard label="Membres" value={String(group?.members_count ?? (group?.members?.length ?? 0))} />
+              <FactCard label="Membres" value={String(totalMembers)} />
               <FactCard label="Créé le" value={fmtDate(group?.created_at)} />
               <FactCard label="Mis à jour" value={fmtDate(group?.updated_at)} />
             </div>
@@ -311,12 +309,37 @@ export default function GroupDetail() {
 
       {tab === "members" && (
         <section className="gd-section">
-          {isOwnerOrManager && (
-            <div style={{ marginBottom: 12 }}>
-              <UserPicker onSelect={handleAddMember} placeholder="Ajouter un membre (username / email)" />
-            </div>
-          )}
-<GroupMembers members={members} canManage={isOwnerOrManager} onRemove={handleRemoveMember} />        </section>
+          <AllMembers
+            members={members}
+            canManage={isOwnerOrManager}
+            onAddInternal={handleAddMember}
+            onRemoveInternal={handleRemoveMember}
+            groupId={groupId}
+            loader={reload}
+            // 👉 ExternalMembers remontera son count via onCount
+            api={{ listExternalMembers, addExternalMember, deleteExternalMember, onCount: setExternalCount }}
+          />
+        </section>
+      )}
+
+      {tab === "chat" && (
+        <section className="gd-section">
+          <ChatPanel
+            api={chatService.group(groupId)}
+            canRead={isMember}
+            canWrite={isMember}
+            canModerate={isOwnerOrManager}
+          />
+        </section>
+      )}
+
+      {tab === "sessions" && isMember && (
+        <section className="gd-section">
+          <GroupSessionsTab
+            groupId={groupId}
+            canCreateTraining={canCreateTraining}
+          />
+        </section>
       )}
 
       {tab === "requests" && isOwnerOrManager && (
@@ -330,18 +353,7 @@ export default function GroupDetail() {
         </section>
       )}
 
-      {tab === "externals" && isOwnerOrManager && (
-        <section className="gd-section">
-          <ExternalMembers
-            groupId={groupId}
-            loader={reload}
-            api={{ listExternalMembers, addExternalMember, deleteExternalMember }}
-          />
-        </section>
-      )}
-
-      {/* Danger zone — visible si droits */}
-      { (isOwnerOrManager || isAdminLike || isCoachOwner) && (
+      {(isOwnerOrManager || isAdminLike || isGroupCoach) && (
         <section className="gd-section danger-zone">
           <h2>Zone dangereuse</h2>
           <p>La suppression est <strong>définitive</strong>. Vérifie bien avant de continuer.</p>

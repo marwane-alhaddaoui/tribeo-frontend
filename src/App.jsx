@@ -18,6 +18,9 @@ import GroupsPage from "./pages/Groups/GroupsPage";
 import GroupDetail from "./pages/Groups/GroupDetail";
 import GroupForm from "./pages/Groups/GroupForm";
 
+// training
+import TrainingDetailPage from "./pages/Trainings/TrainingDetailPage";
+
 function App() {
   return (
     <Router>
@@ -51,6 +54,11 @@ function App() {
                 <SessionDetailPage />
               </PrivateRoute>
             }
+          />
+          <Route 
+          path="/groups/:groupId/trainings/:id" 
+          element={
+          <TrainingDetailPage />} 
           />
           <Route
             path="/profile"

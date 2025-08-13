@@ -1,69 +1,169 @@
-import axiosClient from './axiosClient';
+// src/api/sessionService.js
+import axiosClient from "./axiosClient";
 
-// 🔄 GET toutes les sessions + filtre
+/* ---------------------------
+   Utils
+---------------------------- */
+const normalizeList = (data) =>
+  Array.isArray(data?.results) ? data.results : data;
+
+/** Essaie d'extraire un ID de session, peu importe le shape renvoyé par l'API */
+export function extractSessionId(s) {
+  if (!s) return null;
+
+  // champs probables
+  const direct =
+    s.id ??
+    s.session_id ??
+    s.pk ??
+    s.sessionId ??
+    (s.session && s.session.id) ??
+    null;
+
+  if (direct != null && !Number.isNaN(Number(direct))) {
+    return Number(direct);
+  }
+
+  // parfois l'API renvoie une URL/uri du style ".../sessions/41/"
+  const uri = s.url ?? s.uri ?? s.resource ?? null;
+  if (typeof uri === "string") {
+    const m = uri.match(/\/sessions\/(\d+)\//i);
+    if (m && m[1]) return Number(m[1]);
+  }
+
+  return null;
+}
+
+/* ---------------------------
+   Sessions (général)
+---------------------------- */
+
 export const getSessions = async (filters = {}) => {
   const queryParams = new URLSearchParams(filters).toString();
-  const url = queryParams ? `/sport_sessions/?${queryParams}` : '/sport_sessions/';
+  const url = queryParams ? `/sessions/?${queryParams}` : "/sessions/";
   try {
     const res = await axiosClient.get(url);
-    return res.data.results ?? res.data;
+    return normalizeList(res.data);
   } catch (err) {
-    console.error('Erreur récupération des sessions', err);
+    console.error("Erreur récupération des sessions", err);
     return [];
   }
 };
 
-// 📄 GET une session par ID
-export const getSessionDetail = (id) => {
-  return axiosClient.get(`/sessions/${id}/`);
+export const getSessionById = (id) => axiosClient.get(`/sessions/${id}/`);
+
+// alias historique
+export const getSessionDetail = getSessionById;
+
+export const createSession = (data) => axiosClient.post("/sessions/", data);
+
+export const joinSession = (id) => axiosClient.post(`/sessions/${id}/join/`);
+
+export const leaveSession = (id) => axiosClient.post(`/sessions/${id}/leave/`);
+
+export const publishSession = (id) =>
+  axiosClient.post(`/sessions/${id}/publish/`);
+
+export const cancelSession = (id) =>
+  axiosClient.post(`/sessions/${id}/cancel/`);
+
+export const deleteSession = (id) =>
+  axiosClient.delete(`/sport_sessions/${id}/`);
+
+// calendrier (coach) — gardé tel quel
+export const getMySessionsInRange = async ({ start, end }) => {
+  const params = { mine: true, date_from: start, date_to: end };
+  return getSessions(params);
 };
 
-// ➕ POST créer une session
-export const createSession = (data) => {
-  return axiosClient.post('/sessions/', data);
-};
-
-// ✅ POST rejoindre une session
-export const joinSession = (id) => {
-  return axiosClient.post(`/sessions/${id}/join/`);
-};
-
-// ❌ POST quitter une session
-export const leaveSession = (id) => {
-  return axiosClient.post(`/sessions/${id}/leave/`);
-};
-
-export const getSessionById = (id) => {
-  return axiosClient.get(`/sessions/${id}/`);
-};
-
+/* ---------------------------
+   Sports
+---------------------------- */
 export const getSports = async () => {
-  const response = await axiosClient.get('/sports/');
+  const response = await axiosClient.get("/sports/");
   return response.data;
 };
 
-// ➕ POST créer un sport
-export const createSport = (data) => {
-  return axiosClient.post('/sports/', data);
+export const createSport = (data) => axiosClient.post("/sports/", data);
+
+/* ---------------------------
+   TRAINING (groupe)
+---------------------------- */
+
+/** Liste des trainings d'un groupe (on passe par le listing standard filtré) */
+export const listGroupTrainings = async (groupId, extra = {}) => {
+  return getSessions({ group_id: groupId, event_type: "TRAINING", ...extra });
 };
 
-// 🚀 Publier une session
-export const publishSession = (id) => {
-  return axiosClient.post(`/sport_sessions/${id}/publish/`);
+/** Création d'un training (le sport est hérité du groupe côté BE) */
+export const createGroupTraining = async (payload) => {
+  const {
+    groupId,
+    latitude,
+    longitude,
+    end_time,
+    city,
+    sport_id, // ignoré côté FE
+    ...rest
+  } = payload;
+
+  const body = {
+    ...rest,
+    group_id: groupId,
+    event_type: "TRAINING",
+    visibility: "GROUP",
+  };
+  return axiosClient.post("/sessions/", body);
 };
 
-// 🛑 Annuler une session
-export const cancelSession = (id) => {
-  return axiosClient.post(`/sport_sessions/${id}/cancel/`);
-};
+/** Suppression d'un training (on supprime la session idempotente côté /sport_sessions/) */
+export const deleteGroupTraining = (groupId, sessionId) =>
+  axiosClient.delete(`/sessions/${sessionId}/`);
 
-// calendrier settup pour le coach
-export const getMySessionsInRange = async ({ start, end }) => {
-  const params = { mine: true, date_from: start, date_to: end };
-  return getSessions(params); // réutilise déjà axiosClient + base URL
-};
+/** Est-ce une session d'entraînement ? */
+export const isTrainingSession = (s) =>
+  String(s?.event_type || "").toUpperCase() === "TRAINING";
 
-// 🗑 Supprimer une session
-export const deleteSession = (id) => {
-  return axiosClient.delete(`/sport_sessions/${id}/`);
-};
+/* ---------------------------
+   Attendance (feuille de présence)
+---------------------------- */
+/** ATTENTION :
+ *  - certains backends exposent /groups/:gid/trainings/:sid/attendance/
+ *  - d'autres /sessions/:sid/attendance/
+ *  => on tente la route "group" puis fallback "session"
+ */
+
+export async function getTrainingAttendance(groupId, sessionId) {
+  // essaye d'abord la route "group", mais fallback quoi qu'il arrive si ça ne répond pas 200
+  try {
+    const { data } = await axiosClient.get(
+      `/groups/${groupId}/trainings/${sessionId}/attendance/`
+    );
+    return data?.attendance ?? data ?? [];
+  } catch (e) {
+    // ✅ tente toujours la route session si la group-route échoue
+    try {
+      const { data } = await axiosClient.get(`/sessions/${sessionId}/attendance/`);
+      return data?.attendance ?? data ?? [];
+    } catch (e2) {
+      throw e2; // remonte la vraie erreur si les deux échouent
+    }
+  }
+}
+
+export async function saveTrainingAttendance(groupId, sessionId, attendanceRows) {
+  try {
+    return await axiosClient.post(
+      `/groups/${groupId}/trainings/${sessionId}/attendance/`,
+      { attendance: attendanceRows }
+    );
+  } catch (e) {
+    try {
+      return await axiosClient.post(`/sessions/${sessionId}/attendance/`, {
+        attendance: attendanceRows,
+      });
+    } catch (e2) {
+      throw e2;
+    }
+  }
+}

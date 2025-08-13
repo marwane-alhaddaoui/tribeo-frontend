@@ -5,7 +5,7 @@ import "../styles/ExternalMembers.css";
 export default function ExternalMembers({
   groupId,
   loader, // () => Promise<void>
-  api: { listExternalMembers, addExternalMember, deleteExternalMember },
+  api: { listExternalMembers, addExternalMember, deleteExternalMember, onCount }, // 👈 onCount (optionnel)
 }) {
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,10 +20,14 @@ export default function ExternalMembers({
       setLoading(true);
       setErr(null);
       const data = await listExternalMembers(groupId);
-      setList(Array.isArray(data) ? data : []);
+      const arr = Array.isArray(data) ? data : [];
+      setList(arr);
+      // 👇 remonte le compteur au parent (GroupDetail) pour afficher le total
+      if (typeof onCount === "function") onCount(arr.length);
     } catch (e) {
       console.error(e);
       setErr("Impossible de charger les membres externes.");
+      if (typeof onCount === "function") onCount(0);
     } finally {
       setLoading(false);
     }

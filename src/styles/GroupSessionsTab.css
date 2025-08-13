@@ -1,0 +1,5 @@
+.btn { padding: 8px 12px; border: 1px solid #333; background: #151515; border-radius: 8px; color:#eee; }
+.btn:hover { background: #1b1b1b; }
+.btn-primary { background: #b30000; color: #fff; border-color: #b30000; }
+.btn-primary:hover { filter: brightness(1.05); }
+.btn-ghost { background: transparent; color:#ddd; }
