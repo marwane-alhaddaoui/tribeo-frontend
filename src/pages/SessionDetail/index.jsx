@@ -8,6 +8,13 @@ import {
   deleteSession, // 🗑
 } from "../../api/sessionService";
 import "../../styles/SessionDetailPage.css";
+
+// 👇 Chat
+import chatService from "../../api/chatService";
+import ChatPanel from "../../components/ChatPanel";
+import "../../styles/ChatPanel.css";
+
+
 import { AuthContext } from "../../context/AuthContext";
 
 /* ====================== Utils ====================== */
@@ -137,13 +144,16 @@ export default function SessionDetailPage() {
     return false;
   }, [session, currentUser, me.id, me.email, me.username]);
 
-  // ✅ tu as demandé: seul le créateur peut supprimer
-  const canDelete = isCreator === true;
-
+  // ✅ Backend autorise: créateur OU participant. On reflète ça côté UI :
   const isIn = useMemo(() => {
     if (!session || !me.email) return false;
     return (session.participants || []).some(p => eq(p.email, me.email));
   }, [session, me.email]);
+  const canReadChat  = isIn || isCreator;
+  const canWriteChat = isIn || isCreator;
+
+  // Modération: créateur ou owner/manager du groupe parent (si fourni par l’API)
+  const canModerateChat = !!(isCreator || (session?.group && session.group.is_owner_or_manager));
 
   const full = useMemo(() => {
     if (!session) return false;
@@ -199,7 +209,7 @@ export default function SessionDetailPage() {
 
   // 🗑 Danger Zone — suppression (créateur uniquement)
   const handleDelete = async () => {
-    if (!canDelete) return;
+    if (!isCreator) return;
     if (!window.confirm("Supprimer cette session ? Cette action est définitive.")) return;
     setBusy(true);
     try {
@@ -330,7 +340,7 @@ export default function SessionDetailPage() {
           )}
 
           {/* 🛑 Danger Zone — CREATOR ONLY */}
-          {canDelete && (
+          {isCreator && (
             <section className="danger-zone" style={{ marginTop: 24 }}>
               <h2>Zone dangereuse</h2>
               <p>La suppression est <strong>définitive</strong>. Vérifie bien avant de continuer.</p>
@@ -341,7 +351,7 @@ export default function SessionDetailPage() {
           )}
         </section>
 
-        {/* Colonne droite — Équipes & Participants */}
+        {/* Colonne droite — Équipes & Participants & Chat */}
         <section className="session-col-right">
           {isIn && (
             <div className="team-actions">
@@ -377,6 +387,17 @@ export default function SessionDetailPage() {
             ) : (
               <p className="session-empty">Aucun participant pour le moment.</p>
             )}
+          </div>
+
+          {/* 👇 Chat de la session (privé créateur/participants) */}
+          <div style={{ marginTop: 24 }}>
+            <h2 className="session-section-title">Chat de la session</h2>
+            <ChatPanel
+              api={chatService.session(id)}
+              canRead={canReadChat}
+              canWrite={canWriteChat}
+              canModerate={canModerateChat}
+              />
           </div>
         </section>
       </div>

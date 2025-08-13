@@ -1,3 +1,4 @@
+// src/pages/Groups/GroupDetail.jsx
 import { useEffect, useMemo, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -21,6 +22,11 @@ import GroupJoinRequests from "../../components/GroupJoinRequests";
 import ExternalMembers from "../../components/ExternalMembers";
 import UserPicker from "../../components/UserPicker";
 import "../../styles/GroupDetail.css";
+
+// 👇 Chat
+import chatService from "../../api/chatService";
+import ChatPanel from "../../components/ChatPanel";
+import "../../styles/ChatPanel.css";
 
 // ---------- helpers ----------
 function fmtDate(iso) {
@@ -210,12 +216,6 @@ export default function GroupDetail() {
       <header className="gd-header">
         <div>
           <h1 className="gd-title">{group.name}</h1>
-          <div className="gd-meta">
-            <span className={`gd-chip ${typeClass}`}>{typeLabel}</span>
-            <span className="gd-meta-sub">
-              {safe(group.city)} • {sportLabel} • {membersCount} membre{membersCount > 1 ? "s" : ""}
-            </span>
-          </div>
         </div>
 
         <div className="gd-actions">
@@ -237,10 +237,24 @@ export default function GroupDetail() {
         </div>
       </header>
 
+      {/* Meta ligne sous le header */}
+      <div className="gd-meta">
+        <span className={`gd-chip ${
+          group?.group_type === "PRIVATE" ? "chip-private" :
+          group?.group_type === "COACH"   ? "chip-coach" : "chip-public"
+        }`}>
+          {group?.group_type === "PRIVATE" ? "Privé" :
+           group?.group_type === "COACH"   ? "Coach-only" : "Public"}
+        </span>
+        <span className="gd-meta-sub">
+          {safe(group.city)} • {group?.sport_name ?? group?.sport?.name ?? "—"} • {(group?.members_count ?? 0)} membre{(group?.members_count ?? 0) > 1 ? "s" : ""}
+        </span>
+      </div>
+
       {/* Tabs */}
       <nav className="gd-tabs">
         <button onClick={() => setTab("overview")}  className={tab==="overview"  ? "active" : ""}>Aperçu</button>
-        <button onClick={() => setTab("members")}   className={tab==="members"   ? "active" : ""}>Membres ({membersCount})</button>
+        <button onClick={() => setTab("members")}   className={tab==="members"   ? "active" : ""}>Membres ({group?.members_count ?? (group?.members?.length ?? 0)})</button>
         {isOwnerOrManager && (
           <>
             <button onClick={() => setTab("requests")}  className={tab==="requests"  ? "active" : ""}>
@@ -263,20 +277,33 @@ export default function GroupDetail() {
             <div className="gd-rules">
               <h3>Règles d’accès</h3>
               <ul>
-                <li><span className="dot" /> <strong>Adhésion :</strong> {joinPolicy}</li>
-                <li><span className="dot" /> <strong>Type :</strong> {typeLabel}</li>
+                <li><span className="dot" /> <strong>Adhésion :</strong> {group?.group_type === "PRIVATE" ? "Sur demande (validation requise)" :
+                  group?.group_type === "COACH" ? "Sur invitation du coach" : "Ouvert"}</li>
+                <li><span className="dot" /> <strong>Type :</strong> {group?.group_type === "PRIVATE" ? "Privé" :
+                  group?.group_type === "COACH" ? "Coach-only" : "Public"}</li>
               </ul>
+            </div>
+
+            {/* 👇 Chat du groupe : réservé aux membres (et modération owner/manager) */}
+            <div style={{ marginTop: 24 }}>
+              <h3>Chat du groupe</h3>
+              <ChatPanel
+              api={chatService.group(groupId)}
+              canRead={isMember}
+              canWrite={isMember}
+              canModerate={isOwnerOrManager}
+              />
             </div>
           </div>
 
           <aside className="gd-over-right">
             <div className="gd-facts">
-              <FactCard label="Coach" value={safe(coachLabel)} />
-              <FactCard label="Sport" value={safe(sportLabel)} />
-              <FactCard label="Ville" value={safe(group.city)} />
-              <FactCard label="Membres" value={String(membersCount)} />
-              <FactCard label="Créé le" value={createdAt} />
-              <FactCard label="Mis à jour" value={updatedAt} />
+              <FactCard label="Coach" value={safe(group?.coach?.username || group?.coach?.email || group?.coach_name || "Coach")} />
+              <FactCard label="Sport" value={safe(group?.sport_name ?? group?.sport?.name ?? group?.sport)} />
+              <FactCard label="Ville" value={safe(group?.city)} />
+              <FactCard label="Membres" value={String(group?.members_count ?? (group?.members?.length ?? 0))} />
+              <FactCard label="Créé le" value={fmtDate(group?.created_at)} />
+              <FactCard label="Mis à jour" value={fmtDate(group?.updated_at)} />
             </div>
           </aside>
         </section>
@@ -289,7 +316,7 @@ export default function GroupDetail() {
               <UserPicker onSelect={handleAddMember} placeholder="Ajouter un membre (username / email)" />
             </div>
           )}
-          <GroupMembers members={members} canManage={isOwnerOrManager} onRemove={handleRemoveMember} />
+          <GroupMembers members={useMemo(() => group?.members ?? [], [group])} canManage={isOwnerOrManager} onRemove={handleRemoveMember} />
         </section>
       )}
 
@@ -315,7 +342,7 @@ export default function GroupDetail() {
       )}
 
       {/* Danger zone — visible si droits */}
-      {canDelete && (
+      { (isOwnerOrManager || isAdminLike || isCoachOwner) && (
         <section className="gd-section danger-zone">
           <h2>Zone dangereuse</h2>
           <p>La suppression est <strong>définitive</strong>. Vérifie bien avant de continuer.</p>
