@@ -17,6 +17,9 @@ import "../../styles/ChatPanel.css";
 
 import { AuthContext } from "../../context/AuthContext";
 
+import { QuotasContext } from "../../context/QuotasContext";
+
+
 /* ====================== Utils ====================== */
 function isFull(count, total) { return total ? count >= total : false; }
 function usernameFromEmail(email) {
@@ -85,6 +88,7 @@ const eq = (a, b) => String(a ?? "").trim().toLowerCase() === String(b ?? "").tr
 
 /* ====================== Page ====================== */
 export default function SessionDetailPage() {
+  const { quotas } = useContext(QuotasContext);
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -180,14 +184,28 @@ export default function SessionDetailPage() {
         return { ...prev, participants: [...(prev.participants || []), mine] };
       });
       await joinSession(id);
-    } catch (e) {
+      } catch (e) {
       console.error(e);
       await refetch();
-      alert("Impossible de rejoindre.");
+
+      // 👇 on lit le message d'erreur renvoyé par le backend
+      const msg =
+        e?.response?.data?.detail ||
+        e?.response?.data?.error ||
+        String(e);
+
+      // Quota backend atteint -> proposer l'upgrade
+      if (/Quota mensuel de participation/i.test(msg)) {
+        const go = confirm("Tu as atteint ton quota de participations ce mois-ci. Passer Premium ?");
+        if (go) navigate("/profile"); // UpgradeCard est sur le profil
+        return;
+      }
+
+      alert(msg || "Impossible de rejoindre.");
     } finally {
-      setBusy(false);
-    }
-  };
+        setBusy(false);
+      }
+    };
 
   const handleLeave = async () => {
     if (!me.email || busy || !isIn) return;

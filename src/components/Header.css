@@ -148,7 +148,7 @@
   .is-open .hamburger span:nth-child(3) {
     transform: translateY(-7px) rotate(-45deg);
   }
-}
+
 
 /* ===== Drawer & Backdrop ===== */
 .no-scroll{ overflow: hidden; }
@@ -220,3 +220,82 @@ body{ padding-top: var(--nav-h-desktop); }
 
 /* ===== Pas de scroll horizontal ===== */
 html, body{ overflow-x: hidden; }
+
+
+.header-profile-with-badge,
+.mobile-profile-with-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Badge neutre et discret */
+.plan-badge {
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: var(--badge-bg, #eef1f5);
+  color: var(--badge-fg, #2b2f36);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  opacity: .9;
+  line-height: 1.4;
+}
+
+/* Variantes optionnelles (si tu veux un léger code couleur) */
+.plan-free   { background: #f3f4f6; color: #374151; }
+.plan-premium{ background: #fff7e6; color: #92400e; }  /* doré doux */
+.plan-coach  { background: #e6f4ff; color: #0b4a6d; }  /* bleu doux */
+
+@media (prefers-color-scheme: dark) {
+  .plan-badge { 
+    background: #2a2f3a; 
+    color: #e5e7eb; 
+  }
+  .plan-premium{ background: #3a2b12; color: #fcd34d; }
+  .plan-coach  { background: #113049; color: #cfe8ff; }
+}
+
+@media (max-width: 1200px){
+  .header__nav { display: none; }
+  .hamburger  { display: inline-flex; }
+}
+/* ÉTAT PAR DÉFAUT (desktop) : burger caché */
+.hamburger{
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;   /* empile verticalement */
+  gap: 5px;
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.18);
+  cursor: pointer; padding: 0;
+  transition: background .2s, transform .12s, border-color .2s;
+}
+
+/* Les barres (toujours stylées de la même façon) */
+.hamburger span{
+  display: block;
+  width: 24px;
+  height: 2.5px;
+  background: #eaeaea;      /* visible */
+  border-radius: 2px;
+  transition: transform .2s, opacity .2s;
+}
+.hamburger span + span{ margin-top: 5px; }
+
+/* OUVERTURE DU BURGER : seulement sous 1200px */
+@media (max-width: 1200px){
+  .header__nav { display: none; }     /* cache la nav links */
+  .hamburger   { display: inline-flex; }  /* affiche le burger */
+  .header      { height: var(--nav-h-mobile); }
+  body         { padding-top: var(--nav-h-mobile); }
+}
+
+/* Animation en croix quand le header a .is-open (facultatif) */
+.is-open .hamburger span:nth-child(1){ transform: translateY(7px) rotate(45deg); }
+.is-open .hamburger span:nth-child(2){ opacity: 0; }
+.is-open .hamburger span:nth-child(3){ transform: translateY(-7px) rotate(-45deg); }

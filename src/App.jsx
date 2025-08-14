@@ -21,6 +21,10 @@ import GroupForm from "./pages/Groups/GroupForm";
 // training
 import TrainingDetailPage from "./pages/Trainings/TrainingDetailPage";
 
+import BillingPage from "./pages/Billing";
+import BillingSuccess from "./pages/Billing/Success";
+import BillingCancel from "./pages/Billing/Cancel";
+
 function App() {
   return (
     <Router>
@@ -104,6 +108,19 @@ function App() {
               </PrivateRoute>
             }
           />
+
+          {/* Billing */}
+          <Route
+            path="/billing"
+            element={
+              <PrivateRoute>
+                <BillingPage />
+              </PrivateRoute>
+            }
+          />
+          <Route path="/billing/success" element={<BillingSuccess />} />
+          <Route path="/billing/cancel" element={<BillingCancel />} />
+          
         </Route>
       </Routes>
     </Router>

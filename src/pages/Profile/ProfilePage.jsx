@@ -3,6 +3,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { updateMe } from '../../api/authService';
 import fallbackAvatar from '../../assets/avatar.png';
 import '../../styles/ProfilePage.css';
+import UpgradeCard from "../../components/UpgradeCard";
 
 const USERNAME_RX = /^[a-z0-9_]{3,20}$/;
 
@@ -292,6 +293,9 @@ export default function ProfilePage() {
 
             {msg && <p className="profile-success">{msg}</p>}
             {err && <p className="profile-error">{err}</p>}
+
+            {/* Ici, affichage de la carte d'upgrade */}
+            <UpgradeCard />
           </section>
         </div>
       </div>

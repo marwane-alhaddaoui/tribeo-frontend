@@ -4,9 +4,11 @@ import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import logo from '../assets/logo_v2_2.png';
 import './Header.css';
+import { QuotasContext } from "../context/QuotasContext";
 
 export default function Header() {
   const { user, logout } = useContext(AuthContext);
+  const { quotas } = useContext(QuotasContext);
   const [open, setOpen] = useState(false);
   const isAuthed = Boolean(user);
   const homeHref = isAuthed ? '/sessions' : '/';
@@ -45,7 +47,17 @@ export default function Header() {
               {user.role === 'user' && (
                 <Link to="/dashboard" onClick={closeMenu}>Dashboard</Link>
               )}
-              <Link to="/profile" onClick={closeMenu}>Profile</Link>
+              <Link to="/billing" onClick={closeMenu}>Abonnement</Link>
+                {/* Lien profil + badge plan */}
+               <span className="header-profile-with-badge">
+                 <Link to="/profile" onClick={closeMenu}>Profile</Link>
+                 {quotas?.plan && (
+                   <span className={`plan-badge plan-${String(quotas.plan).toLowerCase()}`}>
+                     {quotas.plan}
+                   </span>
+                 )}
+               </span>
+             
               <button onClick={logout}>Déconnexion</button>
             </>
           ) : (
@@ -83,13 +95,24 @@ export default function Header() {
             {/* Sessions et Groupes toujours visibles */}
             <Link to="/sessions" onClick={closeMenu}>Sessions</Link>
             <Link to="/groups" onClick={closeMenu}>Groupes</Link>
-
+            {isAuthed && <Link to="/billing">Abonnement</Link>}
             {isAuthed ? (
               <>
                 {user.role === 'admin' && <Link to="/admin/dashboard" onClick={closeMenu}>Dashboard</Link>}
                 {user.role === 'coach' && <Link to="/dashboard" onClick={closeMenu}>Dashboard</Link>}
                 {user.role === 'user' && <Link to="/dashboard" onClick={closeMenu}>Dashboard</Link>}
+              
+                
+                <div className="mobile-profile-with-badge">
                 <Link to="/profile" onClick={closeMenu}>Profile</Link>
+                {quotas?.plan && (
+                  <span className={`plan-badge plan-${String(quotas.plan).toLowerCase()}`}>
+                    {quotas.plan}
+                  </span>
+                )}
+                </div>
+                
+                
                 <button
                   className="mobile-logout"
                   onClick={() => { closeMenu(); logout(); }}

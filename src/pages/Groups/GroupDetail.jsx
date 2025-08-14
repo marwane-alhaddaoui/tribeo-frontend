@@ -141,7 +141,19 @@ export default function GroupDetail() {
       await joinGroup(groupId);
       await reload();
       setMsg(group.group_type === "PRIVATE" ? "Demande envoyée." : "Tu as rejoint le groupe.");
-    } catch {
+    } catch (e) {
+      const msg =
+        e?.response?.data?.detail ||
+        e?.response?.data?.error ||
+        String(e);   
+
+      if (/Nombre maximal de groupes/i.test(msg)) {
+        const go = confirm("Tu as atteint la limite de groupes pour ton plan. Passer Premium ?");
+        if (go) navigate("/profile");
+        setOpLoading(false);
+        return;
+      }  
+
       setErr("Action impossible.");
     } finally {
       setOpLoading(false);
