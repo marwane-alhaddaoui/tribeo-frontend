@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useMemo } from 'react';
+import { createContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { loginUser, getProfile, registerUser } from '../api/authService';
 import { saveToken, getToken, clearToken } from '../utils/storage';
 import { extractApiError } from '../utils/httpError';
@@ -10,13 +10,20 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // 🔁 Recharger le profil à la demande (dispo pour le front)
+  const refreshProfile = useCallback(async () => {
+    const res = await getProfile();            // GET /auth/profile/
+    setUser(res.data);
+    return res.data;
+  }, []);
+
   // Bootstrap session on mount / token change
   useEffect(() => {
     let alive = true;
     const init = async () => {
       if (!token) { setLoading(false); return; }
       try {
-        const res = await getProfile();            // GET /auth/profile/
+        const res = await getProfile();        // GET /auth/profile/
         if (!alive) return;
         setUser(res.data);
       } catch {
@@ -28,7 +35,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     init();
     return () => { alive = false; };
-  }, [token]);
+  }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Login (identifier = email OU username)
   const login = async (identifier, password) => {
@@ -38,8 +45,7 @@ export const AuthProvider = ({ children }) => {
       if (access) {
         saveToken(access);
         setToken(access);
-        const profile = await getProfile();
-        setUser(profile.data);
+        await refreshProfile();                // ⬅️ assure user à jour après login
       }
       return res;
     } catch (err) {
@@ -55,15 +61,12 @@ export const AuthProvider = ({ children }) => {
       const access = res?.data?.access ?? res?.data?.token;
 
       if (access) {
-        // cas où l’API renvoie déjà un token
         saveToken(access);
         setToken(access);
-        const profile = await getProfile();
-        setUser(profile.data);
+        await refreshProfile();
         return res;
       }
 
-      // sinon, auto-login (email d’abord, sinon username)
       try { await login(payload.email, payload.password); }
       catch { await login(payload.username, payload.password); }
 
@@ -86,11 +89,12 @@ export const AuthProvider = ({ children }) => {
     token,
     loading,
     login,
-    register,   // 👈 exposé
+    register,
     logout,
-    setUser,    // utile après update profil
+    setUser,          // utile pour patch optimiste
+    refreshProfile,   // ⬅️ exposé pour resync immédiate après /billing/verify/
     isAuthenticated: Boolean(user && token),
-  }), [user, token, loading]);
+  }), [user, token, loading, login, register, logout, refreshProfile]);
 
   return (
     <AuthContext.Provider value={value}>
