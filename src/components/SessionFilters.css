@@ -1,0 +1,21 @@
+/* src/components/SessionFilters.css */
+.filters-bar {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0 14px;
+  flex-wrap: wrap;
+}
+.fbtn {
+  border: 1px solid #e0e0e0;
+  background: #000000;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  cursor: pointer;
+}
+.fbtn.active {
+  border-color: #111;
+  background: #f3f3f3;
+  font-weight: 600;
+}

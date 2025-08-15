@@ -1,3 +1,4 @@
+// src/components/SessionCard.jsx
 import { useContext, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../../styles/SessionCard.css";
@@ -56,14 +57,16 @@ export default function SessionCard({ session, onFocus }) {
     .filter(Boolean)
     .join(" ");
 
-  // 👉 Clique: si onFocus fourni, on passe un flag 'disableZoom' quand c'est passé
+  // 👉 carte cliquable uniquement si la session n'est PAS passée
+  const clickable = !isPast;
+
   const handleCardClick = (e) => {
+    if (!clickable) return; // garde-fou
     e.preventDefault();
     e.stopPropagation();
     if (typeof onFocus === "function") {
-      // compat: 1er arg = session (legacy), 2e arg options (nouveau)
       onFocus(session, {
-        disableZoom: isPast,          // <- le parent peut ignorer le zoom
+        disableZoom: isPast,
         reason: isPast ? "past" : isFull ? "full" : "default",
       });
       return;
@@ -73,18 +76,20 @@ export default function SessionCard({ session, onFocus }) {
 
   // Accessibilité clavier
   const handleKeyDown = (e) => {
+    if (!clickable) return;
     if (e.key === "Enter" || e.key === " ") handleCardClick(e);
   };
 
   return (
     <article
       className={rootClass}
-      role="button"
-      tabIndex={0}
-      onClick={handleCardClick}
-      onKeyDown={handleKeyDown}
+      role={clickable ? "button" : "group"}
+      tabIndex={clickable ? 0 : -1}
+      onClick={clickable ? handleCardClick : undefined}
+      onKeyDown={clickable ? handleKeyDown : undefined}
       aria-label={`Session ${session.title || ""}`}
       aria-disabled={isPast ? "true" : "false"}
+      title={clickable ? "" : "Session passée — non cliquable"}
     >
       {/* RIBBONS */}
       {isPast && <div className="status-ribbon status-ribbon--past">PASSÉE</div>}
@@ -120,8 +125,7 @@ export default function SessionCard({ session, onFocus }) {
           {timing.isOngoing && (
             <span className="sc-badge sc-badge-accent">En cours</span>
           )}
-          {/* on garde le badge "Passée" si tu le veux en plus du ruban:
-          {isPast && <span className="sc-badge sc-badge-muted">Passée</span>} */}
+          {/* {isPast && <span className="sc-badge sc-badge-muted">Passée</span>} */}
         </div>
       </div>
 
@@ -189,7 +193,7 @@ export default function SessionCard({ session, onFocus }) {
         </div>
       </div>
 
-      {/* CTA — masqué en CSS et en JSX si passé */}
+      {/* CTA — masqué si passé */}
       {!isPast && (
         <div className="sc-actions session-card-actions">
           <Link

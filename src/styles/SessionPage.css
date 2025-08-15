@@ -183,3 +183,83 @@ body{
   filter: blur(3px) saturate(.85) brightness(.95);
   pointer-events: none; user-select: none;
 }
+
+
+/* =========================
+   STATE FILTER BUTTONS
+   (sessions-state-filters + .filter-btn)
+   ========================= */
+.sessions-state-filters{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+  margin:10px 0 18px;
+  background:
+    linear-gradient(180deg, rgba(255,45,45,.03), rgba(255,45,45,0) 70%),
+    var(--panel);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:10px;
+  box-shadow:0 6px 18px rgba(0,0,0,.4), inset 0 0 0 1px rgba(255,45,45,.03);
+}
+
+.sessions-state-filters .filter-btn{
+  padding:10px 16px;
+  background-color:#1b1b1c;
+  color:#fff;
+  border:1px solid #2e2f31;
+  border-radius:999px;
+  font-size:.95rem;
+  cursor:pointer;
+  transition:
+    transform .08s ease,
+    box-shadow .2s ease,
+    background-color .2s ease,
+    border-color .2s ease,
+    opacity .2s ease;
+}
+
+.sessions-state-filters .filter-btn:hover{
+  background-color:#222224;
+  border-color:#3a3b3d;
+  box-shadow:0 0 0 1px rgba(255,45,45,.08) inset;
+}
+
+.sessions-state-filters .filter-btn:active{
+  transform:translateY(1px);
+}
+
+.sessions-state-filters .filter-btn:focus-visible{
+  outline:none;
+  box-shadow:
+    0 0 0 3px rgba(255,45,45,.22),
+    0 0 0 1px var(--accent) inset;
+}
+
+/* état sélectionné */
+.sessions-state-filters .filter-btn.active{
+  background-color:var(--accent);
+  color:#fff;
+  border-color:var(--accent);
+  box-shadow:0 0 10px rgba(255,45,45,.35);
+  transform:translateY(-1px);
+}
+
+/* désactivés (visiteur) */
+.sessions-state-filters.is-disabled .filter-btn{
+  opacity:.6;
+  cursor:not-allowed;
+  pointer-events:none;
+  transform:none;
+  box-shadow:none;
+}
+
+/* responsive */
+@media (max-width:480px){
+  .sessions-state-filters{ padding:8px; gap:8px; }
+  .sessions-state-filters .filter-btn{ padding:9px 14px; font-size:.9rem; }
+}
+
+
+
