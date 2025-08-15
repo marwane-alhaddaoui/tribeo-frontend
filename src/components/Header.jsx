@@ -13,6 +13,19 @@ export default function Header() {
   const isAuthed = Boolean(user);
   const homeHref = isAuthed ? '/sessions' : '/';
 
+const userLabel = (u) => {
+  if (!u) return "Profil";
+  return u.username || "Profil";
+};
+
+const nameColorClass = (role) => {
+  const r = String(role || "").toLowerCase();
+  if (r === "coach") return "name-coach";
+  if (r === "premium") return "name-premium";
+  if (r === "admin") return "name-admin";
+  if (r === "user") return "name-user";
+  return "name-user";
+};
   useEffect(() => {
     document.body.classList.toggle('no-scroll', open);
     return () => document.body.classList.remove('no-scroll');
@@ -48,12 +61,13 @@ export default function Header() {
               <Link to="/billing" onClick={closeMenu}>Abonnement</Link>
                 {/* Lien profil + badge plan */}
                <span className="header-profile-with-badge">
-                 <Link to="/profile" onClick={closeMenu}>Profile</Link>
-                 {quotas?.plan && (
-                   <span className={`plan-badge plan-${String(quotas.plan).toLowerCase()}`}>
-                     {quotas.plan}
-                   </span>
-                 )}
+                 <Link
+                  to="/profile"
+                  onClick={closeMenu}
+                  title="Voir mon profil"
+                  className={`user-name ${nameColorClass(user?.role)}`}                >
+                  {userLabel(user)}
+                </Link>
                </span>
              
               <button onClick={logout}>Déconnexion</button>
@@ -101,12 +115,14 @@ export default function Header() {
                   : <Link to="/dashboard" onClick={closeMenu}>Dashboard</Link>}
                 
                 <div className="mobile-profile-with-badge">
-                <Link to="/profile" onClick={closeMenu}>Profile</Link>
-                {quotas?.plan && (
-                  <span className={`plan-badge plan-${String(quotas.plan).toLowerCase()}`}>
-                    {quotas.plan}
-                  </span>
-                )}
+                <Link
+                  to="/profile"
+                  onClick={closeMenu}
+                  title="Voir mon profil"
+                  className={`user-name ${nameColorClass(user?.role)}`}                >
+                  {userLabel(user)}
+                </Link>
+                
                 </div>
                 
                 

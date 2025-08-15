@@ -299,3 +299,19 @@ html, body{ overflow-x: hidden; }
 .is-open .hamburger span:nth-child(1){ transform: translateY(7px) rotate(45deg); }
 .is-open .hamburger span:nth-child(2){ opacity: 0; }
 .is-open .hamburger span:nth-child(3){ transform: translateY(-7px) rotate(-45deg); }
+
+/* Couleur par rôle (spec + hover safe) */
+.header__nav .user-name.name-admin,
+.mobile-links .user-name.name-admin { color:#fa2626; }
+
+.header__nav .user-name.name-coach,
+.mobile-links .user-name.name-coach { color:#2aa6ff; }
+
+.header__nav .user-name.name-premium,
+.mobile-links .user-name.name-premium { color:#f5c542; }
+
+.header__nav .user-name.name-user,
+.mobile-links .user-name.name-user { color:#ff3300; }
+
+.header__nav .user-name:hover,
+.mobile-links .user-name:hover { color: inherit; text-decoration: underline; }
