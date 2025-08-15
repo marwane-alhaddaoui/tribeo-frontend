@@ -127,6 +127,10 @@ export default function BillingPage() {
       setBusy(false);
     }
   };
+  const trainingsLimit =
+  L?.can_create_trainings
+    ? (L?.trainings_create_per_month ?? null) // null => ∞
+    : 0; // plan qui n'autorise pas → 0
 
   return (
     <div className="billing-wrapper">
@@ -172,12 +176,12 @@ export default function BillingPage() {
                 used={U.sessions_created ?? 0}
                 limit={L.sessions_create_per_month}
               />
-               <StatRow
-                 label="Entraînements créés"
-                 used={U.trainings_created ?? 0}
-                 limit={L.trainings_create_per_month ?? 0 /* ou null si illimité */}
-               />
-              <StatRow
+              
+                  <StatRow
+                  label="Entraînements créés"
+                  used={U.trainings_created ?? 0}
+                  limit={trainingsLimit}
+                />
                 label="Participations aux sessions"
                 used={U.participations ?? 0}
                 limit={L.sessions_join_per_month}
