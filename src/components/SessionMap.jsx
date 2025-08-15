@@ -82,7 +82,7 @@ export default function SessionMap({
             <CircleMarker
               key={s.id}
               center={[s.latitude, s.longitude]}
-              radius={focused ? 9 : 6}
+              radius={focused ? 3 : 1}
               color={focused ? "#ffcc00" : "red"}
               fillColor={focused ? "#ffcc00" : "red"}
               fillOpacity={1}

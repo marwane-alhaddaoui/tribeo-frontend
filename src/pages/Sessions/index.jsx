@@ -7,15 +7,12 @@ import "../../styles/SessionPage.css";
 import SessionMap from "../../components/SessionMap";
 import CreateSessionCTA from "../../components/CreateSessionCTA";
 import { AuthContext } from "../../context/AuthContext";
-import { computeTiming } from "../../utils/sessionTime";
 
-/* ====================== Filtres État ====================== */
-const SESSION_FILTERS = {
-  ALL: "ALL",
-  OPEN: "OPEN",
-  FINISHED: "FINISHED",
-  FULL: "FULL",
-};
+/* ====================== Helpers ====================== */
+const SESSION_FILTERS = { ALL: "ALL", OPEN: "OPEN", FULL: "FULL" };
+
+const norm = (s) => String(s ?? "").trim();
+const normKey = (s) => norm(s).toLowerCase();
 
 function isFull(session) {
   const capacity = Number(session?.max_players ?? session?.capacity ?? session?.max_participants ?? 0);
@@ -25,49 +22,82 @@ function isFull(session) {
   return capacity > 0 && count >= capacity;
 }
 
-function matchesFilter(session, filter) {
-  if (!filter || filter === SESSION_FILTERS.ALL) return true;
-
+/** Supporte nouveau back (start/end) + legacy (date + start_time/end_time) */
+function getStartEndMs(s = {}) {
+  const startIso = s.start || (s.date ? `${s.date}${s.start_time ? "T" + s.start_time : ""}` : null);
+  const endIso = s.end || (s.date && s.end_time ? `${s.date}T${s.end_time}` : null) || null;
+  const startMs = startIso ? Date.parse(startIso) : null;
+  const endMs = endIso ? Date.parse(endIso) : (startMs != null ? startMs + 2 * 60 * 60 * 1000 : null);
+  return { startMs, endMs };
+}
+function isArchived(session) {
+  const { startMs, endMs } = getStartEndMs(session);
+  const now = Date.now();
   const status = String(session?.status || "").toUpperCase();
-  const timing = computeTiming ? computeTiming(session) : { isPast: false, isOngoing: false, isFuture: true };
-  const full = isFull(session);
-
-  switch (filter) {
-    case SESSION_FILTERS.OPEN: {
-      // Ouvert = pas passé, pas annulé/verrouillé/terminé, pas complet
-      const badStatus = ["FINISHED", "CANCELED", "LOCKED"].includes(status);
-      return !timing.isPast && !badStatus && !full;
+  const isPast = startMs ? now > (endMs ?? startMs) : false;
+  const finishedOrCanceled = status === "FINISHED" || status === "CANCELED";
+  return isPast || finishedOrCanceled;
+}
+function compareUpcoming(a, b) {
+  const { startMs: sa, endMs: ea } = getStartEndMs(a);
+  const { startMs: sb, endMs: eb } = getStartEndMs(b);
+  const now = Date.now();
+  const aOngoing = sa != null && ea != null && now >= sa && now <= ea;
+  const bOngoing = sb != null && eb != null && now >= sb && now <= eb;
+  if (aOngoing !== bOngoing) return aOngoing ? -1 : 1;
+  return ((sa ?? Infinity) - now) - ((sb ?? Infinity) - now);
+}
+function compareArchive(a, b) {
+  const { startMs: sa } = getStartEndMs(a);
+  const { startMs: sb } = getStartEndMs(b);
+  if (sa == null && sb == null) return 0;
+  if (sa == null) return 1;
+  if (sb == null) return -1;
+  return sb - sa;
+}
+function extractCountryCity(s = {}) {
+  let country = s.country || s.country_name || s.countryCode || s.country_code || s.location_country || "";
+  let city = s.city || s.town || s.locality || s.location_city || "";
+  const addr = s.address || s.location || "";
+  if ((!country || !city) && addr) {
+    const parts = addr.split(",").map((p) => norm(p));
+    if (parts.length >= 2) {
+      if (!country) country = parts[parts.length - 1];
+      if (!city) city = parts[parts.length - 2] || parts[0];
+    } else if (parts.length === 1 && !city) {
+      city = parts[0];
     }
-    case SESSION_FILTERS.FINISHED: {
-      // Terminé = statut FINISHED OU (passé et pas en cours)
-      return status === "FINISHED" || (timing.isPast && !timing.isOngoing);
-    }
-    case SESSION_FILTERS.FULL: {
-      return full;
-    }
-    default:
-      return true;
   }
+  return { country: norm(country), city: norm(city) };
 }
 
 /* ====================== Page ====================== */
 export default function SessionsPage() {
   const { user } = useContext(AuthContext);
-  const isVisitor = !user; // 👈 visiteur non connecté
+  const isVisitor = !user;
 
   const [sessions, setSessions] = useState([]);
   const [selectedSport, setSelectedSport] = useState("");
   const [search, setSearch] = useState("");
-  const [focused, setFocused] = useState(null); // session ciblée
+  const [focused, setFocused] = useState(null);
 
-  // 👇 nouveau: filtre état
+  // Onglet: "UPCOMING" | "ARCHIVE"
+  const [tab, setTab] = useState("UPCOMING");
+
+  // Filtres d’état (utiles uniquement en UPCOMING)
   const [stateFilter, setStateFilter] = useState(SESSION_FILTERS.ALL);
+
+  // Filtres lieu
+  const [country, setCountry] = useState("");
+  const [city, setCity] = useState("");
 
   const fetchSessions = () => {
     const filters = { is_public: true };
     if (!isVisitor) {
       if (selectedSport) filters.sport_id = selectedSport;
       if (search.trim()) filters.search = search.trim();
+      if (country) filters.country = country; // alias backend → location
+      if (city) filters.city = city;         // alias backend → location
     }
     getSessions(filters).then(setSessions).catch(console.error);
   };
@@ -75,9 +105,30 @@ export default function SessionsPage() {
   useEffect(() => {
     fetchSessions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedSport, search]); // on ne refetch pas sur le filtre d'état (filtrage côté front)
+  }, [selectedSport, search, country, city]);
 
-  // Désactive le focus/zoom si visiteur
+  // Pays depuis sessions
+  const countries = useMemo(() => {
+    const set = new Map();
+    (sessions || []).forEach((s) => {
+      const { country } = extractCountryCity(s);
+      if (country) set.set(normKey(country), country);
+    });
+    return Array.from(set.values()).sort((a, b) => a.localeCompare(b, "fr"));
+  }, [sessions]);
+
+  // Villes dépendantes
+  const cities = useMemo(() => {
+    const set = new Map();
+    (sessions || []).forEach((s) => {
+      const loc = extractCountryCity(s);
+      if (country && normKey(loc.country) !== normKey(country)) return;
+      if (loc.city) set.set(normKey(loc.city), loc.city);
+    });
+    return Array.from(set.values()).sort((a, b) => a.localeCompare(b, "fr"));
+  }, [sessions, country]);
+
+  // Focus map
   const handleFocus = (s) => {
     if (isVisitor) return;
     if (!s?.latitude || !s?.longitude) return;
@@ -108,27 +159,65 @@ export default function SessionsPage() {
     }
   };
 
-  const onChangeSearch = (e) => {
-    if (isVisitor) return;
-    setSearch(e.target.value);
-  };
-  const onSelectSport = (sId) => {
-    if (isVisitor) return;
-    setSelectedSport(sId);
-  };
+  const onChangeSearch = (e) => { if (!isVisitor) setSearch(e.target.value); };
+  const onSelectSport = (sId) => { if (!isVisitor) setSelectedSport(sId); };
 
-  // 👉 filtrage côté front (État: Ouvert/Terminé/Complet/Tout)
-  const filteredSessions = useMemo(
-    () => (Array.isArray(sessions) ? sessions.filter((s) => matchesFilter(s, stateFilter)) : []),
-    [sessions, stateFilter]
+  /* ---------- Filtrage local par lieu (fallback si API ignore) ---------- */
+  const sessionsByLocation = useMemo(() => {
+    if (!country && !city) return sessions || [];
+    return (sessions || []).filter((s) => {
+      const loc = extractCountryCity(s);
+      if (country && normKey(loc.country) !== normKey(country)) return false;
+      if (city && normKey(loc.city) !== normKey(city)) return false;
+      return true;
+    });
+  }, [sessions, country, city]);
+
+  /* ---------- Data views selon onglet ---------- */
+  const upcoming = useMemo(
+    () => (Array.isArray(sessionsByLocation) ? sessionsByLocation.filter((s) => !isArchived(s)) : []),
+    [sessionsByLocation]
   );
 
-  // Si la session focus n'est plus dans la liste filtrée, on l'oublie
-  useEffect(() => {
-    if (focused && !filteredSessions.some((s) => s.id === focused.id)) {
-      setFocused(null);
+  const upcomingFiltered = useMemo(() => {
+    if (!Array.isArray(upcoming)) return [];
+    if (stateFilter === SESSION_FILTERS.ALL) return upcoming;
+    if (stateFilter === SESSION_FILTERS.OPEN) {
+      return upcoming.filter((s) => {
+        const status = String(s?.status || "").toUpperCase();
+        const badStatus = ["FINISHED", "CANCELED", "LOCKED"].includes(status);
+        return !badStatus && !isFull(s);
+      });
     }
-  }, [filteredSessions, focused]);
+    if (stateFilter === SESSION_FILTERS.FULL) return upcoming.filter((s) => isFull(s));
+    return upcoming;
+  }, [upcoming, stateFilter]);
+
+  const upcomingOrdered = useMemo(() => {
+    const arr = [...upcomingFiltered];
+    arr.sort(compareUpcoming);
+    return arr;
+  }, [upcomingFiltered]);
+
+  const archivesOrdered = useMemo(() => {
+    const arr = Array.isArray(sessionsByLocation) ? sessionsByLocation.filter(isArchived) : [];
+    arr.sort(compareArchive);
+    return arr;
+  }, [sessionsByLocation]);
+
+  // Nettoyage focus
+  useEffect(() => {
+    const list = tab === "UPCOMING" ? upcomingOrdered : archivesOrdered;
+    if (focused && !list.some((s) => s.id === focused.id)) setFocused(null);
+  }, [tab, upcomingOrdered, archivesOrdered, focused]);
+
+  // Pays/Ville handlers
+  const onChangeCountry = (e) => {
+    const next = e.target.value || "";
+    setCountry(next);
+    setCity((prev) => (prev && cities.some((c) => normKey(c) === normKey(prev)) ? prev : ""));
+  };
+  const onChangeCity = (e) => setCity(e.target.value || "");
 
   return (
     <div className="sessions-wrapper">
@@ -137,6 +226,53 @@ export default function SessionsPage() {
         <CreateSessionCTA variant="button" />
       </div>
 
+      {/* 🔥 Barre FUSION: Onglets + (états quand UPCOMING) */}
+      <div className={`sessions-controls ${isVisitor ? "is-disabled" : ""}`}>
+        <div className="seg" role="tablist" aria-label="Onglets">
+          <button
+            type="button"
+            className={`seg-btn ${tab === "UPCOMING" ? "active" : ""}`}
+            onClick={() => setTab("UPCOMING")}
+            role="tab"
+            aria-selected={tab === "UPCOMING"}
+          >
+            À venir
+          </button>
+          <button
+            type="button"
+            className={`seg-btn ${tab === "ARCHIVE" ? "active" : ""}`}
+            onClick={() => setTab("ARCHIVE")}
+            role="tab"
+            aria-selected={tab === "ARCHIVE"}
+          >
+            Archives
+          </button>
+        </div>
+
+        <span className="seg-sep" aria-hidden="true"></span>
+
+        {tab === "UPCOMING" && (
+          <div className="seg" aria-label="État des sessions">
+            {[
+              { key: SESSION_FILTERS.ALL, label: "Tout" },
+              { key: SESSION_FILTERS.OPEN, label: "Ouvertes" },
+              { key: SESSION_FILTERS.FULL, label: "Complètes" },
+            ].map((it) => (
+              <button
+                key={it.key}
+                type="button"
+                onClick={() => !isVisitor && setStateFilter(it.key)}
+                disabled={isVisitor}
+                className={`seg-btn ${stateFilter === it.key ? "active" : ""}`}
+              >
+                {it.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Barre de recherche + sports + filtres lieu */}
       <div className={`sessions-filters ${isVisitor ? "is-disabled" : ""}`}>
         <input
           type="text"
@@ -146,64 +282,71 @@ export default function SessionsPage() {
           className="search-input"
           disabled={isVisitor}
         />
-        <div className={isVisitor ? "pointer-block" : ""}>
-          <SportFilter selected={selectedSport} onSelect={onSelectSport} disabled={isVisitor} />
-        </div>
-      </div>
 
-            {/* Barre de filtres ÉTAT */}
-      <div className={`sessions-state-filters ${isVisitor ? "is-disabled" : ""}`}>
-        {[
-          { key: "ALL", label: "Tout" },
-          { key: "OPEN", label: "Ouvertes" },
-          { key: "FINISHED", label: "Terminées" },
-          { key: "FULL", label: "Complètes" },
-        ].map((it) => (
-          <button
-            key={it.key}
-            type="button"
-            onClick={() => !isVisitor && setStateFilter(it.key)}
-            disabled={isVisitor}
-            className={`filter-btn ${stateFilter === it.key ? "active" : ""}`}
+        <SportFilter selected={selectedSport} onSelect={onSelectSport} disabled={isVisitor} />
+
+        <div className={`location-filters ${isVisitor ? "is-disabled" : ""}`} style={{ width: "100%" }}>
+          <select
+            className="select-pill"
+            value={country}
+            onChange={onChangeCountry}
+            disabled={isVisitor || countries.length === 0}
+            aria-label="Filtrer par pays"
           >
-            {it.label}
-          </button>
-        ))}
+            <option value="">Tous pays</option>
+            {countries.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+
+          <select
+            className="select-pill"
+            value={city}
+            onChange={onChangeCity}
+            disabled={isVisitor || (country ? cities.length === 0 : countries.length === 0 && cities.length === 0)}
+            aria-label="Filtrer par ville"
+          >
+            <option value="">{country ? "Toutes villes" : "Toutes villes"}</option>
+            {cities.map((v) => (
+              <option key={v} value={v}>{v}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      {/* 🔒 Bannière visiteur (même style que Groups) */}
-      {isVisitor && (
-        <div className="sessions-locked-banner">
-          <div className="slb-text">
-            <strong>Contenu prévisualisé</strong> — Connecte-toi pour voir les sessions en clair, la carte interactive et les détails.
-          </div>
-          <div className="slb-actions">
-            <a className="btn-primary" href="/login">Se connecter</a>
-            <a className="btn-ghost" href="/register">Créer un compte</a>
-          </div>
-        </div>
+      {tab === "UPCOMING" && (
+        <SessionMap sessions={upcomingOrdered} focus={focused} locked={isVisitor} />
       )}
 
-      {/* Carte contrôlée — on lui passe la liste filtrée */}
-      <SessionMap sessions={filteredSessions} focus={focused} locked={isVisitor} />
-
-      <div className={`sessions-grid ${isVisitor ? "grid-locked" : ""}`}>
-        {Array.isArray(filteredSessions) && filteredSessions.length ? (
-          filteredSessions.map((s) => (
+      <div className={`sessions-grid ${isVisitor && tab === "UPCOMING" ? "grid-locked" : ""}`}>
+        {tab === "UPCOMING" ? (
+          upcomingOrdered.length ? (
+            upcomingOrdered.map((s) => (
+              <SessionCard
+                key={s.id}
+                session={s}
+                onJoin={isVisitor ? undefined : handleJoin}
+                onLeave={isVisitor ? undefined : handleLeave}
+                onFocus={isVisitor ? undefined : handleFocus}
+              />
+            ))
+          ) : (
+            <p className="sessions-empty">Aucune session à venir.</p>
+          )
+        ) : archivesOrdered.length ? (
+          archivesOrdered.map((s) => (
             <SessionCard
               key={s.id}
               session={s}
-              onJoin={isVisitor ? undefined : handleJoin}
-              onLeave={isVisitor ? undefined : handleLeave}
-              onFocus={isVisitor ? undefined : handleFocus}
+              onFocus={undefined}
+              onJoin={undefined}
+              onLeave={undefined}
             />
           ))
         ) : (
-          <p className="sessions-empty">Aucune session.</p>
+          <p className="sessions-empty">Aucune session archivée.</p>
         )}
       </div>
-
-      <CreateSessionCTA variant="fab" />
     </div>
   );
 }
