@@ -3,33 +3,35 @@
    ====================== */
 
 /* état "full" (complet) */
-.session-card.is-full { opacity: .96; }
+.session-card.is-full { opacity: .98; }
 
 /* titre + small spacing */
 .session-card h2 {
   font-size: 1.25rem;
   line-height: 1.25;
   margin: 6px 0 8px;
-  color: #fff; /* on garde le rouge pour le hover uniquement */
+  color: #fff;
 }
 .session-card:hover h2 { color: #ff2d2d; }
 
 /* mini séparateurs visuels sur les <p> */
 .session-card p { position: relative; padding-left: 2px; }
 
-/* améliorer le hover global */
+/* hover global */
 .session-card {
+  position: relative;               /* pour rubans & overlays */
+  overflow: hidden;
   border: 1px solid #242424;
   background:
     linear-gradient(180deg, rgba(255,45,45,0.05) 0%, rgba(255,45,45,0) 100%),
     #1a1a1a;
-  border-radius: 14px; /* 🔹 coins arrondis */
-  padding: 18px;       /* 🔹 espace intérieur */
+  border-radius: 14px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 10px;           /* 🔹 espace entre blocs internes */
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  gap: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color .2s ease;
 }
 .session-card:hover {
   transform: translateY(-3px);
@@ -70,70 +72,86 @@
   flex-wrap: wrap;
 }
 
-/* Badge base */
-.badge {
-  background: #1f1f1f;
-  color: #cfcfcf;
-  border: 1px solid #2b2b2b;
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: .2px;
+/* Badges v2 (sc-*) */
+.sc-badge {
+  background: #1f1f1f; color: #cfcfcf; border: 1px solid #2b2b2b;
+  border-radius: 999px; padding: 4px 10px; font-size: .72rem; font-weight: 700; letter-spacing: .2px;
 }
-.badge-outline { background: transparent; }
-.badge-danger  { background: #3a1515; border-color: #5c1f1f; color: #ffdcdc; }
+.sc-badge-outline { background: transparent; }
+.sc-badge-danger  { background: #3a1515; border-color: #5c1f1f; color: #ffdcdc; }
+.sc-badge-muted   { background: #2a2a2a; border-color: #3a3a3a; color: #d7d7d7; }
+.sc-badge-accent  { background: #0f2f26; border-color: #1c5a49; color: #d8fff2; }
 
-/* petit accent rouge discret au hover des badges */
-.badge:hover {
+.badge:hover, .sc-badge:hover {
   border-color: #393939;
   box-shadow: 0 0 0 1px rgba(255,45,45,.08) inset;
 }
 
 /* ======================
-   SPORT ICON
+   SPORT CHIP
    ====================== */
 
-.sport-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  object-fit: cover;
-  margin: 6px 0 2px;
-  border: 1px solid #2a2a2a;
-  background: #141414;
+.badge-sport {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  background: #211818; border: 1px solid #3a2a2a; color: #ffd7d7;
+  margin-left: auto;
+}
+.badge-sport-icon { width: 14px; height: 14px; border-radius: 3px; object-fit: cover; background: #141414; border: 1px solid #2a2a2a; }
+.badge-sport-emoji { font-size: .9rem; line-height: 1; }
+.badge-sport-label { font-weight: 700; font-size: .72rem; letter-spacing: .2px; }
+.badge-sport:hover { border-color: #4a3a3a; box-shadow: 0 0 0 1px rgba(255,45,45,.08) inset; }
+
+/* ===== Layout compact & spacing ===== */
+.sc-row { display: flex; align-items: center; gap: 8px; }
+.sc-row-top { justify-content: space-between; margin-bottom: 6px; }
+
+.sc-title { font-size: 1.15rem; margin: 6px 0 6px; color: #fff; }
+.session-card:hover .sc-title { color: #ff2d2d; }
+
+.sc-meta { display: grid; gap: 6px; margin-top: 2px; }
+.meta-row { display: inline-flex; align-items: center; gap: 8px; color: #c9c9c9; font-size: .95rem; }
+.meta-location { line-height: 1.3; }
+
+/* ======================
+   COUNTERS — places restantes
+   ====================== */
+
+.capacity-bar,
+.capacity-track {
+  width: 100%; height: 8px; border-radius: 6px;
+  background: #151515; border: 1px solid #2a2a2a; overflow: hidden;
+}
+.capacity-bar .capacity-fill,
+.capacity-track .capacity-fill {
+  height: 100%; background: linear-gradient(90deg, #ff2d2d, #ff6a6a);
+  transition: width .25s ease;
 }
 
-/* ======================
-   COUNTERS — places restantes (vert/orange/rouge)
-   ====================== */
+.sc-capacity { margin-top: 8px; }
+.capacity-legend {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 6px; font-size: .9rem; color: #cfcfcf;
+}
 
-/* colorise la ligne "👥 x/y — n restants" selon le texte */
 .session-card p:has(> span.avail) { display: flex; gap: 6px; }
-
-/* wrappers optionnels si tu veux cibler via classes dans le JSX
-   (<span class="avail avail--ok">…</span> etc.)
-   mais même sans ça, les couleurs ci-dessous gardent un style soft */
-.avail { font-weight: 600; }
-.avail--ok { color: #9ee493; }       /* vert doux */
-.avail--mid { color: #ffd27d; }      /* orange soft */
-.avail--low { color: #ff9b9b; }      /* rouge soft */
+.avail { font-weight: 700; }
+.avail--ok  { color: #9ee493; }
+.avail--mid { color: #ffd27d; }
+.avail--low { color: #ff9b9b; }
 
 /* ======================
-   ACTION — bouton Détails + pill info
+   ACTION — bouton Détails
    ====================== */
 
-.session-card-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: 10px;
+.session-card-actions, .sc-actions {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; margin-top: 10px;
 }
 
 .btn-details {
   background-color: transparent;
-  border: 1px solid #ff2d2d; /* rouge vif */
+  border: 1px solid #ff2d2d;
   color: #ff2d2d;
   border-radius: 8px;
   padding: 8px 14px;
@@ -142,25 +160,11 @@
   text-align: center;
   transition: all 0.25s ease;
 }
-.btn-details:hover {
-  background-color: #ff2d2d;
-  color: white;
-  box-shadow: 0 0 10px rgba(255,45,45,0.4);
-}
+.btn-details:hover { background-color: #ff2d2d; color: white; box-shadow: 0 0 10px rgba(255,45,45,0.4); }
 .btn-details:active { transform: translateY(1px); }
 
-.pill {
-  background: #1f1f1f;
-  border: 1px solid #2a2a2a;
-  color: #bdbdbd;
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
 /* ======================
-   RESPONSIVE TWEAKS
+   RESPONSIVE
    ====================== */
 
 @media (max-width: 420px) {
@@ -168,134 +172,180 @@
   .session-badges { width: 100%; justify-content: flex-start; }
 }
 
+/* ======================
+   RIBBONS — PASSÉE / COMPLET
+   ====================== */
 
-/* Chip sport = badge un peu plus visible en haut */
-.badge-sport {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: #211818;             /* subtil rouge/brun */
-  border: 1px solid #3a2a2a;
-  color: #ffd7d7;                   /* texte un peu plus clair */
-}
-.badge-sport-icon {
-  width: 14px; height: 14px;
-  border-radius: 3px;
-  object-fit: cover;
-  background: #141414;
-  border: 1px solid #2a2a2a;
-}
-.badge-sport-emoji { font-size: .9rem; line-height: 1; }
-.badge-sport-label { font-weight: 700; font-size: .72rem; letter-spacing: .2px; }
-
-/* hover doux pour cohérence visuelle (non cliquable) */
-.badge-sport:hover {
-  border-color: #4a3a3a;
-  box-shadow: 0 0 0 1px rgba(255,45,45,.08) inset;
-}
-
-/* ===== Layout compact & spacing ===== */
-.sc-row { display: flex; align-items: center; gap: 8px; }
-.sc-row-top { justify-content: space-between; margin-bottom: 6px; }
-
-.sc-title {
-  font-size: 1.15rem;
-  margin: 6px 0 6px;
-  color: #fff;
-}
-.session-card:hover .sc-title { color: #ff2d2d; }
-
-.sc-meta { display: grid; gap: 6px; margin-top: 2px; }
-.meta-row { display: inline-flex; align-items: center; gap: 8px; color: #c9c9c9; font-size: .95rem; }
-.meta-location { line-height: 1.3; }
-
-/* ===== Creator + badges ===== */
-.sc-creator { display: inline-flex; align-items: center; gap: 8px; }
-.sc-creator-avatar { width: 24px; height: 24px; border-radius: 50%; border: 1px solid #2a2a2a; object-fit: cover; background: #121212; }
-.sc-creator-name { color: #e6e6e6; font-size: .95rem; font-weight: 600; }
-
-.sc-badges { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
-.sc-badge {
-  background: #1f1f1f; color: #cfcfcf; border: 1px solid #2b2b2b;
-  border-radius: 999px; padding: 4px 10px; font-size: .72rem; font-weight: 700; letter-spacing: .2px;
-}
-.sc-badge-outline { background: transparent; }
-.sc-badge-soft { background: #1b2631; border-color: #2a3a4a; color: #cfe1ff; }
-.sc-badge-danger { background: #3a1515; border-color: #5c1f1f; color: #ffdcdc; }
-
-/* ===== Sport chip (ligne 2) ===== */
-.badge-sport {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 4px 10px; border-radius: 999px;
-  background: #211818; border: 1px solid #3a2a2a; color: #ffd7d7;
-}
-.badge-sport-icon { width: 14px; height: 14px; border-radius: 3px; object-fit: cover; background: #141414; border: 1px solid #2a2a2a; }
-.badge-sport-emoji { font-size: .9rem; line-height: 1; }
-.badge-sport-label { font-weight: 700; font-size: .72rem; letter-spacing: .2px; }
-.badge-sport:hover { border-color: #4a3a3a; box-shadow: 0 0 0 1px rgba(255,45,45,.08) inset; }
-
-/* ===== Capacity bar ===== */
-.sc-capacity { margin-top: 8px; }
-.capacity-track {
-  width: 100%; height: 8px; border-radius: 6px;
-  background: #151515; border: 1px solid #2a2a2a; overflow: hidden;
-}
-.capacity-fill {
-  height: 100%; background: linear-gradient(90deg, #ff2d2d, #ff6a6a);
-  transition: width .25s ease;
-}
-.capacity-legend {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-top: 6px; font-size: .9rem; color: #cfcfcf;
-}
-.avail { font-weight: 700; }
-.avail--ok  { color: #9ee493; }
-.avail--mid { color: #ffd27d; }
-.avail--low { color: #ff9b9b; }
-
-/* ===== Button align (déjà stylé ailleurs) ===== */
-.session-card-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
-
-/* Aligne le badge sport à droite */
-.badge-sport {
-  margin-left: auto; /* pousse le badge sport à droite */
-}
-
-
-/* --- Teaser UX --- */
-.mask-text {
-  filter: blur(3.5px) brightness(.85);
-  background: rgba(255,255,255,0.05);
-  border-radius: 6px;
-  padding: 2px 6px;
-  user-select: none;
-}
-
-/* squelette pour la barre de capacité */
-.capacity-skeleton {
-  width: 100%;
-  height: 100%;
-  border-radius: 6px;
-  background: linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.12), rgba(255,255,255,.06));
-  background-size: 200% 100%;
-  animation: shimmer 1.2s linear infinite;
-}
-@keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
-
-/* ruban lock */
-.sc-ribbon {
+.status-ribbon {
   position: absolute;
-  right: 12px;
   top: 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  border-radius: 999px;
-  background: rgba(0,0,0,.5);
-  border: 1px solid #2a2a2a;
-  color: #eaeaea;
-  font-size: 12px;
+  right: -42px;
+  transform: rotate(35deg);
+  padding: 6px 56px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  border: 1px solid;
+  box-shadow: 0 6px 18px rgba(0,0,0,.25);
+  z-index: 6;                 /* au-dessus des overlays */
+  pointer-events: none;
 }
+
+/* 👉 PAST: couleur de marque, toujours prioritaire */
+.status-ribbon--past {
+  background: #ff2d2d !important;
+  border-color: #b71b1b !important;
+  color: #fff !important;
+  text-shadow: 0 1px 0 rgba(0,0,0,.25);
+}
+
+/* 👉 FULL: ruban dégradé + lisible */
+.status-ribbon--full {
+  background: linear-gradient(135deg, #ffb347 0%, #ff8023 100%);
+  border-color: #7a3b05;
+  color: #1a0f06;
+  text-shadow: 0 1px 0 rgba(255,255,255,.35);
+}
+/* ======================
+   ÉTATS — PASSÉ (same vibe as FULL, but grey)
+   ====================== */
+
+/* cadre + glow gris */
+.session-card.is-past {
+  border-color: rgba(176,184,192,.35);        /* gris chaud #b0b8c0 */
+  box-shadow:
+    0 0 0 1px rgba(176,184,192,.18) inset,    /* liseré interne */
+    0 6px 14px rgba(176,184,192,.06);         /* halo doux */
+}
+
+/* overlay uni gris (comme FULL jaunis, mais en gris) */
+.session-card.is-past::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(206,212,218,.12) 0%,                 /* #ced4da */
+    rgba(176,184,192,.08) 100%                /* #b0b8c0 */
+  );
+  pointer-events: none;
+  z-index: 2; /* sous la bannière (z=6), au-dessus du fond */
+}
+
+/* léger désaturateur sans toucher au ruban rouge */
+.session-card.is-past::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #9aa0a6;                        /* gris neutre */
+  mix-blend-mode: saturation;                 /* désature le contenu */
+  opacity: .85;
+  pointer-events: none;
+  z-index: 3; /* sous la bannière (z=6), au-dessus du ::before */
+}
+
+/* hover soft (pas de pop) */
+.session-card.is-past:hover {
+  transform: none !important;
+  box-shadow:
+    0 4px 12px rgba(0,0,0,.5),
+    0 0 0 1px rgba(176,184,192,.14) inset !important;
+}
+
+/* masque CTA si passé */
+.session-card.is-past .btn-details,
+.session-card.is-past .sc-actions,
+.session-card.is-past .session-card-actions {
+  display: none !important;
+}
+
+/* assure que la bannière garde sa couleur */
+.session-card.is-past .status-ribbon,
+.session-card.is-past .status-ribbon * {
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  opacity: 1 !important;
+}
+/* ======================
+   ÉTATS — COMPLET
+   ====================== */
+/* ========= FULL (COMPLET) — fond jaunis, sans rayures ========= */
+.session-card.is-full {
+  border-color: rgba(255,193,7,.35);      /* amber-ish */
+  box-shadow:
+    0 0 0 1px rgba(255,193,7,.18) inset,  /* glow chaud intérieur */
+    0 6px 14px rgba(255,193,7,.06);       /* halo doux */
+}
+
+/* Overlay uni (jaune doux) à la place des rayures */
+.session-card.is-full::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255,193,7,.10) 0%,
+    rgba(255,193,7,.06) 100%
+  );                                       /* léger dégradé vertical, sans motifs */
+  pointer-events: none;
+  z-index: 2; /* sous la bannière (6) et au-dessus du fond */
+}
+
+/* Hover soft (moins “pop” que la normale) */
+.session-card.is-full:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 12px rgba(0,0,0,.5),
+    0 0 0 1px rgba(255,193,7,.14) inset;
+}
+
+/* ======================
+   PRIORITÉ : PAST > FULL
+   ====================== */
+
+/* 1) Ne jamais afficher le ruban "COMPLET" si la carte est aussi "PASSÉE" */
+.session-card.is-past .status-ribbon--full {
+  display: none !important;
+}
+
+/* 2) Quand une carte est à la fois .is-past ET .is-full,
+      on impose le style "passé" (cadre + glow gris) */
+.session-card.is-past.is-full {
+  border-color: rgba(176,184,192,.35) !important;
+  box-shadow:
+    0 0 0 1px rgba(176,184,192,.18) inset,
+    0 6px 14px rgba(176,184,192,.06) !important;
+}
+
+/* 3) On remplace l’overlay FULL par l’overlay PAST (gris) */
+.session-card.is-past.is-full::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(206,212,218,.12) 0%,
+    rgba(176,184,192,.08) 100%
+  );
+  pointer-events: none;
+  z-index: 2; /* sous la bannière (z=6) */
+}
+
+/* 4) Désaturation grise (comme pour PAST) */
+.session-card.is-past.is-full::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #9aa0a6;
+  mix-blend-mode: saturation;
+  opacity: .85;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* 5) Pas d'effet hover "pop" si c'est passé + complet */
+.session-card.is-past.is-full:hover {
+  transform: none !important;
+  box-shadow:
+    0 4px 12px rgba(0,0,0,.5),
+    0 0 0 1px rgba(176,184,192,.14) inset !important;

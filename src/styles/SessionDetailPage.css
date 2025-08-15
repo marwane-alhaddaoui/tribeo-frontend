@@ -155,9 +155,59 @@ body{ background:var(--bg); color:var(--text); }
 .team-pair{ display:grid; grid-template-columns:1fr 84px 1fr; align-items:center; gap:12px; }
 @media (max-width:700px){ .team-pair{ grid-template-columns:1fr; gap:8px; } }
 .team-vs{
-  text-align:center; font-weight:900; letter-spacing:2px;
-  color:#cfcfcf; background:#171718; border:1px solid #262728; border-radius:10px; padding:10px 0;
-  box-shadow:inset 0 0 0 1px rgba(255,45,45,.03);
+  position: relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  height: 46px;
+  border-radius: 12px;
+
+  /* fond sombre avec léger dégradé rouge */
+  background: linear-gradient(180deg, rgba(255,45,45,.12), rgba(255,45,45,0) 70%), #141415;
+  border: 1px solid rgba(255,45,45,.4);
+  box-shadow:
+    0 10px 28px rgba(0,0,0,.35),
+    inset 0 0 12px rgba(255,45,45,.25);
+
+  /* typo */
+  color: #fff;
+  font-weight: 900;
+  font-size: .95rem;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  text-shadow: 0 0 12px rgba(255,45,45,.55);
+  user-select: none;
+}
+
+/* glow lines haut/bas plus vives */
+.team-vs::before,
+.team-vs::after{
+  content:"";
+  position:absolute; left: 8px; right: 8px;
+  height:1px;
+  background: linear-gradient(90deg, transparent, rgba(255,45,45,.6), transparent);
+}
+.team-vs::before{ top:8px; opacity:.85; }
+.team-vs::after { bottom:8px; opacity:.6; }
+
+/* halo rouge vif pulsé */
+@keyframes vsPulse {
+  0%, 100% {
+    box-shadow:
+      0 10px 28px rgba(0,0,0,.35),
+      inset 0 0 12px rgba(255,45,45,.25),
+      0 0 0 rgba(255,45,45,0);
+  }
+  50% {
+    box-shadow:
+      0 10px 28px rgba(0,0,0,.35),
+      inset 0 0 14px rgba(255,45,45,.35),
+      0 0 28px rgba(255,45,45,.55);
+  }
+}
+.team-vs{
+  animation: vsPulse 2.4s ease-in-out infinite;
 }
 
 .team-row{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
@@ -179,14 +229,6 @@ body{ background:var(--bg); color:var(--text); }
 }
 .slot-bubble-me .slot-avatar{ border-color:var(--accent); }
 .slot-label{ max-width:88px; color:#e5e7eb; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-
-/* slot vide */
-.slot-empty{
-  width:48px; height:48px; border-radius:999px; border:1px dashed #2a2a2a; color:#9ca3af;
-  display:grid; place-items:center; background:transparent; cursor:pointer; transition:.2s ease;
-  font-size:20px; line-height:0;
-}
-.slot-empty:hover{ color:#fff; border-color:var(--accent); background:#1b1b1b; }
 
 /* =========================
    PARTICIPANTS
@@ -286,3 +328,44 @@ body{ background:var(--bg); color:var(--text); }
 }
 .session-danger-btn:hover{ filter:saturate(1.05); }
 .session-danger-btn:disabled{ opacity:.6; cursor:not-allowed; }
+
+/* bannières état */
+.session-banner {
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin: 8px 0 12px;
+  font-weight: 600;
+  font-size: .95rem;
+}
+.session-banner.info {
+  background: #0f2f26; border: 1px solid #1c5a49; color: #d8fff2;
+}
+.session-banner.danger {
+  background: #2d1717; border: 1px solid #5e2d2d; color: #ffe8e8;
+}
+
+
+/* ancien .slot-empty: enlève le look bouton et le "hover" */
+.slot-empty{
+  width:48px; height:48px;
+  border-radius:999px;
+  border:1px solid #2a2a2a;   /* <- plus de dashed */
+  background:transparent;
+  /* plus de +, plus de centrage texte nécessaire */
+  cursor:default;             /* <- plus de pointer */
+  /* Facultatif: léger effet “ghost” */
+  opacity:.5;
+}
+
+/* neutralise le hover existant */
+.slot-empty:hover{
+  background:transparent;
+  border-color:#2a2a2a;
+  color:inherit;
+}
+
+/* si tu avais un style qui injectait un + via ::before/::after, neutralise-le */
+.slot-empty::before,
+.slot-empty::after{
+  content:none !important;
+}

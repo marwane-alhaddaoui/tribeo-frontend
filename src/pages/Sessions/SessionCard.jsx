@@ -1,7 +1,8 @@
 import { useContext, useMemo } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../../styles/SessionCard.css";
 import { AuthContext } from "../../context/AuthContext";
+import { computeTiming, formatDateTime } from "../../utils/sessionTime";
 
 function usernameFromEmail(email = "") {
   return email && email.includes("@") ? email.split("@")[0] : (email || "user");
@@ -11,166 +12,195 @@ function dicebearAvatar(seed) {
   return `https://api.dicebear.com/7.x/initials/svg?seed=${s}`;
 }
 
-export default function SessionCard({ session, onFocus }) { // 👈 onFocus
+export default function SessionCard({ session, onFocus }) {
   const { user } = useContext(AuthContext);
-  const email = user?.email;
-  const teaser = !user;
   const navigate = useNavigate();
-  const locationRouter = useLocation();
 
-  const sportName = typeof session.sport === "object" ? session.sport?.name : session.sport;
-  const sportIcon = typeof session.sport === "object" ? session.sport?.icon : null;
+  const sportName =
+    typeof session.sport === "object" ? session.sport?.name : session.sport;
+  const sportIcon =
+    typeof session.sport === "object" ? session.sport?.icon : null;
 
-  const capacity = Number(session.max_players) || 0;
-  const count = Array.isArray(session.participants) ? session.participants.length : 0;
-  const available = session.available_slots ?? Math.max(capacity - count, 0);
+  const capacity = Number(
+    session.max_players ?? session.capacity ?? session.max_participants ?? 0
+  );
+  const count = Array.isArray(session.participants)
+    ? session.participants.length
+    : Number(session.participants_count ?? 0);
+  const remaining = Math.max(capacity - count, 0);
   const full = capacity ? count >= capacity : false;
 
-  const isParticipant = useMemo(() => {
-    if (!email) return false;
-    return Array.isArray(session.participants)
-      ? session.participants.some((p) => (p?.email || p) === email)
-      : false;
-  }, [session, email]);
+  const timing = useMemo(
+    () =>
+      computeTiming
+        ? computeTiming(session)
+        : { isPast: false, isOngoing: false, isFuture: false },
+    [session.start, session.end, session.date, session.start_time, session.end_time]
+  );
+  const dateLabel = useMemo(
+    () => (formatDateTime ? formatDateTime(session) : (session.date || "—")),
+    [session.start, session.date, session.start_time]
+  );
 
-  const isCreator = (session?.creator?.email || session?.creator) === email;
+  const isPast = !!timing.isPast;
+  const isFull = !!full;
 
-  const creatorName = session?.creator?.username || session?.creator?.email || "—";
-  const creatorAvatar = session?.creator?.avatar_url || dicebearAvatar(creatorName);
+  const locationLabel = session.address || session.location || "—";
 
-  const remaining = available;
-  const remainingClass =
-    remaining === 0 ? "avail avail--low" :
-    remaining <= 2 ? "avail avail--mid" : "avail avail--ok";
+  const rootClass = [
+    "session-card",
+    isFull ? "is-full" : "",
+    isPast ? "is-past" : "",
+    timing.isOngoing ? "is-now" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
-  const pct = capacity ? Math.min(100, Math.round((count / capacity) * 100)) : 0;
-
-  const dateLabel = useMemo(() => {
-    try {
-      const d = new Date(`${session.date}T${session.start_time || "00:00"}`);
-      return d.toLocaleString(undefined, {
-        weekday: "short",
-        day: "2-digit",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit",
+  // 👉 Clique: si onFocus fourni, on passe un flag 'disableZoom' quand c'est passé
+  const handleCardClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (typeof onFocus === "function") {
+      // compat: 1er arg = session (legacy), 2e arg options (nouveau)
+      onFocus(session, {
+        disableZoom: isPast,          // <- le parent peut ignorer le zoom
+        reason: isPast ? "past" : isFull ? "full" : "default",
       });
-    } catch {
-      return `${session.date}${session.start_time ? ` • ${session.start_time}` : ""}`;
+      return;
     }
-  }, [session?.date, session?.start_time]);
+    navigate(`/sessions/${session.id}`);
+  };
 
-  const locationLabel = useMemo(() => {
-    const loc = session.location;
-    if (!loc) return teaser ? "Adresse après connexion" : "—";
-    if (!teaser) return loc;
-    const parts = String(loc).split(",");
-    const city = parts[parts.length - 1]?.trim();
-    return city ? `${city} — détail après connexion` : "Adresse après connexion";
-  }, [session?.location, teaser]);
-
-  // 👇 zoom dispo seulement si on a des coords
-  const hasCoords = session?.latitude != null && session?.longitude != null;
-  const triggerFocus = () => {
-    if (hasCoords) onFocus?.(session);
+  // Accessibilité clavier
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" || e.key === " ") handleCardClick(e);
   };
 
   return (
-    <div
-      className={`session-card ${full ? "is-full" : ""}`}
-      onClick={triggerFocus}                          // 👈 flyTo carte
-      role={hasCoords ? "button" : undefined}
-      tabIndex={hasCoords ? 0 : undefined}
-      onKeyDown={(e) => { if (hasCoords && e.key === "Enter") triggerFocus(); }}
-      style={{ cursor: hasCoords ? "pointer" : "default" }}
-      title={hasCoords ? "Zoomer sur la carte" : undefined}
+    <article
+      className={rootClass}
+      role="button"
+      tabIndex={0}
+      onClick={handleCardClick}
+      onKeyDown={handleKeyDown}
+      aria-label={`Session ${session.title || ""}`}
+      aria-disabled={isPast ? "true" : "false"}
     >
-      {/* ROW 1 — Créateur + badges compacts */}
-      <div className="sc-row sc-row-top">
-        <div className="sc-creator">
-          <img className="sc-creator-avatar" src={creatorAvatar} alt={creatorName} referrerPolicy="no-referrer" />
-          <span className={`sc-creator-name ${teaser ? "mask-text" : ""}`}>
-            {teaser ? "Organisateur visible après connexion" : creatorName}
+      {/* RIBBONS */}
+      {isPast && <div className="status-ribbon status-ribbon--past">PASSÉE</div>}
+      {!isPast && isFull && (
+        <div className="status-ribbon status-ribbon--full">COMPLET</div>
+      )}
+
+      {/* Top row: créateur + badges */}
+      <div className="session-creator-row">
+        <div className="creator">
+          <img
+            className="creator-avatar"
+            src={dicebearAvatar(
+              usernameFromEmail(session?.creator?.email || session?.creator)
+            )}
+            alt=""
+          />
+          <span className="creator-name">
+            {session?.creator?.username ||
+              usernameFromEmail(session?.creator?.email || "")}
           </span>
         </div>
-        <div className="sc-badges">
-          {!teaser && isCreator && <span className="sc-badge sc-badge-soft">Créée par moi</span>}
-          {session.format && <span className="sc-badge sc-badge-outline">{String(session.format).replaceAll("_"," ")}</span>}
-          {String(session.visibility || "").toLowerCase() !== "public" && <span className="sc-badge">Privée</span>}
-          {full && <span className="sc-badge sc-badge-danger">Complet</span>}
-        </div>
-      </div>
 
-      {/* ROW 2 — Chip Sport */}
-      <div className="sc-row">
-        <span className="badge-sport">
-          {sportIcon ? (
-            <img src={sportIcon} alt="" className="badge-sport-icon" aria-hidden="true" />
-          ) : (
-            <span className="badge-sport-emoji" aria-hidden="true">🏆</span>
+        <div className="session-badges">
+          {session.format && (
+            <span className="sc-badge sc-badge-outline">
+              {String(session.format).replaceAll("_", " ")}
+            </span>
           )}
-          <span className="badge-sport-label">{sportName || "Sport"}</span>
-        </span>
+          {String(session.visibility || "").toLowerCase() !== "public" && (
+            <span className="sc-badge">Privée</span>
+          )}
+          {timing.isOngoing && (
+            <span className="sc-badge sc-badge-accent">En cours</span>
+          )}
+          {/* on garde le badge "Passée" si tu le veux en plus du ruban:
+          {isPast && <span className="sc-badge sc-badge-muted">Passée</span>} */}
+        </div>
       </div>
 
       {/* Titre */}
       <h2 className="sc-title">{session.title}</h2>
 
-      {/* Infos */}
+      {/* Meta */}
       <div className="sc-meta">
-        <div className="meta-row"><span>📅</span><span>{dateLabel}</span></div>
+        <div className="meta-row">
+          <span>📅</span>
+          <span>{dateLabel}</span>
+        </div>
         <div className="meta-row">
           <span>📍</span>
-          <span className={`meta-location ${teaser ? "mask-text" : ""}`}>{locationLabel}</span>
+          <span className="meta-location">{locationLabel}</span>
         </div>
       </div>
 
-      {/* Barre de capacité + chiffres */}
-      <div className="sc-capacity">
-        <div className="capacity-track">
-          {teaser ? (
-            <div className="capacity-skeleton" />
+      {/* Sport chip */}
+      <div className="sc-row">
+        <span className="badge-sport">
+          {sportIcon ? (
+            <img
+              src={sportIcon}
+              alt=""
+              className="badge-sport-icon"
+              aria-hidden="true"
+            />
           ) : (
-            <div className="capacity-fill" style={{ width: `${pct}%` }} />
+            <span className="badge-sport-emoji" aria-hidden="true">
+              🏆
+            </span>
           )}
+          <span className="badge-sport-label">{sportName || "Sport"}</span>
+        </span>
+      </div>
+
+      {/* Capacités */}
+      <div className="sc-capacity">
+        <div className="capacity-bar capacity-track">
+          <div
+            className="capacity-fill"
+            style={{
+              width: capacity
+                ? `${Math.min(100, Math.round((count / capacity) * 100))}%`
+                : 0,
+            }}
+          />
         </div>
         <div className="capacity-legend">
-          <span className={`${teaser ? "mask-text" : ""}`}>👥 {teaser ? "Compteur après connexion" : `${count}/${capacity}`}</span>
-          <span className={`${teaser ? "mask-text" : remainingClass}`}>
-            {teaser ? "Places visibles après connexion" : `${available} restant${available > 1 ? "s" : ""}`}
+          <span>
+            {count}/{capacity || "∞"}
+          </span>
+          <span
+            className={
+              remaining === 0
+                ? "avail avail--low"
+                : remaining <= 2
+                ? "avail avail--mid"
+                : "avail avail--ok"
+            }
+          >
+            {remaining ? `${remaining} places` : "Complet"}
           </span>
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="session-card-actions" onClick={(e) => e.stopPropagation() /* 👈 n’empêche pas le zoom global */}>
-        {teaser ? (
-          <button
-            className="btn-details"
-            onClick={(e) => { e.stopPropagation(); navigate("/login", { state: { from: locationRouter } }); }}
-          >
-            Connecte-toi pour les détails
-          </button>
-        ) : (
+      {/* CTA — masqué en CSS et en JSX si passé */}
+      {!isPast && (
+        <div className="sc-actions session-card-actions">
           <Link
             to={`/sessions/${session.id}`}
             className="btn-details"
-            onClick={(e) => e.stopPropagation()}  // 👈 ne déclenche pas le zoom
+            onClick={(e) => e.stopPropagation()}
           >
-            Détails
+            Voir les détails
           </Link>
-        )}
-
-        {isParticipant && !teaser && <span className="pill">Tu participes déjà</span>}
-      </div>
-
-      {/* Ruban teaser */}
-      {teaser && (
-        <div className="sc-ribbon">
-          <span>🔒</span>
-          <span>Adresse & participants visibles après connexion</span>
         </div>
       )}
-    </div>
+    </article>
   );
 }

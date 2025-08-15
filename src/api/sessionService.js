@@ -64,6 +64,13 @@ export const leaveSession = (id) => axiosClient.post(`/sessions/${id}/leave/`);
 export const publishSession = (id) =>
   axiosClient.post(`/sessions/${id}/publish/`);
 
+export const lockSession = (id) =>
+  axiosClient.post(`/sessions/${id}/lock/`);
+
+export const finishSession = (id) =>
+  axiosClient.post(`/sessions/${id}/finish/`);
+
+
 export const cancelSession = (id) =>
   axiosClient.post(`/sessions/${id}/cancel/`);
 

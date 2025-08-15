@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+// src/pages/Dashboard/UserManagement.jsx
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { getAllUsers, deleteUser, updateUser } from "../../api/adminService";
 import "../../styles/UserManagement.css";
+import { extractApiError } from "../../utils/httpError";
 
 const ROLES = ["admin", "coach", "user"];
 const PAGE_SIZE = 10;
@@ -8,54 +10,32 @@ const PAGE_SIZE = 10;
 export default function UserManagement({ query = "", onStats }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // recherche / filtre
   const [localSearch, setLocalSearch] = useState("");
-  const [q, setQ] = useState(""); // debounced
+  const [q, setQ] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
+
+  // pagination
   const [page, setPage] = useState(1);
 
+  // édition
   const [editing, setEditing] = useState(null);
   const [saving, setSaving] = useState(false);
+
+  // erreurs globales
   const [err, setErr] = useState("");
 
-  // debounce combined search (global query + local)
+  const resetPaging = () => setPage(1);
+
+  // debounce recherche (query global + local)
   const rawQ = (localSearch || query).toLowerCase().trim();
   useEffect(() => {
     const t = setTimeout(() => setQ(rawQ), 250);
     return () => clearTimeout(t);
   }, [rawQ]);
 
-  // filtered (déclaré AVANT tout effet qui l'utilise)
-  const filtered = useMemo(() => {
-    if (!q) return users;
-    return users.filter((u) =>
-      [
-        u.first_name || "",
-        u.last_name || "",
-        u.username || "",
-        u.email || "",
-        u.role || "",
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(q)
-    );
-  }, [users, q]);
-
-  // pagination
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const currentPage = Math.min(page, pageCount);
-  const pageSlice = useMemo(() => {
-    const start = (currentPage - 1) * PAGE_SIZE;
-    return filtered.slice(start, start + PAGE_SIZE);
-  }, [filtered, currentPage]);
-
-  const resetPaging = () => setPage(1);
-
-  // report stats up
-  useEffect(() => {
-    onStats?.({ total: users.length, filtered: filtered.length });
-  }, [users.length, filtered.length, onStats]);
-
-  // fetch
+  // fetch initial
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -64,7 +44,6 @@ export default function UserManagement({ query = "", onStats }) {
         const list = await getAllUsers();
         if (alive) setUsers(Array.isArray(list) ? list : []);
       } catch (e) {
-        console.error(e);
         if (alive) setErr("Impossible de charger les utilisateurs.");
       } finally {
         if (alive) setLoading(false);
@@ -75,20 +54,60 @@ export default function UserManagement({ query = "", onStats }) {
     };
   }, []);
 
+  // filtrage + recherche
+  const filtered = useMemo(() => {
+    let base = users;
+
+    if (q) {
+      base = base.filter((u) =>
+        [
+          u.first_name || "",
+          u.last_name || "",
+          u.username || "",
+          u.email || "",
+          u.role || "",
+        ]
+          .join(" ")
+          .toLowerCase()
+          .includes(q)
+      );
+    }
+
+    if (roleFilter) {
+      base = base.filter((u) => (u.role || "user") === roleFilter);
+    }
+
+    return base;
+  }, [users, q, roleFilter]);
+
+  // pagination calculée
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+
+  const pageSlice = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filtered.slice(start, start + PAGE_SIZE);
+  }, [filtered, currentPage]);
+
+  // remonter stats au parent
+  useEffect(() => {
+    onStats?.({ total: users.length, filtered: filtered.length });
+  }, [users.length, filtered.length, onStats]);
+
+  // suppression (optimiste)
   const onDelete = async (id) => {
     if (!window.confirm("❌ Supprimer cet utilisateur ?")) return;
-    // optimiste
     const prev = users;
     setUsers((us) => us.filter((u) => u.id !== id));
     try {
       await deleteUser(id);
     } catch (e) {
-      console.error(e);
       setUsers(prev); // rollback
-      alert("Suppression impossible.");
+      alert(extractApiError(e));
     }
   };
 
+  // ouverture modale d'édition
   const onOpenEdit = (u) => {
     setErr("");
     setEditing({
@@ -100,6 +119,7 @@ export default function UserManagement({ query = "", onStats }) {
     });
   };
 
+  // modifications en cours ?
   const dirty = useMemo(() => {
     if (!editing) return false;
     const orig = users.find((u) => u.id === editing.id);
@@ -112,6 +132,7 @@ export default function UserManagement({ query = "", onStats }) {
     );
   }, [editing, users]);
 
+  // sauvegarde modale
   const onSave = async () => {
     if (!editing || !dirty) return;
     setSaving(true);
@@ -123,29 +144,47 @@ export default function UserManagement({ query = "", onStats }) {
         role: editing.role,
       };
       const updated = await updateUser(editing.id, payload);
-      // merge optimiste
       setUsers((us) =>
         us.map((u) => (u.id === editing.id ? { ...u, ...updated } : u))
       );
       setEditing(null);
     } catch (e) {
-      console.error(e);
-      const api = e?.response?.data || {};
-      alert(
-        api.detail ||
-          api.email?.[0] ||
-          api.role?.[0] ||
-          "Impossible d’enregistrer les modifications."
-      );
+      alert(extractApiError(e));
     } finally {
       setSaving(false);
     }
   };
 
+  // set rapide de rôle (actions inline)
+  const quickSetRole = useCallback(
+    async (u, role) => {
+      const prev = users;
+      try {
+        setUsers((list) =>
+          list.map((x) => (x.id === u.id ? { ...x, role } : x))
+        );
+        const updated = await updateUser(u.id, {
+          first_name: u.first_name,
+          last_name: u.last_name,
+          email: u.email,
+          role,
+        });
+        setUsers((list) =>
+          list.map((x) => (x.id === u.id ? { ...x, ...updated } : x))
+        );
+      } catch (e) {
+        setUsers(prev);
+        alert(extractApiError(e));
+      }
+    },
+    [users]
+  );
+
   return (
     <div className="um">
       <div className="um__bar">
         <div className="um__title">Gestion des utilisateurs</div>
+
         <div className="um__search">
           <span className="ico">🔎</span>
           <input
@@ -154,7 +193,7 @@ export default function UserManagement({ query = "", onStats }) {
               setLocalSearch(e.target.value);
               resetPaging();
             }}
-            placeholder="Rechercher (nom, email, rôle…) • local"
+            placeholder="Rechercher (nom, email, rôle)…"
             aria-label="Recherche utilisateurs"
           />
           {localSearch && (
@@ -163,12 +202,29 @@ export default function UserManagement({ query = "", onStats }) {
             </button>
           )}
         </div>
+
+        <select
+          className="um__select"
+          value={roleFilter}
+          onChange={(e) => {
+            setRoleFilter(e.target.value);
+            resetPaging();
+          }}
+          aria-label="Filtrer par rôle"
+        >
+          <option value="">Tous rôles</option>
+          {ROLES.map((r) => (
+            <option key={r} value={r}>
+              {r}
+            </option>
+          ))}
+        </select>
+
         <div className="um__count">{filtered.length} résultat(s)</div>
       </div>
 
       {err && <p className="um__err">{err}</p>}
 
-      {/* skeleton */}
       {loading ? (
         <div className="um__skeleton">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -190,57 +246,76 @@ export default function UserManagement({ query = "", onStats }) {
                   <th>Utilisateur</th>
                   <th>Email</th>
                   <th>Rôle</th>
-                  <th style={{ width: 160 }}>Actions</th>
+                  <th style={{ width: 260 }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {pageSlice.map((u) => (
-                  <tr key={u.id}>
-                    <td>
-                      <div className="u-cell">
-                        <img
-                          className="u-avatar"
-                          src={u.avatar_src || "/avatar.png"}
-                          alt=""
-                          onError={(e) =>
-                            (e.currentTarget.style.visibility = "hidden")
-                          }
-                        />
-                        <div className="u-id">
-                          <div className="u-name">
-                            {(u.first_name || "") + " " + (u.last_name || "")}
+                {pageSlice.map((u) => {
+                  const avatar =
+                    u.avatar_url || u.avatar || u.avatar_src || "/avatar.png";
+                  return (
+                    <tr key={u.id}>
+                      <td>
+                        <div className="u-cell">
+                          <img
+                            className="u-avatar"
+                            src={avatar}
+                            alt=""
+                            onError={(e) =>
+                              (e.currentTarget.style.visibility = "hidden")
+                            }
+                          />
+                          <div className="u-id">
+                            <div className="u-name">
+                              {(u.first_name || "") + " " + (u.last_name || "")}
+                            </div>
+                            <div className="u-username">@{u.username}</div>
                           </div>
-                          <div className="u-username">@{u.username}</div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="u-email">{u.email}</td>
-                    <td>
-                      <span className={`pill pill--${u.role || "user"}`}>
-                        {u.role || "user"}
-                      </span>
-                    </td>
-                    <td>
-                      <button
-                        className="btn small"
-                        onClick={() => onOpenEdit(u)}
-                      >
-                        ✏ Modifier
-                      </button>
-                      <button
-                        className="btn danger small"
-                        onClick={() => onDelete(u.id)}
-                      >
-                        🗑 Supprimer
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="u-email">{u.email}</td>
+                      <td>
+                        <span className={`pill pill--${u.role || "user"}`}>
+                          {u.role || "user"}
+                        </span>
+                      </td>
+                      <td className="u-actions">
+                        <button
+                          className="btn small"
+                          onClick={() => onOpenEdit(u)}
+                          title="Modifier"
+                        >
+                          ✏ Modifier
+                        </button>
+                        <button
+                          className="btn small"
+                          onClick={() => quickSetRole(u, "coach")}
+                          title="Basculer en coach"
+                        >
+                          → Coach
+                        </button>
+                        <button
+                          className="btn small"
+                          onClick={() => quickSetRole(u, "user")}
+                          title="Basculer en user"
+                        >
+                          → User
+                        </button>
+                        <button
+                          className="btn danger small"
+                          onClick={() => onDelete(u.id)}
+                          title="Supprimer"
+                        >
+                          🗑 Supprimer
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
 
-          {/* pagination */}
           <div className="pager">
             <button
               className="btn ghost"
@@ -265,7 +340,6 @@ export default function UserManagement({ query = "", onStats }) {
         <div className="um__empty">Aucun utilisateur trouvé.</div>
       )}
 
-      {/* MODAL */}
       {editing && (
         <div
           className="modal-overlay"

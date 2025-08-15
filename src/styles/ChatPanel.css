@@ -145,3 +145,34 @@
   background:#1f1f24; border-radius:8px; border:2px solid transparent; background-clip:content-box;
 }
 .chat-list::-webkit-scrollbar-track{ background:transparent; }
+
+
+.chat-wrap { position: relative; }
+.chat-wrap.is-blurred { position: relative; }
+.chat-soft-blur {
+  position:absolute; inset:0;
+  backdrop-filter: blur(6px);
+  pointer-events:none;
+}
+.chat-locked { position: relative; border:1px solid var(--border); padding:12px; border-radius:12px; }
+.chat-locked-title { font-weight:700; margin-bottom:6px; }
+.chat-locked-msg { color:#9ca3af; margin-top:6px; }
+
+
+/* assure le blur au-dessus du contenu */
+.chat-wrap { position: relative; }
+.chat-wrap.is-blurred .chat-soft-blur{
+  position:absolute;
+  inset:0;
+  backdrop-filter: blur(6px);
+  background: rgba(0,0,0,.25);
+  pointer-events:none;
+  border-radius:inherit;
+  z-index: 2;              /* 🔥 */
+}
+
+/* le contenu reste en dessous */
+.chat-header, .chat-list, .chat-compose {
+  position: relative;
+  z-index: 1;              /* 🔥 */
+}

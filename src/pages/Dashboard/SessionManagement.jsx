@@ -1,13 +1,27 @@
-import { useEffect, useMemo, useState } from "react";
+// src/pages/Dashboard/SessionManagement.jsx
+import { useEffect, useMemo, useState, useCallback } from "react";
 import {
   getAllSessionsAdmin,
-  deleteSession,
-  updateSession,
+  deleteSession as adminDeleteSession,
+  updateSession as adminUpdateSession,
 } from "../../api/adminService";
-import { getSports } from "../../api/sessionService";
+import {
+  getSessions,
+  publishSession,
+  lockSession,
+  finishSession,
+  cancelSession,
+  getSports,
+} from "../../api/sessionService";
 import "../../styles/SessionManagement.css";
+import { extractApiError } from "../../utils/httpError";
 
 const PAGE_SIZE = 10;
+
+function statusBadge(s) {
+  const v = String(s || "").toUpperCase();
+  return <span className={`pill pill--${v.toLowerCase()}`}>{v || "—"}</span>;
+}
 
 export default function SessionManagement({ query = "", onStats }) {
   const [sessions, setSessions] = useState([]);
@@ -20,25 +34,26 @@ export default function SessionManagement({ query = "", onStats }) {
   const [page, setPage] = useState(1);
   const [saving, setSaving] = useState(false);
 
-  // Fetch
-  const fetchSessions = async () => {
+  const resetPaging = () => setPage(1);
+
+  // Fetch all sessions (admin scope) + sports for edit selector
+  const fetchSessions = useCallback(async () => {
     try {
       setLoading(true);
       const [all, sp] = await Promise.all([getAllSessionsAdmin(), getSports()]);
-      setSessions(all || []);
-      setSports(sp || []);
+      setSessions(Array.isArray(all) ? all : []);
+      setSports(Array.isArray(sp) ? sp : []);
       setErr(null);
     } catch (e) {
-      console.error(e);
       setErr("Impossible de charger les sessions.");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchSessions();
-  }, []);
+  }, [fetchSessions]);
 
   // debounce search (combine local + global query)
   const rawQ = (search || query).trim().toLowerCase();
@@ -50,7 +65,7 @@ export default function SessionManagement({ query = "", onStats }) {
   const filtered = useMemo(() => {
     if (!q) return sessions;
     return sessions.filter((s) =>
-      `${s.title ?? ""} ${s.sport?.name ?? ""} ${s.location ?? ""} ${s.date ?? ""}`
+      `${s.title ?? ""} ${s.sport?.name ?? ""} ${s.location ?? ""} ${s.date ?? ""} ${(s.status ?? "")}`
         .toLowerCase()
         .includes(q)
     );
@@ -69,22 +84,53 @@ export default function SessionManagement({ query = "", onStats }) {
     return filtered.slice(start, start + PAGE_SIZE);
   }, [filtered, currentPage]);
 
-  const resetPaging = () => setPage(1);
+  // ADMIN actions: publish/lock/finish/cancel
+  const onAction = useCallback(
+    async (action, s) => {
+      const id = s.id || s.pk || s.session_id;
+      if (!id) return;
+      const prev = sessions;
+      try {
+        setSaving(true);
+        if (action === "publish") await publishSession(id);
+        if (action === "lock") await lockSession(id);
+        if (action === "finish") await finishSession(id);
+        if (action === "cancel") await cancelSession(id);
+        const newStatus =
+          { publish: "OPEN", lock: "LOCKED", finish: "FINISHED", cancel: "CANCELED" }[action] || null;
+        if (newStatus) {
+          setSessions((list) =>
+            list.map((x) => (x.id === id ? { ...x, status: newStatus } : x))
+          );
+        } else {
+          // fallback refetch
+          const fresh = await getSessions();
+          setSessions(Array.isArray(fresh) ? fresh : prev);
+        }
+      } catch (e) {
+        setSessions(prev);
+        alert(extractApiError(e));
+      } finally {
+        setSaving(false);
+      }
+    },
+    [sessions]
+  );
 
+  // delete (optimistic)
   const handleDelete = async (id) => {
     if (!window.confirm("❌ Supprimer cette session ?")) return;
-    // optimistic remove
     const prev = sessions;
     setSessions((s) => s.filter((x) => x.id !== id));
     try {
-      await deleteSession(id);
+      await adminDeleteSession(id);
     } catch (e) {
-      console.error(e);
       setErr("La suppression a échoué.");
       setSessions(prev); // rollback
     }
   };
 
+  // open edit modal
   const openEdit = (s) =>
     setEditing({
       ...s,
@@ -95,6 +141,7 @@ export default function SessionManagement({ query = "", onStats }) {
       date: (s.date || "").slice(0, 10), // YYYY-MM-DD
     });
 
+  // validate
   const validate = (data) => {
     if (!data.title.trim()) return "Le titre est requis.";
     if (!data.sport_id) return "Le sport est requis.";
@@ -105,6 +152,7 @@ export default function SessionManagement({ query = "", onStats }) {
     return null;
   };
 
+  // save edit
   const handleSave = async () => {
     if (!editing) return;
     const payload = {
@@ -120,9 +168,9 @@ export default function SessionManagement({ query = "", onStats }) {
       return;
     }
 
-    // optimistic update
     const prev = sessions;
     setSaving(true);
+    // optimistic row
     const updatedRow = {
       ...editing,
       sport: sports.find((sp) => sp.id === payload.sport_id) || editing.sport,
@@ -131,11 +179,10 @@ export default function SessionManagement({ query = "", onStats }) {
     setSessions((list) => list.map((x) => (x.id === editing.id ? updatedRow : x)));
 
     try {
-      await updateSession(editing.id, payload);
+      await adminUpdateSession(editing.id, payload);
       setEditing(null);
       setErr(null);
     } catch (e) {
-      console.error(e);
       setErr("La sauvegarde a échoué.");
       setSessions(prev); // rollback
     } finally {
@@ -151,7 +198,7 @@ export default function SessionManagement({ query = "", onStats }) {
           <input
             className="adm-search"
             type="text"
-            placeholder="Rechercher une session..."
+            placeholder="Rechercher une session…"
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -163,6 +210,9 @@ export default function SessionManagement({ query = "", onStats }) {
               Réinitialiser
             </button>
           )}
+          <button className="btn" onClick={fetchSessions} disabled={loading || saving}>
+            Rafraîchir
+          </button>
         </div>
       </div>
 
@@ -183,34 +233,73 @@ export default function SessionManagement({ query = "", onStats }) {
                 <th>Date</th>
                 <th>Lieu</th>
                 <th>Max</th>
-                <th style={{ width: 160 }}>Actions</th>
+                <th>Statut</th>
+                <th style={{ width: 280 }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {pageSlice.map((s) => (
-                <tr key={s.id}>
-                  <td className="cell-ellipsis" title={s.title}>
-                    {s.title}
-                  </td>
-                  <td>{s.sport?.name || "—"}</td>
-                  <td>{s.date?.slice(0, 10) || "—"}</td>
-                  <td className="cell-ellipsis" title={s.location}>
-                    {s.location}
-                  </td>
-                  <td>{s.max_players ?? "—"}</td>
-                  <td className="cell-actions">
-                    <button className="btn small" onClick={() => openEdit(s)}>
-                      ✏ Modifier
-                    </button>
-                    <button
-                      className="btn danger small"
-                      onClick={() => handleDelete(s.id)}
-                    >
-                      🗑 Supprimer
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {pageSlice.map((s) => {
+                const status = (s.status || "").toUpperCase();
+                return (
+                  <tr key={s.id}>
+                    <td className="cell-ellipsis" title={s.title}>
+                      {s.title}
+                    </td>
+                    <td>{s.sport?.name || "—"}</td>
+                    <td>{s.date?.slice(0, 10) || "—"}</td>
+                    <td className="cell-ellipsis" title={s.location}>
+                      {s.location || "—"}
+                    </td>
+                    <td>{s.max_players ?? "—"}</td>
+                    <td>{statusBadge(status)}</td>
+                    <td className="cell-actions">
+                      {/* statut actions */}
+                      <button
+                        className="btn small"
+                        disabled={saving || status !== "DRAFT"}
+                        onClick={() => onAction("publish", s)}
+                        title="Publier"
+                      >
+                        Publier
+                      </button>
+                      <button
+                        className="btn small"
+                        disabled={saving || status !== "OPEN"}
+                        onClick={() => onAction("lock", s)}
+                        title="Locker"
+                      >
+                        Locker
+                      </button>
+                      <button
+                        className="btn small"
+                        disabled={saving || !["OPEN", "LOCKED"].includes(status)}
+                        onClick={() => onAction("finish", s)}
+                        title="Terminer"
+                      >
+                        Terminer
+                      </button>
+                      <button
+                        className="btn danger small"
+                        disabled={saving || status === "CANCELED"}
+                        onClick={() => onAction("cancel", s)}
+                        title="Annuler"
+                      >
+                        Annuler
+                      </button>
+                      {/* CRUD */}
+                      <button className="btn ghost small" onClick={() => openEdit(s)}>
+                        ✏ Modifier
+                      </button>
+                      <button
+                        className="btn danger small"
+                        onClick={() => handleDelete(s.id)}
+                      >
+                        🗑 Supprimer
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
 
@@ -237,9 +326,12 @@ export default function SessionManagement({ query = "", onStats }) {
         </>
       )}
 
-      {/* Modal */}
+      {/* Modal d'édition */}
       {editing && (
-        <div className="modal-overlay" onClick={() => !saving && setEditing(null)}>
+        <div
+          className="modal-overlay"
+          onClick={() => !saving && setEditing(null)}
+        >
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h3>Modifier la session</h3>
 
@@ -292,10 +384,18 @@ export default function SessionManagement({ query = "", onStats }) {
             />
 
             <div className="modal-buttons">
-              <button className="btn ghost" disabled={saving} onClick={() => setEditing(null)}>
+              <button
+                className="btn ghost"
+                disabled={saving}
+                onClick={() => setEditing(null)}
+              >
                 Annuler
               </button>
-              <button className="btn primary" disabled={saving} onClick={handleSave}>
+              <button
+                className="btn primary"
+                disabled={saving}
+                onClick={handleSave}
+              >
                 {saving ? "Sauvegarde…" : "Sauvegarder"}
               </button>
             </div>

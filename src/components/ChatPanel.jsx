@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
  * - canWrite: boolean
  * - canModerate: boolean
  * - title?: string
- * - blurred?: boolean  // <- nouveau: floute visuellement le chat (sans le cacher)
+ * - blurred?: boolean  // floute visuellement le chat (sans le cacher)
  *
  * Message = { id, sender_username, content, is_deleted, mine, can_delete }
  */
@@ -31,24 +31,35 @@ export default function ChatPanel({
   };
 
   const load = async () => {
-    if (!api || !canRead) return;
+    if (!api || !canRead) return; // ne charge pas si pas d'accès
     setErr("");
     try {
       const arr = await api.list();
       setMessages(Array.isArray(arr) ? arr : []);
     } catch (e) {
-      console.error("[ChatPanel] list error:", e);
+      const status = e?.response?.status ?? e?.status;
+      if (status === 403) {
+        setMessages([]);
+        setErr("");
+        return;
+      }
+      console.warn("[ChatPanel] list error:", e);
       setErr("Impossible de charger le chat.");
     }
   };
 
-  // Initial + when api/canRead change
   useEffect(() => {
-    load();
+    let cancelled = false;
+    (async () => {
+      if (cancelled) return;
+      await load();
+    })();
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, canRead]);
 
-  // Auto-scroll when messages change
   useEffect(() => {
     if (messages?.length) scrollToBottom();
   }, [messages]);
@@ -74,11 +85,8 @@ export default function ChatPanel({
     if (!window.confirm("Supprimer ce message ?")) return;
     try {
       await api.remove(id);
-      // fallback si pas de WS
       setMessages((m) =>
-        m.map((x) =>
-          x.id === id ? { ...x, is_deleted: true, content: "" } : x
-        )
+        m.map((x) => (x.id === id ? { ...x, is_deleted: true, content: "" } : x))
       );
     } catch (e) {
       console.error("[ChatPanel] delete error:", e);
@@ -86,7 +94,39 @@ export default function ChatPanel({
     }
   };
 
-  // Accès complètement verrouillé (membres uniquement)
+  // === Cas 1: pas le droit de lire & on veut un BLUR visuel ===
+  if (!canRead && blurred) {
+    // petits placeholders fictifs (aucun call réseau)
+    const placeholders = [
+      { id: "p1", sender_username: "membre_1", content: "…", mine: false },
+      { id: "p2", sender_username: "membre_2", content: "…", mine: true },
+      { id: "p3", sender_username: "membre_3", content: "…", mine: false },
+      { id: "p4", sender_username: "membre_4", content: "…", mine: true },
+    ];
+    return (
+      <div className="chat-wrap is-blurred">
+        <div className="chat-header">
+          <div className="chat-title">{title}</div>
+        </div>
+        <div className="chat-list">
+          {placeholders.map((m) => (
+            <div
+              key={m.id}
+              className={`chat-bubble ${m.mine ? "mine" : ""}`}
+              aria-hidden
+            >
+              <div className="sender">{m.sender_username}</div>
+              <div className="content">Message</div>
+            </div>
+          ))}
+        </div>
+        <div className="chat-soft-blur" aria-hidden />
+        <div className="chat-locked-msg">Rejoins la session pour voir le chat</div>
+      </div>
+    );
+  }
+
+  // === Cas 2: pas le droit de lire & pas de blur => bloc “locked” compact ===
   if (!canRead) {
     return (
       <div className="chat-locked">
@@ -97,6 +137,7 @@ export default function ChatPanel({
     );
   }
 
+  // === Cas 3: accès normal ===
   return (
     <div className={`chat-wrap ${blurred ? "is-blurred" : ""}`}>
       <div className="chat-header">
