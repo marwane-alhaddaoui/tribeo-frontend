@@ -131,7 +131,7 @@ export default function BillingPage() {
   L?.can_create_trainings
     ? (L?.trainings_create_per_month ?? null) // null => ∞
     : 0; // plan qui n'autorise pas → 0
-
+    
   return (
     <div className="billing-wrapper">
       <div className="billing-head">
@@ -177,11 +177,12 @@ export default function BillingPage() {
                 limit={L.sessions_create_per_month}
               />
               
-                  <StatRow
+                <StatRow
                   label="Entraînements créés"
                   used={U.trainings_created ?? 0}
                   limit={trainingsLimit}
                 />
+              <StatRow
                 label="Participations aux sessions"
                 used={U.participations ?? 0}
                 limit={L.sessions_join_per_month}
