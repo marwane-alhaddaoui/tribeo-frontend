@@ -55,8 +55,28 @@ export const getSessionById = (id) => axiosClient.get(`/sessions/${id}/`);
 // alias historique
 export const getSessionDetail = getSessionById;
 
-export const createSession = (data) => axiosClient.post("/sessions/", data);
+export const createSession = async (data) => {
+  const res = await axiosClient.post("/sessions/", data);
+  const created = res?.data ?? null;
 
+  // essaie d'extraire l'id depuis le body
+  let id = extractSessionId(created);
+
+  // fallback: parfois l'id est dans le header Location: ".../sessions/51/"
+  if (!id) {
+    const loc = res?.headers?.location || res?.headers?.Location;
+    if (loc) {
+      const m = String(loc).match(/\/sessions\/(\d+)\/?$/i);
+      if (m && m[1]) id = Number(m[1]);
+    }
+  }
+
+  // on renvoie un objet exploitable (sans altérer ce que l'API t’a déjà donné)
+  if (created && typeof created === "object") {
+    return id ? { ...created, id } : created;
+  }
+  return id ? { id } : created;
+};
 export const joinSession = (id) => axiosClient.post(`/sessions/${id}/join/`);
 
 export const leaveSession = (id) => axiosClient.post(`/sessions/${id}/leave/`);

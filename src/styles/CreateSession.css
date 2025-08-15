@@ -1,108 +1,241 @@
+/* ====== Page container ====== */
 .create-session-container {
-  padding: 24px 16px;
-  background-color: #121212;
+  padding: 28px 16px;
+  background: radial-gradient(1200px 600px at 10% -10%, rgba(255,45,45,.08), transparent 60%),
+              radial-gradient(1200px 600px at 110% 10%, rgba(255,45,45,.06), transparent 55%),
+              #0f0f10;
   color: #fff;
   min-height: 100vh;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
-.create-session-title {
-  font-size: 1.8rem;
-  text-align: center;
-  margin: 0 0 14px;
-  color: #ff2d2d;
-}
-
+/* messages d'erreur globaux */
 .error-message {
   color: #ff9b9b;
-  margin: 8px 0 14px;
-  text-align: center;
+  background: rgba(255,45,45,.07);
+  border: 1px solid rgba(255,45,45,.25);
+  border-left: 4px solid #ff2d2d;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin: 0 auto 18px;
+  width: min(920px, 95vw);
+  font-weight: 600;
 }
 
-/* --------- Wrapper centré --------- */
+/* ====== Wrapper centré ====== */
 .cs-shell {
   width: min(920px, 95vw);
   margin: 0 auto;
 }
 
-/* --------- Form --------- */
+/* ====== Form ====== */
 .create-session-form {
-  background: #161616;
-  border: 1px solid #262626;
-  border-radius: 16px;
-  padding: 18px;
+  background: rgba(18,18,18,.9);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 18px;
+  padding: 22px;
   display: grid;
-  gap: 16px;
+  gap: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.45);
+  backdrop-filter: blur(6px);
 }
 
-.cs-section { display: grid; gap: 12px; }
+/* sections + séparateur subtil */
+.cs-section { 
+  display: grid; 
+  gap: 14px; 
+  position: relative;
+}
+.cs-section + .cs-section::before {
+  content: "";
+  position: absolute;
+  top: -9px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+}
 
+/* grilles */
 .cs-row {
   display: grid;
   gap: 12px;
   grid-template-columns: 1fr 1fr;
 }
 .cs-row-inline { align-items: center; grid-template-columns: auto 1fr; gap: 12px; }
-@media (max-width: 720px) { .cs-row, .cs-row-inline { grid-template-columns: 1fr; } }
 
-.cs-field { display: grid; gap: 6px; }
-.cs-field label { font-weight: 700; font-size: 0.92rem; color: #eaeaea; }
+@media (max-width: 720px) { 
+  .cs-row, .cs-row-inline { grid-template-columns: 1fr; } 
+}
 
+/* champs */
+.cs-field { display: grid; gap: 8px; }
+.cs-field label { 
+  font-weight: 800; 
+  font-size: .95rem; 
+  color: #f0f0f0; 
+  letter-spacing: .3px;
+}
+
+/* inputs communs */
 .create-session-form input,
 .create-session-form select,
 .create-session-form textarea {
-  padding: 12px 12px;
+  padding: 12px 14px;
   border-radius: 12px;
-  border: 1px solid #2a2a2a;
-  background-color: #1b1b1b;
-  color: white;
+  border: 1px solid #262626;
+  background-color: #171717;
+  color: #fff;
   outline: none;
-  transition: box-shadow .12s ease, border-color .12s ease, background .12s ease;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease, transform .06s ease;
+  will-change: box-shadow, border-color, transform;
 }
-.create-session-form textarea { resize: vertical; min-height: 110px; }
 
-/* focus subtil (accent rouge) */
+.create-session-form textarea { 
+  resize: vertical; 
+  min-height: 110px; 
+}
+
+.create-session-form input::placeholder,
+.create-session-form textarea::placeholder {
+  color: #9a9a9a;
+}
+
+/* focus (accent rouge) */
 .create-session-form input:focus,
 .create-session-form select:focus,
 .create-session-form textarea:focus {
-  border-color: #3a3a3a;
-  box-shadow: 0 0 0 2px rgba(255,45,45,.12);
+  border-color: #ff3b3b;
+  box-shadow: 0 0 0 3px rgba(255,45,45,.22);
 }
 
-/* ---- Code couleur champs (vert/rouge) ---- */
+/* hover léger */
+.create-session-form input:hover,
+.create-session-form select:hover,
+.create-session-form textarea:hover {
+  border-color: #333;
+}
+
+/* ---- Code couleur valid/invalid ---- */
 .input.valid{
-  border-color: rgba(0,200,120,.45);
-  box-shadow: 0 0 0 2px rgba(0,200,120,.15);
+  border-color: rgba(0,210,140,.6);
+  box-shadow: 0 0 0 3px rgba(0,210,140,.25);
 }
 .input.invalid{
-  border-color: rgba(255,45,45,.55);
-  box-shadow: 0 0 0 2px rgba(255,45,45,.18);
+  border-color: rgba(255,45,45,.8);
+  box-shadow: 0 0 0 3px rgba(255,45,45,.28);
 }
 
-/* hints */
-.field-error { color: #ff9b9b; font-size: 0.85rem; }
+/* hints & helper text */
+.field-error { color: #ff9b9b; font-size: 0.86rem; }
 .cs-hint-row { display:flex; align-items:center; gap:10px; margin-top: 4px; }
-.cs-hint-row .ok { color: #a9f3c2; font-size: 0.85rem; }
-.cs-hint-row .warn { color: #ffd27d; font-size: 0.85rem; }
+.cs-hint-row .ok { color: #a9f3c2; font-size: 0.86rem; font-weight: 600; }
+.cs-hint-row .warn { color: #ffd27d; font-size: 0.86rem; }
 
-/* switch */
-.switch { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; }
-.switch input { width: 18px; height: 18px; }
+/* switch simple */
+.switch { 
+  display: inline-flex; 
+  align-items: center; 
+  gap: 10px; 
+  font-weight: 800; 
+  user-select: none;
+}
+.switch input { 
+  width: 20px; 
+  height: 20px; 
+  accent-color: #ff2d2d; 
+}
 
 /* tip */
-.cs-tip { color: #cfcfcf; font-size: .9rem; }
+.cs-tip { color: #cfcfcf; font-size: .92rem; }
 
 /* actions */
-.cs-actions { display: flex; justify-content: flex-end; }
+.cs-actions { 
+  display: flex; 
+  justify-content: flex-end; 
+  position: sticky; 
+  bottom: 8px; 
+  padding-top: 6px;
+  background: linear-gradient(180deg, transparent, rgba(18,18,18,.6) 40%, rgba(18,18,18,.95));
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+/* bouton principal */
 .btn-save-session {
-  background-color: #ff2d2d;
-  border: 1px solid #ff2d2d;
-  padding: 12px 16px;
+  background: linear-gradient(135deg, #ff2d2d, #ff4747);
+  border: 1px solid rgba(255,71,71,.85);
+  padding: 12px 18px;
   border-radius: 12px;
   color: white;
-  font-weight: 800;
+  font-weight: 900;
+  letter-spacing: .3px;
   cursor: pointer;
-  transition: transform .15s ease, filter .15s ease;
+  transition: transform .12s ease, box-shadow .15s ease, filter .15s ease;
+  box-shadow: 0 8px 18px rgba(255,45,45,.28);
 }
-.btn-save-session:hover { filter: brightness(1.06); }
-.btn-save-session:disabled { opacity: .6; cursor: not-allowed; }
+.btn-save-session:hover { 
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(255,45,45,.34);
+}
+.btn-save-session:active {
+  transform: translateY(0);
+  filter: brightness(.98);
+}
+.btn-save-session:disabled { 
+  opacity: .55; 
+  cursor: not-allowed; 
+  transform: none; 
+  box-shadow: none; 
+}
+
+/* ====== Détails UI fins ====== */
+
+/* retire les flèches des <input type="number"> (look plus clean) */
+.create-session-form input[type="number"]::-webkit-outer-spin-button,
+.create-session-form input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.create-session-form input[type="number"] { -moz-appearance: textfield; }
+
+/* flèche de select custom (sans wrapper supplémentaire) */
+.create-session-form select {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #bdbdbd 50%),
+    linear-gradient(135deg, #bdbdbd 50%, transparent 50%),
+    linear-gradient(to right, transparent, transparent);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 12px) 50%,
+    100% 0;
+  background-size: 6px 6px, 6px 6px, 2.2em 2.2em;
+  background-repeat: no-repeat;
+  padding-right: 40px;
+}
+
+/* légère micro‑interaction à la frappe */
+.create-session-form input:focus,
+.create-session-form textarea:focus {
+  transform: translateZ(0); /* engage GPU pour fluidité */
+}
+
+/* accessibilité */
+.create-session-form [aria-invalid="true"] {
+  border-color: rgba(255,45,45,.8);
+  box-shadow: 0 0 0 3px rgba(255,45,45,.25);
+}
+
+/* petit effet sur la zone adresse (quand coord ok) */
+.cs-hint-row .ok::before {
+  content: "●";
+  margin-right: 6px;
+  font-size: .7rem;
+  vertical-align: middle;
+  color: #31d08b;
+}
+.cs-hint-row .warn::before {
+  content: "●";
+  margin-right: 6px;
+  font-size: .7rem;
+  vertical-align: middle;
+  color: #ffb955;
+}

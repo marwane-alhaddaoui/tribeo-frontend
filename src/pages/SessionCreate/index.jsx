@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { createSession, getSports } from "../../api/sessionService";
+import { createSession, getSports, extractSessionId } from "../../api/sessionService"
 import { getGroupsByCoach } from "../../api/groupService";
 import { AuthContext } from "../../context/AuthContext";
 import "../../styles/CreateSession.css";
@@ -186,15 +186,21 @@ export default function CreateSessionPage() {
       // ✅ pas d'URL-encoding du JSON
       const payload = sanitizeStringsDeep(base);
 
-      await createSession(payload);
-      navigate("/dashboard");
-    } catch (err) {
-      const message = err?.response?.data ? JSON.stringify(err.response.data) : err.message;
-      setError("Erreur: " + message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
+      // ⬇️ création + redirection vers le détail
+      const created = await createSession(payload);
+      const createdId = extractSessionId(created);
+      if (createdId) {
+        navigate(`/sessions/${createdId}`);
+      } else {
+        navigate("/dashboard"); // fallback au cas où l'API ne renverrait pas l'ID
+      }
+      } catch (err) {
+        const message = err?.response?.data ? JSON.stringify(err.response.data) : err.message;
+        setError("Erreur: " + message);
+      } finally {
+        setSubmitting(false);
+      }
+      };
 
   /* ---------- UI dérivée ---------- */
   const minTotalPlayers = form.team_mode ? Number(form.min_players_per_team || 0) * 2 : 2;
@@ -205,7 +211,6 @@ export default function CreateSessionPage() {
 
   return (
     <div className="create-session-container">
-      <h2 className="create-session-title">🏆 Créer une session sportive</h2>
       {error && <p className="error-message">{error}</p>}
 
       <div className="cs-shell">
