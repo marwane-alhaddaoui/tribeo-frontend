@@ -38,15 +38,13 @@ export default function Header() {
 
           {isAuthed ? (
             <>
-              {user.role === 'admin' && (
-                <Link to="/admin/dashboard" onClick={closeMenu}>Dashboard</Link>
-              )}
-              {user.role === 'coach' && (
-                <Link to="/dashboard" onClick={closeMenu}>Dashboard</Link>
-              )}
-              {user.role === 'user' && (
-                <Link to="/dashboard" onClick={closeMenu}>Dashboard</Link>
-              )}
+               {/* Dashboard pour tout utilisateur connecté */}
+              {user.role === 'admin'
+                ? <Link to="/admin/dashboard" onClick={closeMenu}>Dashboard</Link>
+                : <Link to="/dashboard" onClick={closeMenu}>Dashboard</Link>}
+
+
+
               <Link to="/billing" onClick={closeMenu}>Abonnement</Link>
                 {/* Lien profil + badge plan */}
                <span className="header-profile-with-badge">
@@ -98,10 +96,9 @@ export default function Header() {
             {isAuthed && <Link to="/billing">Abonnement</Link>}
             {isAuthed ? (
               <>
-                {user.role === 'admin' && <Link to="/admin/dashboard" onClick={closeMenu}>Dashboard</Link>}
-                {user.role === 'coach' && <Link to="/dashboard" onClick={closeMenu}>Dashboard</Link>}
-                {user.role === 'user' && <Link to="/dashboard" onClick={closeMenu}>Dashboard</Link>}
-              
+                {user.role === 'admin'
+                  ? <Link to="/admin/dashboard" onClick={closeMenu}>Dashboard</Link>
+                  : <Link to="/dashboard" onClick={closeMenu}>Dashboard</Link>}
                 
                 <div className="mobile-profile-with-badge">
                 <Link to="/profile" onClick={closeMenu}>Profile</Link>

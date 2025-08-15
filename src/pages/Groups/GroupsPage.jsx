@@ -4,28 +4,59 @@ import GroupCard from "../../components/GroupCard";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import "../../styles/GroupsPage.css";
+import { QuotasContext } from "../../context/QuotasContext";
 
-/** Détermine si l'utilisateur peut créer un groupe */
-function canUserCreateGroup(user) {
+/** Peut-il créer un groupe ? Rôle > Quotas */
+function canCreateGroupFromQuotasOrRole(user, quotas, quotasLoading) {
   if (!user) return false;
-  const roles = (user.roles || user.role || []).toString().toUpperCase();
-  return (
-    user.is_superuser === true ||
-    user.is_staff === true ||
-    user.is_admin === true ||
-    user.is_manager === true ||
-    user.is_coach === true ||
-    roles.includes("ADMIN") ||
-    roles.includes("COACH") ||
-    roles.includes("MANAGER")
-  );
+
+  // 1) Bypass staff/admin
+  if (user.is_superuser === true || user.is_staff === true) return true;
+
+  // 2) Rôle premium/coach -> autorisé (sauf si le back dit explicitement non)
+  const role = String(user.role || quotas?.plan || "").toUpperCase();
+  if (role === "PREMIUM" || role === "COACH") {
+    if (quotas?.limits?.can_create_groups === false) return false;
+    return true;
+  }
+
+  // 3) En attendant les quotas pour un user "FREE" -> on ne décide pas
+  if (quotasLoading) return false;
+
+  // 4) Quotas
+  const L = quotas?.limits || {};
+  const U = quotas?.usage || {};
+  if (L.can_create_groups === false) return false;
+
+  const rawLimit = L.max_groups; // null => illimité
+  const used = Number(U.groups_created ?? 0);
+
+  const isUnlimited =
+    rawLimit == null ||
+    rawLimit === -1 ||
+    rawLimit === "unlimited" ||
+    rawLimit === "∞" ||
+    rawLimit === "INF" ||
+    rawLimit === "inf" ||
+    rawLimit === "infinite" ||
+    rawLimit === "None" ||
+    rawLimit === "none" ||
+    rawLimit === "null" ||
+    rawLimit === "";
+
+  if (isUnlimited) return true;
+
+  const limit = Number(rawLimit);
+  if (!Number.isFinite(limit)) return true; // tolérant
+
+  return used < limit;
 }
 
 export default function GroupsPage() {
   const { user } = useContext(AuthContext);
-  const isVisitor = !user; // 👈 visiteur non connecté
-  const allowCreate = canUserCreateGroup(user);
+  const { quotas, loading: quotasLoading } = useContext(QuotasContext);
 
+  const isVisitor = !user;
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -33,6 +64,8 @@ export default function GroupsPage() {
   const [q, setQ] = useState("");
   const [sport, setSport] = useState("");
   const [city, setCity] = useState("");
+
+  const allowCreate = canCreateGroupFromQuotasOrRole(user, quotas, quotasLoading);
 
   const fetchData = async () => {
     setLoading(true);
@@ -57,6 +90,10 @@ export default function GroupsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (quotas) console.debug("[GroupsPage] quotas:", quotas);
+  }, [quotas]);
+
   const onSearch = (e) => {
     e.preventDefault();
     if (isVisitor) return; // 🔒 blocage visiteur
@@ -77,6 +114,18 @@ export default function GroupsPage() {
     return `${n} groupes`;
   }, [groups, loading]);
 
+  // Tooltip explicite (utilise le rôle + état de chargement)
+  const role = String(user?.role || quotas?.plan || "").toUpperCase();
+  const createTitle = isVisitor
+    ? "Connecte-toi pour créer un groupe"
+    : quotasLoading
+      ? (role === "PREMIUM" || role === "COACH"
+          ? "Vérification… (premium détecté)"
+          : "Vérification quotas…")
+      : (quotas?.limits?.can_create_groups === false
+          ? "Ton plan ne permet pas de créer des groupes"
+          : "Quota de groupes atteint pour ce mois");
+
   return (
     <div className="groups-wrap">
       {/* Header */}
@@ -94,7 +143,7 @@ export default function GroupsPage() {
           <button
             className="btn-primary btn-disabled"
             disabled
-            title={isVisitor ? "Connecte-toi pour créer un groupe" : "Réservé aux coachs/managers"}
+            title={createTitle}
             aria-disabled="true"
             type="button"
           >

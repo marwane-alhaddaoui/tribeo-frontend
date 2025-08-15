@@ -1,17 +1,27 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { createGroup } from "../../api/groupService";
-import { listSports } from "../../api/sportService"; // <- ton service
+import { listSports } from "../../api/sportService";
+import { QuotasContext } from "../../context/QuotasContext";
 import "../../styles/GroupForm.css";
 
 export default function GroupForm() {
   const nav = useNavigate();
+  const { quotas, refresh: refreshQuotas,bumpUsage } = useContext(QuotasContext);
+
+  // ----- quotas -----
+  const L = quotas?.limits || {};
+  const U = quotas?.usage || {};
+  const planBlocks = L.can_create_groups === false;
+  const limit = L.max_groups;                  // null = ∞
+  const used = U.groups_created ?? 0;
+  const quotaOK = !planBlocks && (limit == null || used < Number(limit));
 
   // Form fields
   const [name, setName] = useState("");
   const [city, setCity] = useState("");
   const [description, setDescription] = useState("");
-  const [groupType, setGroupType] = useState("OPEN"); // <- NEW (OPEN | PRIVATE | COACH)
+  const [groupType, setGroupType] = useState("OPEN"); // OPEN | PRIVATE | COACH
 
   // Combobox Sport
   const [sportQuery, setSportQuery] = useState("");
@@ -94,22 +104,31 @@ export default function GroupForm() {
       setErr("Nom et sport sont obligatoires.");
       return;
     }
+    if (!quotaOK) {
+      setErr(planBlocks ? "Ton plan ne permet pas de créer des groupes." : "Quota de groupes atteint pour ce mois.");
+      return;
+    }
 
     setSaving(true);
     try {
       const payload = {
         name: name.trim(),
-        sport: selectedSport.id,        // le serializer attend "sport" (ID)
+        sport: selectedSport.id,        // serializer attend "sport" (ID)
         city: city.trim() || undefined,
         description: description.trim() || undefined,
-        group_type: groupType,          // <- NEW : OPEN | PRIVATE | COACH
+        group_type: groupType,          // OPEN | PRIVATE | COACH
       };
       const created = await createGroup(payload);
       setMsg("Groupe créé.");
+
+      // 🔄 refresh quotas juste après la création (usage.groups_created++)
+      try { bumpUsage({ groups_created: +1 }); } catch {}
+      await refreshQuotas();
+
       nav(`/groups/${created.id}`);
     } catch (e) {
       if (e?.response?.status === 403) {
-        setErr("Tu dois être coach (ou admin) pour créer un groupe.");
+        setErr("Création refusée (plan/quota/droits).");
       } else if (e?.response?.data) {
         const d = e.response.data;
         const firstKey = Object.keys(d)[0];
@@ -221,10 +240,26 @@ export default function GroupForm() {
 
         {/* Actions */}
         <div className="gf-actions">
-          <button className="btn-primary" type="submit" disabled={saving || !name.trim() || !selectedSport?.id}>
+          <button
+            className="btn-primary"
+            type="submit"
+            disabled={saving || !name.trim() || !selectedSport?.id || !quotaOK}
+            title={
+              quotaOK
+                ? undefined
+                : (planBlocks ? "Ton plan ne permet pas la création de groupes" : "Quota atteint pour ce mois")
+            }
+          >
             {saving ? "Création…" : "Créer"}
           </button>
           <Link to="/groups" style={{ marginLeft: 8 }}>Annuler</Link>
+        </div>
+
+        {/* Hint quotas */}
+        <div className="gf-empty" style={{ paddingTop: 10, opacity: .8 }}>
+          {limit == null
+            ? `Quota groupes : ${used} / ∞`
+            : `Quota groupes : ${used} / ${limit}`}
         </div>
       </form>
     </div>

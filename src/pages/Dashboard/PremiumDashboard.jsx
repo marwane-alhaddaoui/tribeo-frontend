@@ -53,8 +53,7 @@ export default function PremiumDashboard() {
 
       <div className="dashboard-actions">
         <Link to="/sessions/create" className="btn primary">+ Créer une session</Link>
-        <Link to="/groups/create" className="btn ghost">+ Créer un groupe</Link>
-        <Link to="/billing" className="btn">Gérer mon abonnement</Link>
+      <Link to="/groups/new" className="btn ghost">+ Créer un groupe</Link>        <Link to="/billing" className="btn">Gérer mon abonnement</Link>
       </div>
 
       {loading ? <p>Chargement…</p> : (

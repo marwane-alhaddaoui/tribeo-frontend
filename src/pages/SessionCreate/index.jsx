@@ -1,8 +1,9 @@
 import { useState, useEffect, useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { createSession, getSports, extractSessionId } from "../../api/sessionService"
+import { createSession, getSports, extractSessionId } from "../../api/sessionService";
 import { getGroupsByCoach } from "../../api/groupService";
 import { AuthContext } from "../../context/AuthContext";
+import { QuotasContext } from "../../context/QuotasContext";
 import "../../styles/CreateSession.css";
 import AddressAutocomplete from "../../components/AddressAutocomplete";
 
@@ -21,7 +22,7 @@ function nextHourHM() {
 function normalizeTime(input){
   const raw = decodeURIComponent(String(input || "").trim());
   const m = raw.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
-  if (!m) return ""; // laisser la validation BE gérer si vide
+  if (!m) return "";
   const hh = pad2(Number(m[1]));
   const mm = pad2(Number(m[2]));
   const ss = pad2(Number(m[3] ?? 0));
@@ -44,6 +45,7 @@ function sanitizeStringsDeep(obj){
 
 export default function CreateSessionPage() {
   const { user } = useContext(AuthContext);
+  const { quotas, refresh: refreshQuotas } = useContext(QuotasContext);
   const navigate = useNavigate();
 
   const [sports, setSports] = useState([]);
@@ -52,7 +54,7 @@ export default function CreateSessionPage() {
   const [error, setError] = useState("");
   const [touched, setTouched] = useState({});
 
-  const isCoachOrAdmin = user?.role === "coach" || user?.role === "admin";
+  const isCoachOrAdmin = ["coach", "admin"].includes((user?.role || "").toLowerCase());
 
   // préremplissage
   const [form, setForm] = useState(() => ({
@@ -62,15 +64,18 @@ export default function CreateSessionPage() {
     location: "",
     latitude: null,
     longitude: null,
-    date: todayYMD(),         // ✅ aujourd’hui
-    start_time: nextHourHM(), // ✅ maintenant + 1h
-    visibility: isCoachOrAdmin ? "PUBLIC" : "PUBLIC",
+    date: todayYMD(),
+    start_time: nextHourHM(),
+    event_type: isCoachOrAdmin ? "TRAINING" : "FRIENDLY",
+    visibility: isCoachOrAdmin ? "GROUP" : "PUBLIC",
     group_id: "",
     team_mode: true,
     max_players: 10,
     min_players_per_team: 2,
     max_players_per_team: 5,
   }));
+
+  const isTraining = isCoachOrAdmin && String(form.event_type).toUpperCase() === "TRAINING";
 
   useEffect(() => {
     getSports().then(setSports).catch(console.error);
@@ -86,6 +91,20 @@ export default function CreateSessionPage() {
     setField(name, type === "checkbox" ? checked : value);
   };
 
+  const handleEventTypeChange = (e) => {
+    const v = e.target.value; // TRAINING | FRIENDLY | COMPETITION
+    setForm((f) => {
+      if (v === "TRAINING") {
+        // TRAINING => on force GROUP + on désactive le team mode côté UI
+        return { ...f, event_type: v, visibility: "GROUP", team_mode: false };
+      } else {
+        // On sort du mode GROUP par défaut, et on vide group_id
+        const nextVis = f.visibility === "GROUP" ? "PUBLIC" : f.visibility;
+        return { ...f, event_type: v, visibility: nextVis, group_id: "" };
+      }
+    });
+  };
+
   const handleAddressSelect = (location, latitude, longitude) => {
     setForm((f) => ({ ...f, location, latitude, longitude }));
   };
@@ -99,6 +118,20 @@ export default function CreateSessionPage() {
       return null;
     }
   }, [form.date, form.start_time]);
+
+  /* ---------- quotas (sessions vs trainings) ---------- */
+  const L = quotas?.limits || {};
+  const U = quotas?.usage || {};
+  const limitForType = isTraining
+    ? (L.trainings_create_per_month ?? L.sessions_create_per_month)
+    : L.sessions_create_per_month; // null = ∞
+  const usedForType = isTraining
+    ? (U.trainings_created ?? U.sessions_created ?? 0)
+    : (U.sessions_created ?? 0);
+  const canCreateThisType = limitForType == null || Number(usedForType) < Number(limitForType);
+  // Flag plan (si exposé)
+  const planAllowsTraining = !isTraining || (L.can_create_trainings !== false);
+  const canCreateOverall = Boolean(planAllowsTraining && canCreateThisType);
 
   /* ---------- validation ---------- */
   const errors = useMemo(() => {
@@ -125,25 +158,36 @@ export default function CreateSessionPage() {
       }
     }
 
-    if (!form.max_players || Number(form.max_players) < 1) errs.max_players = "≥ 1";
+    // Équipes/Capacité : si TRAINING → on désactive la validation des équipes
+    if (!isTraining) {
+      if (!form.max_players || Number(form.max_players) < 1) errs.max_players = "≥ 1";
 
-    if (form.team_mode) {
-      const minT = Number(form.min_players_per_team || 0);
-      const maxT = Number(form.max_players_per_team || 0);
-      const cap = Number(form.max_players || 0);
-      if (minT < 1) errs.min_players_per_team = "≥ 1";
-      if (maxT < 1) errs.max_players_per_team = "≥ 1";
-      if (minT > maxT) errs.max_players_per_team = "Doit être ≥ min/équipe";
-      if (2 * minT > cap) errs.max_players = "Capacité insuffisante pour 2 équipes (min/équipe)";
+      if (form.team_mode) {
+        const minT = Number(form.min_players_per_team || 0);
+        const maxT = Number(form.max_players_per_team || 0);
+        const cap = Number(form.max_players || 0);
+        if (minT < 1) errs.min_players_per_team = "≥ 1";
+        if (maxT < 1) errs.max_players_per_team = "≥ 1";
+        if (minT > maxT) errs.max_players_per_team = "Doit être ≥ min/équipe";
+        if (2 * minT > cap) errs.max_players = "Capacité insuffisante pour 2 équipes (min/équipe)";
+      }
     }
 
     if (isCoachOrAdmin && form.visibility === "GROUP" && !form.group_id) {
       errs.group_id = "Sélectionne un groupe";
     }
-    return errs;
-  }, [form, eventDate, isCoachOrAdmin]);
 
-  const isValid = Object.keys(errors).length === 0;
+    // Blocage quotas (message gentil)
+    if (!canCreateOverall) {
+      errs._quota = isTraining
+        ? "Quota d’entraînements atteint ou plan non autorisé."
+        : "Quota de créations de sessions atteint pour ce mois.";
+    }
+
+    return errs;
+  }, [form, eventDate, isCoachOrAdmin, isTraining, canCreateOverall]);
+
+  const isValid = Object.keys(errors).filter(k => k !== "_quota").length === 0 && canCreateOverall;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -161,10 +205,31 @@ export default function CreateSessionPage() {
       // base
       const base = { ...form };
 
+      // Règles rôle/type (le back revérifie aussi)
+      if (!isCoachOrAdmin) {
+        base.event_type = "FRIENDLY";
+        base.visibility = "PUBLIC";
+        delete base.group_id;
+      } else {
+        if (String(base.event_type).toUpperCase() === "TRAINING") {
+          base.visibility = "GROUP";
+          base.team_mode = false; // pas d’équipes pour un training
+          // on évite d'envoyer ces champs
+          base.min_players_per_team = null;
+          base.max_players_per_team = null;
+
+          if (!base.group_id) {
+            setError("Pour un entraînement, sélectionne un groupe.");
+            setSubmitting(false);
+            return;
+          }
+        }
+      }
+
       // héritage sport via GROUP
       if (base.visibility === "GROUP" && base.group_id) delete base.sport_id;
 
-      // 🔒 normalisation heure + garde-fou
+      // normalisation heure + garde-fou
       const nt = normalizeTime(base.start_time);
       if (!nt) {
         setError("Heure de début invalide. Utilise HH:MM (ex: 14:30).");
@@ -173,34 +238,38 @@ export default function CreateSessionPage() {
       }
       base.start_time = nt;
 
-      // 🎯 casts des FK si présents
+      // casts FK si présents
       if (base.sport_id !== "" && base.sport_id != null) base.sport_id = Number(base.sport_id);
       if (base.group_id !== "" && base.group_id != null) base.group_id = Number(base.group_id);
 
-      // cast num/booleans
-      base.max_players = Number(base.max_players ?? 0);
-      base.min_players_per_team = base.team_mode ? Number(base.min_players_per_team ?? 0) : null;
-      base.max_players_per_team = base.team_mode ? Number(base.max_players_per_team ?? 0) : null;
-      base.team_mode = Boolean(base.team_mode);
+      // cast num/booleans (si non-training)
+      if (!isTraining) {
+        base.max_players = Number(base.max_players ?? 0);
+        base.min_players_per_team = base.team_mode ? Number(base.min_players_per_team ?? 0) : null;
+        base.max_players_per_team = base.team_mode ? Number(base.max_players_per_team ?? 0) : null;
+        base.team_mode = Boolean(base.team_mode);
+      }
 
-      // ✅ pas d'URL-encoding du JSON
       const payload = sanitizeStringsDeep(base);
 
-      // ⬇️ création + redirection vers le détail
       const created = await createSession(payload);
       const createdId = extractSessionId(created);
+
+      // 🔄 refresh quotas (usage.*_created++)
+      await refreshQuotas();
+
       if (createdId) {
         navigate(`/sessions/${createdId}`);
       } else {
-        navigate("/dashboard"); // fallback au cas où l'API ne renverrait pas l'ID
+        navigate("/dashboard");
       }
-      } catch (err) {
-        const message = err?.response?.data ? JSON.stringify(err.response.data) : err.message;
-        setError("Erreur: " + message);
-      } finally {
-        setSubmitting(false);
-      }
-      };
+    } catch (err) {
+      const message = err?.response?.data ? JSON.stringify(err.response.data) : err.message;
+      setError("Erreur: " + message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   /* ---------- UI dérivée ---------- */
   const minTotalPlayers = form.team_mode ? Number(form.min_players_per_team || 0) * 2 : 2;
@@ -209,9 +278,22 @@ export default function CreateSessionPage() {
   const fieldClass = (name) =>
     `input ${touched[name] ? (errors[name] ? "invalid" : "valid") : ""}`;
 
+  // Hint quotas lisible selon type
+  const quotaHint = useMemo(() => {
+    const label = isTraining ? "Créations d’entraînements" : "Créations de sessions";
+    return limitForType == null
+      ? `${label} : ${usedForType} / ∞`
+      : `${label} : ${usedForType} / ${limitForType}`;
+  }, [isTraining, limitForType, usedForType]);
+
   return (
     <div className="create-session-container">
       {error && <p className="error-message">{error}</p>}
+      {errors._quota && (
+        <p className="error-message" style={{ marginTop: 8 }}>
+          {errors._quota}
+        </p>
+      )}
 
       <div className="cs-shell">
         <form onSubmit={handleSubmit} className="create-session-form" noValidate>
@@ -316,6 +398,27 @@ export default function CreateSessionPage() {
             </div>
           </div>
 
+          {/* Section: Type de session (coach/admin) */}
+          {isCoachOrAdmin && (
+            <div className="cs-section">
+              <div className="cs-row">
+                <div className="cs-field">
+                  <label>Type de session</label>
+                  <select
+                    name="event_type"
+                    className="input"
+                    value={form.event_type}
+                    onChange={handleEventTypeChange}
+                  >
+                    <option value="TRAINING">Entraînement</option>
+                    <option value="FRIENDLY">Match amical</option>
+                    <option value="COMPETITION">Compétition</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Section: Visibilité (coach/admin) */}
           {isCoachOrAdmin && (
             <div className="cs-section">
@@ -326,6 +429,7 @@ export default function CreateSessionPage() {
                     name="visibility"
                     className="input"
                     value={form.visibility}
+                    disabled={form.event_type === "TRAINING"}
                     onChange={(e) => {
                       const v = e.target.value;
                       setForm((f) => ({
@@ -371,74 +475,112 @@ export default function CreateSessionPage() {
 
           {/* Section: Équipes & Capacité */}
           <div className="cs-section">
-            <div className="cs-row cs-row-inline">
-              <label className="switch">
-                <input
-                  type="checkbox"
-                  name="team_mode"
-                  checked={form.team_mode}
-                  onChange={handleChange}
-                />
-                <span>Mode équipe</span>
-              </label>
-              <div className="cs-tip">
-                {form.team_mode
-                  ? `Min ${minTotalPlayers} joueurs pour 2 équipes • Capacité ${cap}`
-                  : `Capacité ${cap} joueurs`}
-              </div>
-            </div>
+            {/* Quand TRAINING, on désactive le team mode et la capacité manuelle */}
+            {isTraining ? (
+              <>
+                <div className="cs-row cs-row-inline">
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      name="team_mode"
+                      checked={false}
+                      disabled
+                      readOnly
+                    />
+                    <span>Mode équipe</span>
+                  </label>
+                  <div className="cs-tip">
+                    En entraînement de groupe, les membres du groupe sont ajoutés automatiquement.
+                  </div>
+                </div>
 
-            <div className="cs-row">
-              <div className="cs-field">
-                <label>Max joueurs</label>
-                <input
-                  type="number"
-                  name="max_players"
-                  className={fieldClass("max_players")}
-                  min="1"
-                  value={form.max_players}
-                  onChange={handleChange}
-                  onBlur={() => setTouched((t) => ({ ...t, max_players: true }))}
-                  aria-invalid={touched.max_players && !!errors.max_players}
-                  required
-                />
-                {touched.max_players && errors.max_players && <small className="field-error">{errors.max_players}</small>}
-              </div>
+                <div className="cs-row">
+                  <div className="cs-field">
+                    <label>Participants</label>
+                    <input
+                      className="input"
+                      readOnly
+                      value={
+                        form.group_id
+                          ? "Les membres du groupe seront ajoutés automatiquement"
+                          : "Sélectionne un groupe"
+                      }
+                    />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="cs-row cs-row-inline">
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      name="team_mode"
+                      checked={form.team_mode}
+                      onChange={handleChange}
+                    />
+                    <span>Mode équipe</span>
+                  </label>
+                  <div className="cs-tip">
+                    {form.team_mode
+                      ? `Min ${minTotalPlayers} joueurs pour 2 équipes • Capacité ${cap}`
+                      : `Capacité ${cap} joueurs`}
+                  </div>
+                </div>
 
-              <div className="cs-field">
-                <label>Min joueurs/équipe</label>
-                <input
-                  type="number"
-                  name="min_players_per_team"
-                  className={fieldClass("min_players_per_team")}
-                  min="1"
-                  value={form.min_players_per_team}
-                  onChange={handleChange}
-                  onBlur={() => setTouched((t) => ({ ...t, min_players_per_team: true }))}
-                  aria-invalid={touched.min_players_per_team && !!errors.min_players_per_team}
-                  disabled={!form.team_mode}
-                  required={form.team_mode}
-                />
-                {touched.min_players_per_team && errors.min_players_per_team && <small className="field-error">{errors.min_players_per_team}</small>}
-              </div>
+                <div className="cs-row">
+                  <div className="cs-field">
+                    <label>Max joueurs</label>
+                    <input
+                      type="number"
+                      name="max_players"
+                      className={fieldClass("max_players")}
+                      min="1"
+                      value={form.max_players}
+                      onChange={handleChange}
+                      onBlur={() => setTouched((t) => ({ ...t, max_players: true }))}
+                      aria-invalid={touched.max_players && !!errors.max_players}
+                      required
+                    />
+                    {touched.max_players && errors.max_players && <small className="field-error">{errors.max_players}</small>}
+                  </div>
 
-              <div className="cs-field">
-                <label>Max joueurs/équipe</label>
-                <input
-                  type="number"
-                  name="max_players_per_team"
-                  className={fieldClass("max_players_per_team")}
-                  min="1"
-                  value={form.max_players_per_team}
-                  onChange={handleChange}
-                  onBlur={() => setTouched((t) => ({ ...t, max_players_per_team: true }))}
-                  aria-invalid={touched.max_players_per_team && !!errors.max_players_per_team}
-                  disabled={!form.team_mode}
-                  required={form.team_mode}
-                />
-                {touched.max_players_per_team && errors.max_players_per_team && <small className="field-error">{errors.max_players_per_team}</small>}
-              </div>
-            </div>
+                  <div className="cs-field">
+                    <label>Min joueurs/équipe</label>
+                    <input
+                      type="number"
+                      name="min_players_per_team"
+                      className={fieldClass("min_players_per_team")}
+                      min="1"
+                      value={form.min_players_per_team}
+                      onChange={handleChange}
+                      onBlur={() => setTouched((t) => ({ ...t, min_players_per_team: true }))}
+                      aria-invalid={touched.min_players_per_team && !!errors.min_players_per_team}
+                      disabled={!form.team_mode}
+                      required={form.team_mode}
+                    />
+                    {touched.min_players_per_team && errors.min_players_per_team && <small className="field-error">{errors.min_players_per_team}</small>}
+                  </div>
+
+                  <div className="cs-field">
+                    <label>Max joueurs/équipe</label>
+                    <input
+                      type="number"
+                      name="max_players_per_team"
+                      className={fieldClass("max_players_per_team")}
+                      min="1"
+                      value={form.max_players_per_team}
+                      onChange={handleChange}
+                      onBlur={() => setTouched((t) => ({ ...t, max_players_per_team: true }))}
+                      aria-invalid={touched.max_players_per_team && !!errors.max_players_per_team}
+                      disabled={!form.team_mode}
+                      required={form.team_mode}
+                    />
+                    {touched.max_players_per_team && errors.max_players_per_team && <small className="field-error">{errors.max_players_per_team}</small>}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="cs-actions">
@@ -447,9 +589,19 @@ export default function CreateSessionPage() {
               className="btn-save-session"
               disabled={submitting || !isValid}
               aria-disabled={submitting || !isValid}
+              title={
+                canCreateOverall
+                  ? undefined
+                  : (isTraining ? "Quota entraînements atteint / plan non autorisé" : "Quota de créations de sessions atteint")
+              }
             >
               {submitting ? "Création…" : "Créer la session"}
             </button>
+          </div>
+
+          {/* Hint quotas */}
+          <div className="cs-tip" style={{ marginTop: 8, opacity: .8 }}>
+            {quotaHint}
           </div>
         </form>
       </div>

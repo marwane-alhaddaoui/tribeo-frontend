@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { QuotasContext } from "../../context/QuotasContext";
 import { createCheckout } from "../../api/billingService";
 import { Link } from "react-router-dom";
@@ -42,6 +42,18 @@ export default function BillingPage() {
   const { quotas, loading, refresh } = useContext(QuotasContext);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+    useEffect(() => {
+    // initial + focus + visibilité
+    refresh();
+    const onFocus = () => refresh();
+    const onVisible = () => { if (document.visibilityState === "visible") refresh(); };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [refresh]);
 
   const L = quotas?.limits || {};
   const U = quotas?.usage || {};
@@ -153,25 +165,30 @@ export default function BillingPage() {
           {loading ? (
             <div className="billing-sub">Chargement quotas…</div>
           ) : (
-            <table className="quota-table">
-              <tbody>
+           <table className="quota-table">
+            <tbody>
                 <StatRow
-                  label="Créations de sessions"
-                  used={U.sessions_created ?? 0}
-                  limit={L.sessions_create_per_month}
-                />
-                <StatRow
-                  label="Participations aux sessions"
-                  used={U.sessions_joined ?? 0}
-                  limit={L.sessions_join_per_month}
-                />
-                <StatRow
-                  label="Groupes actifs (rejoints)"
-                  used={U.groups_joined ?? 0}
-                  limit={L.max_groups_joined}
-                />
-              </tbody>
-            </table>
+                label="Créations de sessions"
+                used={U.sessions_created ?? 0}
+                limit={L.sessions_create_per_month}
+              />
+               <StatRow
+                 label="Entraînements créés"
+                 used={U.trainings_created ?? 0}
+                 limit={L.trainings_create_per_month ?? 0 /* ou null si illimité */}
+               />
+              <StatRow
+                label="Participations aux sessions"
+                used={U.participations ?? 0}
+                limit={L.sessions_join_per_month}
+              />
+              <StatRow
+                label="Groupes créés"
+                used={U.groups_created ?? 0}
+                limit={L.max_groups}
+              />
+            </tbody>
+          </table>
           )}
         </div>
 

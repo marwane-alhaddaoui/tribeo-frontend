@@ -11,12 +11,17 @@ export default function Dashboard() {
 
   if (!user) return <p>Chargement...</p>;
 
-  if (user.role === 'coach') {
+  if ((user.role || '').toLowerCase() === 'coach') {
     return <CoachDashboard />;
   }
-  if ((quotas?.plan || '').toUpperCase() === 'PREMIUM') {
+  // ✅ si le rôle est déjà "premium", on sert le PremiumDashboard
+  if ((user.role || '').toLowerCase() === 'premium') {
     return <PremiumDashboard />;
   }
+    // fallback: plan résolu côté quotas
+  if ((quotas?.plan || '').toUpperCase() === 'PREMIUM') {
+     return <PremiumDashboard />;
+   }
 
   return <UserDashboard />;
 }

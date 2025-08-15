@@ -57,6 +57,7 @@ export const getSessionDetail = getSessionById;
 
 export const createSession = async (data) => {
   const res = await axiosClient.post("/sessions/", data);
+  try { window.dispatchEvent(new Event("quotas:refresh")); } catch {}
   const created = res?.data ?? null;
 
   // essaie d'extraire l'id depuis le body
@@ -77,9 +78,18 @@ export const createSession = async (data) => {
   }
   return id ? { id } : created;
 };
-export const joinSession = (id) => axiosClient.post(`/sessions/${id}/join/`);
 
-export const leaveSession = (id) => axiosClient.post(`/sessions/${id}/leave/`);
+export const joinSession = async (id) => {
+  const r = await axiosClient.post(`/sessions/${id}/join/`);
+  try { window.dispatchEvent(new Event("quotas:refresh")); } catch {}
+  return r;
+};
+
+export const leaveSession = async (id) => {
+  const r = await axiosClient.post(`/sessions/${id}/leave/`);
+  try { window.dispatchEvent(new Event("quotas:refresh")); } catch {}
+  return r;
+};
 
 export const publishSession = (id) =>
   axiosClient.post(`/sessions/${id}/publish/`);
@@ -90,14 +100,17 @@ export const lockSession = (id) =>
 export const finishSession = (id) =>
   axiosClient.post(`/sessions/${id}/finish/`);
 
-
 export const cancelSession = (id) =>
   axiosClient.post(`/sessions/${id}/cancel/`);
 
-export const deleteSession = (id) =>
-  axiosClient.delete(`/sport_sessions/${id}/`);
+export const deleteSession = async (id) => {
+  // harmonisé avec le reste de tes routes sessions
+  const r = await axiosClient.delete(`/sessions/${id}/`);
+  try { window.dispatchEvent(new Event("quotas:refresh")); } catch {}
+  return r;
+};
 
-// calendrier (coach) — gardé tel quel
+// calendrier (coach)
 export const getMySessionsInRange = async ({ start, end }) => {
   const params = { mine: true, date_from: start, date_to: end };
   return getSessions(params);
@@ -130,7 +143,7 @@ export const createGroupTraining = async (payload) => {
     longitude,
     end_time,
     city,
-    sport_id, // ignoré côté FE
+    sport_id, // ignoré côté FE, géré côté BE via le group
     ...rest
   } = payload;
 
@@ -140,10 +153,28 @@ export const createGroupTraining = async (payload) => {
     event_type: "TRAINING",
     visibility: "GROUP",
   };
-  return axiosClient.post("/sessions/", body);
+
+  const res = await axiosClient.post("/sessions/", body);
+  try { window.dispatchEvent(new Event("quotas:refresh")); } catch {}
+
+  const created = res?.data ?? null;
+
+  // extraction d'id (même logique que createSession)
+  let id = extractSessionId(created);
+  if (!id) {
+    const loc = res?.headers?.location || res?.headers?.Location;
+    if (loc) {
+      const m = String(loc).match(/\/sessions\/(\d+)\/?$/i);
+      if (m && m[1]) id = Number(m[1]);
+    }
+  }
+
+  return created && typeof created === "object"
+    ? (id ? { ...created, id } : created)
+    : (id ? { id } : created);
 };
 
-/** Suppression d'un training (on supprime la session idempotente côté /sport_sessions/) */
+/** Suppression d'un training */
 export const deleteGroupTraining = (groupId, sessionId) =>
   axiosClient.delete(`/sessions/${sessionId}/`);
 

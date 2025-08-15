@@ -19,6 +19,7 @@ export const getGroup = async (id) => {
 export const createGroup = async (payload) => {
   // payload: { name, sport_id, city?, description? }
   const res = await axios.post("/groups/", payload);
+   try { window.dispatchEvent(new Event("quotas:refresh")); } catch {}
   return res.data;
 };
 
@@ -29,6 +30,7 @@ export const updateGroup = async (id, payload) => {
 
 export const deleteGroup = async (id) => {
   const res = await axios.delete(`/groups/${id}/`);
+  try { window.dispatchEvent(new Event("quotas:refresh")); } catch {}
   return res.data;
 };
 
@@ -38,11 +40,13 @@ export const deleteGroup = async (id) => {
 
 export const joinGroup = async (id) => {
   const res = await axios.post(`/groups/${id}/join/`);
+  try { window.dispatchEvent(new Event("quotas:refresh")); } catch {}
   return res.data;
 };
 
 export const leaveGroup = async (id) => {
   const res = await axios.post(`/groups/${id}/leave/`);
+  try { window.dispatchEvent(new Event("quotas:refresh")); } catch {}
   return res.data;
 };
 

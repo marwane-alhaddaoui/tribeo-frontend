@@ -2,11 +2,13 @@ import { useEffect, useMemo, useState, useContext, useCallback } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { getSessionById, deleteSession, saveTrainingAttendance, isTrainingSession } from "../../api/sessionService";
 import { AuthContext } from "../../context/AuthContext";
+import { QuotasContext } from "../../context/QuotasContext";
 
 export default function TrainingDetailPage() {
   const { groupId, id } = useParams(); // /groups/:groupId/trainings/:id
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
+  const { refresh: refreshQuotas } = useContext(QuotasContext);
 
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -92,6 +94,7 @@ export default function TrainingDetailPage() {
     if (!window.confirm("Supprimer cet entraînement ? Action définitive.")) return;
     try {
       await deleteSession(id);
+      try { await refreshQuotas(); } catch {}
       navigate(`/groups/${groupId}`);
     } catch (e) {
       alert(e?.response?.data?.detail || "Suppression impossible.");

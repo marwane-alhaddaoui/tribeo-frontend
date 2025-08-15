@@ -10,24 +10,25 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔁 Recharger le profil à la demande (dispo pour le front)
   const refreshProfile = useCallback(async () => {
-    const res = await getProfile();            // GET /auth/profile/
-    setUser(res.data);
-    return res.data;
-  }, []);
+  const res = await getProfile();
+  const normalized = { ...res.data, role: String(res.data?.role || "").toUpperCase() };
+  setUser(normalized);
+  return normalized;
+}, []);
 
   // Bootstrap session on mount / token change
   useEffect(() => {
     let alive = true;
     const init = async () => {
       if (!token) { setLoading(false); return; }
-      try {
-        const res = await getProfile();        // GET /auth/profile/
-        if (!alive) return;
-        setUser(res.data);
-      } catch {
-        logout();
+          try {
+      const res = await getProfile();
+      if (!alive) return;
+      const normalized = { ...res.data, role: String(res.data?.role || "").toUpperCase() };
+      setUser(normalized);
+    } catch {
+  logout();
       } finally {
         if (alive) setLoading(false);
       }
