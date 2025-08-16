@@ -1,0 +1,226 @@
+{
+  "logo_alt": "Tribeo logo",
+  "home": "Home",
+  "sessions": "Sessions",
+  "groups": "Groups",
+  "dashboard": "Dashboard",
+  "billing.title": "Billing",
+  "profile": "Profile",
+  "view_profile": "View profile",
+  "login": "Log in",
+  "register": "Sign up",
+  "logout": "Log out",
+  "menu": "Menu",
+  "close": "Close",
+  "switch_language": "Change language",
+
+  "welcome": "Welcome to Tribeo",
+  "createSession": "Create a session",
+  "join": "Join",
+  "leave": "Leave",
+  "search": "Search",
+
+  "auth": {
+    "login_title": "Log in",
+    "login_subtitle": "Organize your sport, effortlessly.",
+    "login_error": "Invalid credentials. Please try again.",
+    "forgot_password": "Forgot password?",
+    "create_account": "Create an account",
+
+    "email_or_username": "Email or username",
+    "email": "Email",
+    "email_placeholder": "Your email",
+    "email_invalid": "Invalid email",
+
+    "password": "Password",
+    "password_placeholder": "Your password",
+    "password_min": "Minimum {{count}} characters",
+
+    "show_password": "Show password",
+    "hide_password": "Hide password",
+    "show": "Show",
+    "hide": "Hide",
+    "submit_login": "Log in",
+
+    "register_title": "Create an account",
+    "register_subtitle": "Join your sports tribe in seconds.",
+    "register_failed": "Registration failed. Check the fields and try again.",
+    "creating": "Creating…",
+    "register_cta": "Sign up",
+
+    "first_name": "First name",
+    "last_name": "Last name",
+    "first_name_placeholder": "Your first name",
+    "last_name_placeholder": "Your last name",
+
+    "username": "Username",
+    "username_placeholder": "Your username",
+    "username_title": "3–20 characters, lowercase letters, digits, underscore",
+    "username_invalid": "Invalid username (3–20 chars, a–z, 0–9, _).",
+    "first_last_required": "First name and last name are required.",
+
+    "already_have_account": "Already have an account?",
+    "login_link": "Log in"
+  },
+
+  "common": {
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "logout": "Log out",
+    "infinity": "∞"
+  },
+
+  "profile": {
+    "loading": "Loading…",
+    "title": "My profile",
+    "subtitle": "Manage your identity and avatar.",
+    "avatar_alt": "User avatar",
+    "upload_image": "Upload an image",
+    "use_url": "Use URL",
+    "reset_avatar": "Reset avatar",
+    "avatar_url_placeholder": "https://example.com/my-image.jpg",
+    "identifier": "Username",
+    "identifier_placeholder": "e.g. john_doe",
+    "role": "Role",
+    "no_changes": "No changes",
+    "avatar_updated": "Avatar updated ✅",
+    "upload_failed": "Upload failed",
+    "avatar_url_saved": "Avatar URL saved ✅",
+    "invalid_or_rejected_url": "Invalid or rejected URL",
+    "avatar_reset": "Avatar reset ✅",
+    "reset_failed": "Unable to reset avatar",
+    "updated": "Profile updated ✅",
+    "update_failed": "Unable to update profile"
+  },
+
+  "session": {
+    "create": {
+      "title_label": "Title",
+      "title_placeholder": "e.g. Sunday morning football",
+      "sport_label": "Sport",
+      "sport_placeholder": "Select a sport",
+      "description_label": "Description",
+      "description_placeholder": "Details, level, gear, rules...",
+      "location_label": "Location",
+      "location_ok": "location OK",
+      "location_select": "Select an address from the list",
+      "date_label": "Date",
+      "time_label": "Start time",
+
+      "type_label": "Session type",
+      "type_training": "Training",
+      "type_friendly": "Friendly match",
+      "type_competition": "Competition",
+
+      "visibility_label": "Visibility",
+      "visibility_public": "Public",
+      "visibility_private": "Private",
+      "visibility_group": "Group",
+
+      "group_label": "Group",
+      "group_placeholder": "Select a group",
+
+      "team_mode_label": "Team mode",
+      "participants_label": "Participants",
+      "participants_auto_from_group": "Group members will be added automatically",
+      "select_group": "Select a group",
+      "trainings_group_members_auto": "For group trainings, members are added automatically.",
+      "team_tip_on": "Min {{minTotalPlayers}} players for 2 teams • Capacity {{cap}}",
+      "team_tip_off": "Capacity {{cap}} players",
+
+      "max_players_label": "Max players",
+      "min_players_per_team_label": "Min players/team",
+      "max_players_per_team_label": "Max players/team",
+
+      "submit_create": "Create session",
+      "submit_creating": "Creating…",
+
+      "creations_trainings": "Training creations",
+      "creations_sessions": "Session creations",
+      "infinity": "∞",
+
+      "err_min_chars": "Min. 3 characters",
+      "choose_sport": "Choose a sport",
+      "err_min_desc": "Min. 10 characters",
+      "err_location": "Select an address via autocomplete",
+      "required": "Required",
+      "future_5min": "Date/time must be in the future (≥ 5 min)",
+      "ge1": "≥ 1",
+      "must_be_greater_equal_min_team": "Must be ≥ min/team",
+      "insufficient_capacity_two_teams": "Insufficient capacity for 2 teams (min/team)",
+      "select_group_required": "Select a group",
+      "quota_trainings_reached_or_plan": "Training quota reached or plan not allowed.",
+      "quota_sessions_reached": "Monthly session creation quota reached.",
+      "training_select_group": "For a training, select a group.",
+      "invalid_time_hhmm": "Invalid start time. Use HH:MM (e.g. 14:30).",
+      "title_quota_trainings": "Training quota reached / plan not allowed",
+      "title_quota_sessions": "Session creation quota reached",
+      "error_prefix": "Error: "
+    }
+  },
+
+  "billing": {
+    "title": "Subscription & Limits",
+    "subtitle": "Manage your plan, view quotas, and upgrade in one click.",
+    "profile_link": "Profile",
+    "refresh": "Refresh",
+    "my_plan": "My plan",
+    "current_plan": "Current plan",
+    "expires_on": "(expires on {{date}})",
+    "monthly_quotas": "Monthly quotas",
+    "loading_quotas": "Loading quotas…",
+    "per_month": "/month",
+    "current_chip": "Current plan",
+    "checkout_unavailable": "Checkout unavailable.",
+    "unknown_error": "Unknown error.",
+    "already_on_plan": "Already on this plan",
+    "switch_to_plan": "Switch to {{plan}}",
+    "selected": "Selected",
+    "included_note": "Included by default • No payment required",
+    "q": {
+      "sessions_created": "Sessions created",
+      "trainings_created": "Trainings created",
+      "participations": "Session participations",
+      "groups_created": "Groups created"
+    },
+    "tiers": {
+      "free": {
+        "title": "Free",
+        "sub": "Start without pressure",
+        "price": "€0",
+        "feat_basic": "Basic access",
+        "feat_quotas": "Limited quotas",
+        "feat_no_trainings": "No coach trainings"
+      },
+      "premium": {
+        "title": "Premium",
+        "sub": "Play more often",
+        "price": "€7.99",
+        "feat_boost": "Boosted quotas",
+        "feat_groups": "Unlimited groups",
+        "feat_support": "Priority support",
+        "feat_no_trainings": "No coach trainings"
+      },
+      "coach": {
+        "title": "Coach",
+        "sub": "Create and manage trainings",
+        "price": "€7.99",
+        "feat_trainings": "Create training sessions (limited)",
+        "feat_tools": "Coach tools & analytics",
+        "feat_team_mgmt": "Team management",
+        "feat_sessions_unlimited": "Unlimited normal sessions"
+      }
+    },
+    "notes": {
+      "line_coach": "• Coach plan allows creating training sessions (subject to plan limits).",
+      "line_premium": "• Premium plan doesn’t allow coach trainings but offers higher quotas for sessions."
+    },
+    "success": {
+      "title": "Payment confirmed ✅",
+      "subtitle": "Thanks! Your subscription has been updated. If you don’t see the change yet, click “Back to billing”.",
+      "back_to_billing": "Back to billing",
+      "view_sessions": "View my sessions"
+    }
+  }
+}

@@ -1,4 +1,6 @@
+// src/pages/Billing/index.jsx
 import { useContext, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { QuotasContext } from "../../context/QuotasContext";
 import { createCheckout } from "../../api/billingService";
 import { Link } from "react-router-dom";
@@ -21,11 +23,12 @@ function Progress({ used = 0, limit = null }) {
 }
 
 function StatRow({ label, used = 0, limit = null }) {
+  const { t } = useTranslation();
   return (
     <tr className="quota-row">
       <td className="quota-cell quota-label">{label}</td>
       <td className="quota-cell quota-count">
-        {used} / {limit == null ? "∞" : limit}
+        {used} / {limit == null ? t("common.infinity") : limit}
         <Progress used={used} limit={limit} />
       </td>
     </tr>
@@ -39,11 +42,12 @@ function PlanBadge({ plan }) {
 }
 
 export default function BillingPage() {
+  const { t } = useTranslation();
   const { quotas, loading, refresh } = useContext(QuotasContext);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
-    useEffect(() => {
-    // initial + focus + visibilité
+
+  useEffect(() => {
     refresh();
     const onFocus = () => refresh();
     const onVisible = () => { if (document.visibilityState === "visible") refresh(); };
@@ -63,56 +67,65 @@ export default function BillingPage() {
   const kv = useMemo(
     () => [
       [
-        "Plan actuel",
+        t("billing.current_plan"),
         <>
           <PlanBadge plan={plan} />
           {expires ? (
             <span style={{ marginLeft: 8, color: "var(--muted)" }}>
-              (expire le {expires.toLocaleDateString()})
+              {t("billing.expires_on", { date: expires.toLocaleDateString() })}
             </span>
           ) : null}
         </>,
       ],
     ],
-    [plan, expires]
+    [plan, expires, t]
   );
 
   const tiers = [
     {
       key: "free",
-      title: "Free",
-      sub: "Commence sans pression",
-      price: "0€",
-      per: "/mois",
-      feats: ["Accès de base", "Quotas limités", "Pas de sessions d’entraînement (coach)"],
+      title: t("billing.tiers.free.title"),
+      sub: t("billing.tiers.free.sub"),
+      price: t("billing.tiers.free.price"),
+      per: t("billing.per_month"),
+      feats: [
+        t("billing.tiers.free.feat_basic"),
+        t("billing.tiers.free.feat_quotas"),
+        t("billing.tiers.free.feat_no_trainings")
+      ],
       checkout: false,
     },
     {
       key: "premium_month",
-      title: "Premium",
-      sub: "Pour pratiquer plus souvent",
-      price: "7,99€",
-      per: "/mois",
-      feats: ["Quotas boostés", "Groupes illimités", "Support prioritaire", "Pas de sessions d’entraînement (coach)"],
+      title: t("billing.tiers.premium.title"),
+      sub: t("billing.tiers.premium.sub"),
+      price: t("billing.tiers.premium.price"),
+      per: t("billing.per_month"),
+      feats: [
+        t("billing.tiers.premium.feat_boost"),
+        t("billing.tiers.premium.feat_groups"),
+        t("billing.tiers.premium.feat_support"),
+        t("billing.tiers.premium.feat_no_trainings")
+      ],
       checkout: true,
     },
     {
       key: "coach_month",
-      title: "Coach",
-      sub: "Crée et gère des entraînements",
-      price: "7,99€",
-      per: "/mois",
+      title: t("billing.tiers.coach.title"),
+      sub: t("billing.tiers.coach.sub"),
+      price: t("billing.tiers.coach.price"),
+      per: t("billing.per_month"),
       feats: [
-        "Créer des sessions d’entraînement (limitées)",
-        "Outils coach & analytics",
-        "Gestion d’équipe",
-        "Sessions normales illimitées",
+        t("billing.tiers.coach.feat_trainings"),
+        t("billing.tiers.coach.feat_tools"),
+        t("billing.tiers.coach.feat_team_mgmt"),
+        t("billing.tiers.coach.feat_sessions_unlimited")
       ],
       checkout: true,
     },
   ];
 
-  const isCurrent = (t) => (t.title || "").toUpperCase() === plan;
+  const isCurrent = (t0) => (t0.title || "").toUpperCase() === plan;
 
   const onUpgrade = async (productKey) => {
     setErr("");
@@ -120,40 +133,38 @@ export default function BillingPage() {
     try {
       const url = await createCheckout(productKey);
       if (url) window.location.href = url;
-      else setErr("Checkout indisponible.");
+      else setErr(t("billing.checkout_unavailable"));
     } catch (e) {
-      setErr(e?.response?.data?.error || e.message || "Erreur inconnue.");
+      setErr(e?.response?.data?.error || e.message || t("billing.unknown_error"));
     } finally {
       setBusy(false);
     }
   };
+
   const trainingsLimit =
-  L?.can_create_trainings
-    ? (L?.trainings_create_per_month ?? null) // null => ∞
-    : 0; // plan qui n'autorise pas → 0
-    
+    L?.can_create_trainings
+      ? (L?.trainings_create_per_month ?? null) // null => ∞
+      : 0;
+
   return (
     <div className="billing-wrapper">
       <div className="billing-head">
         <div>
-          <h1 className="billing-title">Abonnement & Limites</h1>
-          <div className="billing-sub">Gère ton plan, vois tes quotas et upgrade en 1 clic.</div>
-        </div>
-        <div className="btns-row">
-          <Link to="/profile" className="billing-secondary">Profil</Link>
-          <button className="billing-secondary" onClick={refresh} disabled={loading}>Rafraîchir</button>
+          <h1 className="billing-title">{t("billing.title")}</h1>
+          <div className="billing-sub">{t("billing.subtitle")}</div>
         </div>
       </div>
 
-      <div className="billing-grid">
-        {/* Col gauche: plan actuel + quotas */}
-        <div className="panel">
+      {/* === GRID === */}
+      <div className="plans-grid">
+        {/* Carte 1 : Mon plan & quotas */}
+        <div className="panel card-current">
           <div className="panel-head">
-            <h3 className="panel-title">Plan & Infos</h3>
+            <h3 className="panel-title">{t("billing.my_plan")}</h3>
             <PlanBadge plan={plan} />
           </div>
 
-          <div className="kv" style={{ marginBottom: 14 }}>
+          <div className="kv" style={{ marginBottom: 10 }}>
             {kv.map(([k, v]) => (
               <div className="kv-item" key={k}>
                 <span className="kv-label">{k}</span>
@@ -163,95 +174,86 @@ export default function BillingPage() {
           </div>
 
           <div className="panel-head" style={{ marginTop: 6 }}>
-            <h3 className="panel-title">Quotas du mois</h3>
+            <h3 className="panel-title">{t("billing.monthly_quotas")}</h3>
           </div>
 
           {loading ? (
-            <div className="billing-sub">Chargement quotas…</div>
+            <div className="billing-sub">{t("billing.loading_quotas")}</div>
           ) : (
-           <table className="quota-table">
-            <tbody>
+            <table className="quota-table">
+              <tbody>
                 <StatRow
-                label="Créations de sessions"
-                used={U.sessions_created ?? 0}
-                limit={L.sessions_create_per_month}
-              />
-              
+                  label={t("billing.q.sessions_created")}
+                  used={U.sessions_created ?? 0}
+                  limit={L.sessions_create_per_month}
+                />
                 <StatRow
-                  label="Entraînements créés"
+                  label={t("billing.q.trainings_created")}
                   used={U.trainings_created ?? 0}
                   limit={trainingsLimit}
                 />
-              <StatRow
-                label="Participations aux sessions"
-                used={U.participations ?? 0}
-                limit={L.sessions_join_per_month}
-              />
-              <StatRow
-                label="Groupes créés"
-                used={U.groups_created ?? 0}
-                limit={L.max_groups}
-              />
-            </tbody>
-          </table>
+                <StatRow
+                  label={t("billing.q.participations")}
+                  used={U.participations ?? 0}
+                  limit={L.sessions_join_per_month}
+                />
+                <StatRow
+                  label={t("billing.q.groups_created")}
+                  used={U.groups_created ?? 0}
+                  limit={L.max_groups}
+                />
+              </tbody>
+            </table>
           )}
         </div>
 
-        {/* Col droite: pricing / upgrade (3 cartes) */}
-        <div className="panel panel-2">
-          <div className="panel-head">
-            <h3 className="panel-title">Choisir un plan</h3>
-          </div>
+        {/* Erreur globale */}
+        {err && <div className="err-text" style={{ gridColumn: "1 / -1" }}>{err}</div>}
 
-          {err && <div className="err-text">{err}</div>}
-
-          <div className="pricing-list">
-            {tiers.map((t) => {
-              const current = isCurrent(t);
-              return (
-                <div key={t.key} className={`pricing-card ${current ? "current" : ""}`}>
-                  <div className="pricing-left">
-                    <h4 className="pricing-title">
-                      {t.title} {current && <span className="current-chip">Plan actuel</span>}
-                    </h4>
-                    <div className="pricing-sub">{t.sub}</div>
-                    <div className="pricing-feats">
-                      {t.feats.map((f) => (
-                        <span className="feat" key={f}>
-                          {f}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="pricing-right">
-                    <div className="price">
-                      {t.price} <small>{t.per}</small>
-                    </div>
-                    <div className="btns-row">
-                      {t.checkout ? (
-                        <button
-                          className="billing-primary"
-                          onClick={() => onUpgrade(t.key)}
-                          disabled={busy || current}
-                          title={current ? "Déjà sur ce plan" : "Passer sur ce plan"}
-                        >
-                          {current ? "Sélectionné" : `Passer ${t.title}`}
-                        </button>
-                      ) : (
-                        <span className="pricing-note">Inclus par défaut • Aucun paiement requis</span>
-                      )}
-                    </div>
-                  </div>
+        {/* Cartes plans */}
+        {tiers.map((t0) => {
+          const current = isCurrent(t0);
+          return (
+            <div key={t0.key} className={`pricing-card ${current ? "current" : ""}`}>
+              <div className="pricing-left">
+                <h4 className="pricing-title">
+                  {t0.title} {current && <span className="current-chip">{t("billing.current_chip")}</span>}
+                </h4>
+                <div className="pricing-sub">{t0.sub}</div>
+                <div className="pricing-feats">
+                  {t0.feats.map((f) => (
+                    <span className="feat" key={f}>{f}</span>
+                  ))}
                 </div>
-              );
-            })}
-          </div>
+              </div>
+              <div className="pricing-right">
+                <div className="price">
+                  {t0.price} <small>{t0.per}</small>
+                </div>
+                <div className="btns-row">
+                  {t0.checkout ? (
+                    <button
+                      className="billing-primary"
+                      onClick={() => onUpgrade(t0.key)}
+                      disabled={busy || current}
+                      title={current ? t("billing.already_on_plan") : t("billing.switch_to_plan", { plan: t0.title })}
+                    >
+                      {current ? t("billing.selected") : t("billing.switch_to_plan", { plan: t0.title })}
+                    </button>
+                  ) : (
+                    <span className="pricing-note">{t("billing.included_note")}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
-          <div className="billing-sub" style={{ marginTop: 12 }}>
-            • Le plan <b>Coach</b> permet de <b>créer des sessions d’entraînement</b> (nombre limité).<br />
-            • Le plan <b>Premium</b> ne permet pas la création d’entraînements coach, mais offre une création de session illimité.<br />
-          </div>
-        </div>
+      {/* note explicative */}
+      <div className="billing-sub" style={{ marginTop: 12 }}>
+        {t("billing.notes.line_coach")}<br />
+        {t("billing.notes.line_premium")}
       </div>
     </div>
   );

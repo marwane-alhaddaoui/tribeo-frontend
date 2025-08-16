@@ -292,3 +292,84 @@
   }
 }
 
+
+/* ===== Grid fusionné des cartes ===== */
+.plans-grid{
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr;              /* mobile par défaut */
+}
+
+/* ≥ 900px : 3 colonnes (quota + 2 plans sur 1ère ligne, puis le 3e plan passe ligne suivante) */
+@media (min-width: 900px){
+  .plans-grid{
+    grid-template-columns: repeat(3, minmax(260px, 1fr));
+    align-items: stretch;
+  }
+}
+
+/* ≥ 1200px : 4 colonnes si tu préfères mettre les 4 cartes sur une ligne
+   (décommente si tu veux tout sur 1 ligne) */
+/*
+@media (min-width: 1200px){
+  .plans-grid{
+    grid-template-columns: repeat(4, minmax(260px, 1fr));
+  }
+}
+*/
+
+/* Carte “Mon plan & quotas” harmonisée avec le style panel/pricing */
+.card-current{
+  display: flex;
+  flex-direction: column;
+}
+
+/* Harmonisation visuelle des pricing-card pour qu'elles “matchent” les panels */
+.pricing-card{
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255,45,45,.05), rgba(255,45,45,0) 70%), #131314;
+  border: 1px solid var(--border, #2a2b2c);
+  box-shadow: 0 10px 26px rgba(0,0,0,.15), inset 0 0 0 1px rgba(255,45,45,.03);
+}
+
+.pricing-card.current{
+  outline: 1.5px solid rgba(255,45,45,.35);
+  box-shadow: 0 12px 28px rgba(255,45,45,.15), inset 0 0 0 1px rgba(255,45,45,.05);
+}
+
+.pricing-left{ display:flex; flex-direction:column; gap:6px; }
+.pricing-right{ display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
+.pricing-title{ margin:0; }
+.current-chip{
+  margin-left: 6px; font-size: .75rem; font-weight: 800;
+  padding: 2px 8px; border-radius: 9999px;
+  background: rgba(255,45,45,.12); color: #fff;
+  border: 1px solid rgba(255,45,45,.35);
+}
+.pricing-feats{ display:flex; flex-wrap: wrap; gap:6px; margin-top:6px; }
+.pricing-feats .feat{
+  font-size: .85rem; opacity: .9; padding: 4px 8px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.06);
+  background: rgba(255,255,255,.04);
+}
+
+.price{ font-size: 1.4rem; font-weight: 900; line-height: 1; }
+.price small{ font-size: .9rem; opacity: .8; }
+
+/* Boutons dans les cartes */
+.billing-primary{
+  padding: 10px 14px; border-radius: 12px; font-weight: 800;
+  background: var(--accent, #ff2d2d); color:#fff; border: 1px solid var(--accent, #ff2d2d);
+  box-shadow: 0 6px 18px rgba(255,45,45,.35);
+  transition: transform .12s ease, box-shadow .2s ease, opacity .2s ease;
+}
+.billing-primary:disabled{
+  opacity: .6; cursor: not-allowed; box-shadow: none;
+}
+.billing-primary:not(:disabled):hover{
+  transform: translateY(-2px); box-shadow: 0 10px 24px rgba(255,45,45,.45);
+}

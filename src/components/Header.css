@@ -302,7 +302,7 @@ html, body{ overflow-x: hidden; }
 
 /* Couleur par rôle (spec + hover safe) */
 .header__nav .user-name.name-admin,
-.mobile-links .user-name.name-admin { color:#fa2626; }
+.mobile-links .user-name.name-admin { color:#ae00ff; }
 
 .header__nav .user-name.name-coach,
 .mobile-links .user-name.name-coach { color:#2aa6ff; }
@@ -315,3 +315,40 @@ html, body{ overflow-x: hidden; }
 
 .header__nav .user-name:hover,
 .mobile-links .user-name:hover { color: inherit; text-decoration: underline; }
+
+/* Actions droites : globe + burger alignés */
+.header__actions{
+  display:flex; align-items:center; gap:10px;
+}
+
+/* Bouton icône globe (compact) */
+.lang-icon-btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:44px; height:44px; border-radius:10px;
+  border:1px solid var(--border);
+  background: rgba(0,0,0,.18); color:#eaeaea;
+  cursor:pointer; padding:0;
+  transition: background .2s, transform .12s, border-color .2s;
+}
+.lang-icon-btn:hover{ background:#1a1b1c; border-color:#3a3b3d; }
+.lang-icon-btn:active{ transform: scale(.98); }
+
+/* Menu langues (petit dropdown) */
+.lang-menu{
+  position:absolute; right:60px; top:calc(var(--nav-h-mobile) - 2px);
+  display:flex; flex-direction:column; gap:6px;
+  background:#131314; border:1px solid var(--border);
+  box-shadow: 0 12px 28px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,45,45,.03);
+  padding:8px; border-radius:12px; z-index:1002;
+}
+.lang-menu button{
+  background:transparent; color:#eaeaea; border:1px solid transparent;
+  padding:8px 12px; border-radius:8px; font-weight:700; cursor:pointer;
+  text-align:left; transition: background .2s, border-color .2s, transform .08s;
+}
+.lang-menu button:hover{ background:#1a1b1c; border-color:#3a3b3d; transform: translateX(2px); }
+
+/* Desktop: cache le globe inline (tu as déjà LanguageSwitcher dans la nav) */
+@media (min-width: 1201px){
+  .lang-inline{ display:none; }
+}

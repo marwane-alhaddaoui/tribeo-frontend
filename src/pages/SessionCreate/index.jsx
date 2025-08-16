@@ -1,4 +1,6 @@
+// src/pages/Sessions/CreateSessionPage.jsx
 import { useState, useEffect, useContext, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { createSession, getSports, extractSessionId } from "../../api/sessionService";
 import { getGroupsByCoach } from "../../api/groupService";
@@ -44,6 +46,7 @@ function sanitizeStringsDeep(obj){
 }
 
 export default function CreateSessionPage() {
+  const { t } = useTranslation();
   const { user } = useContext(AuthContext);
   const { quotas, refresh: refreshQuotas } = useContext(QuotasContext);
   const navigate = useNavigate();
@@ -95,10 +98,8 @@ export default function CreateSessionPage() {
     const v = e.target.value; // TRAINING | FRIENDLY | COMPETITION
     setForm((f) => {
       if (v === "TRAINING") {
-        // TRAINING => on force GROUP + on désactive le team mode côté UI
         return { ...f, event_type: v, visibility: "GROUP", team_mode: false };
       } else {
-        // On sort du mode GROUP par défaut, et on vide group_id
         const nextVis = f.visibility === "GROUP" ? "PUBLIC" : f.visibility;
         return { ...f, event_type: v, visibility: nextVis, group_id: "" };
       }
@@ -112,8 +113,8 @@ export default function CreateSessionPage() {
   const eventDate = useMemo(() => {
     if (!form.date) return null;
     try {
-      const t = form.start_time || "00:00";
-      return new Date(`${form.date}T${t}`);
+      const tHM = form.start_time || "00:00";
+      return new Date(`${form.date}T${tHM}`);
     } catch {
       return null;
     }
@@ -129,63 +130,60 @@ export default function CreateSessionPage() {
     ? (U.trainings_created ?? U.sessions_created ?? 0)
     : (U.sessions_created ?? 0);
   const canCreateThisType = limitForType == null || Number(usedForType) < Number(limitForType);
-  // Flag plan (si exposé)
   const planAllowsTraining = !isTraining || (L.can_create_trainings !== false);
   const canCreateOverall = Boolean(planAllowsTraining && canCreateThisType);
 
   /* ---------- validation ---------- */
   const errors = useMemo(() => {
     const errs = {};
-    if (!form.title || form.title.trim().length < 3) errs.title = "Min. 3 caractères";
+    if (!form.title || form.title.trim().length < 3) errs.title = t('session.create.err_min_chars');
 
     // sport requis uniquement si pas GROUP avec group_id
     const needsSport = !(form.visibility === "GROUP" && form.group_id);
-    if (needsSport && !form.sport_id) errs.sport_id = "Choisis un sport";
+    if (needsSport && !form.sport_id) errs.sport_id = t('session.create.choose_sport');
 
     if (!form.description || form.description.trim().length < 10)
-      errs.description = "Min. 10 caractères";
+      errs.description = t('session.create.err_min_desc');
 
     if (!form.location || !form.latitude || !form.longitude)
-      errs.location = "Sélectionne une adresse via l’autocomplete";
+      errs.location = t('session.create.err_location');
 
-    if (!form.date) errs.date = "Obligatoire";
-    if (!form.start_time) errs.start_time = "Obligatoire";
+    if (!form.date) errs.date = t('session.create.required');
+    if (!form.start_time) errs.start_time = t('session.create.required');
 
     if (eventDate) {
       const now = new Date();
       if (eventDate.getTime() < now.getTime() + 5 * 60 * 1000) {
-        errs.date = "La date/heure doit être dans le futur (≥ 5 min)";
+        errs.date = t('session.create.future_5min');
       }
     }
 
-    // Équipes/Capacité : si TRAINING → on désactive la validation des équipes
     if (!isTraining) {
-      if (!form.max_players || Number(form.max_players) < 1) errs.max_players = "≥ 1";
+      if (!form.max_players || Number(form.max_players) < 1) errs.max_players = t('session.create.ge1');
 
       if (form.team_mode) {
         const minT = Number(form.min_players_per_team || 0);
         const maxT = Number(form.max_players_per_team || 0);
         const cap = Number(form.max_players || 0);
-        if (minT < 1) errs.min_players_per_team = "≥ 1";
-        if (maxT < 1) errs.max_players_per_team = "≥ 1";
-        if (minT > maxT) errs.max_players_per_team = "Doit être ≥ min/équipe";
-        if (2 * minT > cap) errs.max_players = "Capacité insuffisante pour 2 équipes (min/équipe)";
+        if (minT < 1) errs.min_players_per_team = t('session.create.ge1');
+        if (maxT < 1) errs.max_players_per_team = t('session.create.ge1');
+        if (minT > maxT) errs.max_players_per_team = t('session.create.must_be_greater_equal_min_team');
+        if (2 * minT > cap) errs.max_players = t('session.create.insufficient_capacity_two_teams');
       }
     }
 
     if (isCoachOrAdmin && form.visibility === "GROUP" && !form.group_id) {
-      errs.group_id = "Sélectionne un groupe";
+      errs.group_id = t('session.create.select_group_required');
     }
 
-    // Blocage quotas (message gentil)
     if (!canCreateOverall) {
       errs._quota = isTraining
-        ? "Quota d’entraînements atteint ou plan non autorisé."
-        : "Quota de créations de sessions atteint pour ce mois.";
+        ? t('session.create.quota_trainings_reached_or_plan')
+        : t('session.create.quota_sessions_reached');
     }
 
     return errs;
-  }, [form, eventDate, isCoachOrAdmin, isTraining, canCreateOverall]);
+  }, [form, eventDate, isCoachOrAdmin, isTraining, canCreateOverall, t]);
 
   const isValid = Object.keys(errors).filter(k => k !== "_quota").length === 0 && canCreateOverall;
 
@@ -202,10 +200,8 @@ export default function CreateSessionPage() {
     setSubmitting(true);
     setError("");
     try {
-      // base
       const base = { ...form };
 
-      // Règles rôle/type (le back revérifie aussi)
       if (!isCoachOrAdmin) {
         base.event_type = "FRIENDLY";
         base.visibility = "PUBLIC";
@@ -213,36 +209,31 @@ export default function CreateSessionPage() {
       } else {
         if (String(base.event_type).toUpperCase() === "TRAINING") {
           base.visibility = "GROUP";
-          base.team_mode = false; // pas d’équipes pour un training
-          // on évite d'envoyer ces champs
+          base.team_mode = false;
           base.min_players_per_team = null;
           base.max_players_per_team = null;
 
           if (!base.group_id) {
-            setError("Pour un entraînement, sélectionne un groupe.");
+            setError(t('session.create.training_select_group'));
             setSubmitting(false);
             return;
           }
         }
       }
 
-      // héritage sport via GROUP
       if (base.visibility === "GROUP" && base.group_id) delete base.sport_id;
 
-      // normalisation heure + garde-fou
       const nt = normalizeTime(base.start_time);
       if (!nt) {
-        setError("Heure de début invalide. Utilise HH:MM (ex: 14:30).");
+        setError(t('session.create.invalid_time_hhmm'));
         setSubmitting(false);
         return;
       }
       base.start_time = nt;
 
-      // casts FK si présents
       if (base.sport_id !== "" && base.sport_id != null) base.sport_id = Number(base.sport_id);
       if (base.group_id !== "" && base.group_id != null) base.group_id = Number(base.group_id);
 
-      // cast num/booleans (si non-training)
       if (!isTraining) {
         base.max_players = Number(base.max_players ?? 0);
         base.min_players_per_team = base.team_mode ? Number(base.min_players_per_team ?? 0) : null;
@@ -255,7 +246,6 @@ export default function CreateSessionPage() {
       const created = await createSession(payload);
       const createdId = extractSessionId(created);
 
-      // 🔄 refresh quotas (usage.*_created++)
       await refreshQuotas();
 
       if (createdId) {
@@ -265,7 +255,7 @@ export default function CreateSessionPage() {
       }
     } catch (err) {
       const message = err?.response?.data ? JSON.stringify(err.response.data) : err.message;
-      setError("Erreur: " + message);
+      setError(t('session.create.error_prefix') + message);
     } finally {
       setSubmitting(false);
     }
@@ -280,11 +270,11 @@ export default function CreateSessionPage() {
 
   // Hint quotas lisible selon type
   const quotaHint = useMemo(() => {
-    const label = isTraining ? "Créations d’entraînements" : "Créations de sessions";
+    const label = isTraining ? t('session.create.creations_trainings') : t('session.create.creations_sessions');
     return limitForType == null
-      ? `${label} : ${usedForType} / ∞`
+      ? `${label} : ${usedForType} / ${t('session.create.infinity')}`
       : `${label} : ${usedForType} / ${limitForType}`;
-  }, [isTraining, limitForType, usedForType]);
+  }, [isTraining, limitForType, usedForType, t]);
 
   return (
     <div className="create-session-container">
@@ -301,7 +291,7 @@ export default function CreateSessionPage() {
           <div className="cs-section">
             <div className="cs-row">
               <div className="cs-field">
-                <label>Titre</label>
+                <label>{t('session.create.title_label')}</label>
                 <input
                   name="title"
                   className={fieldClass("title")}
@@ -309,13 +299,13 @@ export default function CreateSessionPage() {
                   onChange={handleChange}
                   onBlur={() => setTouched((t) => ({ ...t, title: true }))}
                   aria-invalid={touched.title && !!errors.title}
-                  placeholder="Ex. Foot du dimanche matin"
+                  placeholder={t('session.create.title_placeholder')}
                 />
                 {touched.title && errors.title && <small className="field-error">{errors.title}</small>}
               </div>
 
               <div className="cs-field">
-                <label>Sport</label>
+                <label>{t('session.create.sport_label')}</label>
                 <select
                   name="sport_id"
                   className={fieldClass("sport_id")}
@@ -325,7 +315,7 @@ export default function CreateSessionPage() {
                   aria-invalid={touched.sport_id && !!errors.sport_id}
                   disabled={form.visibility === "GROUP" && !!form.group_id}
                 >
-                  <option value="">Sélectionner un sport</option>
+                  <option value="">{t('session.create.sport_placeholder')}</option>
                   {sports.map((s) => (
                     <option key={s.id} value={s.id}>{s.name}</option>
                   ))}
@@ -335,7 +325,7 @@ export default function CreateSessionPage() {
             </div>
 
             <div className="cs-field">
-              <label>Description</label>
+              <label>{t('session.create.description_label')}</label>
               <textarea
                 name="description"
                 className={fieldClass("description")}
@@ -344,7 +334,7 @@ export default function CreateSessionPage() {
                 onBlur={() => setTouched((t) => ({ ...t, description: true }))}
                 aria-invalid={touched.description && !!errors.description}
                 rows={4}
-                placeholder="Détails, niveau, matériel, règles..."
+                placeholder={t('session.create.description_placeholder')}
               />
               {touched.description && errors.description && <small className="field-error">{errors.description}</small>}
             </div>
@@ -353,13 +343,13 @@ export default function CreateSessionPage() {
           {/* Section: Lieu & Date */}
           <div className="cs-section">
             <div className="cs-field">
-              <label>Lieu</label>
+              <label>{t('session.create.location_label')}</label>
               <AddressAutocomplete value={form.location} onSelect={handleAddressSelect} />
               <div className="cs-hint-row">
                 {form.latitude && form.longitude ? (
-                  <span className="ok">✓ localisation OK</span>
+                  <span className="ok">✓ {t('session.create.location_ok')}</span>
                 ) : (
-                  <span className="warn">Sélectionne une adresse dans la liste</span>
+                  <span className="warn">{t('session.create.location_select')}</span>
                 )}
                 {touched.location && errors.location && <small className="field-error">{errors.location}</small>}
               </div>
@@ -367,7 +357,7 @@ export default function CreateSessionPage() {
 
             <div className="cs-row">
               <div className="cs-field">
-                <label>Date</label>
+                <label>{t('session.create.date_label')}</label>
                 <input
                   type="date"
                   name="date"
@@ -382,7 +372,7 @@ export default function CreateSessionPage() {
               </div>
 
               <div className="cs-field">
-                <label>Heure de début</label>
+                <label>{t('session.create.time_label')}</label>
                 <input
                   type="time"
                   name="start_time"
@@ -403,16 +393,16 @@ export default function CreateSessionPage() {
             <div className="cs-section">
               <div className="cs-row">
                 <div className="cs-field">
-                  <label>Type de session</label>
+                  <label>{t('session.create.type_label')}</label>
                   <select
                     name="event_type"
                     className="input"
                     value={form.event_type}
                     onChange={handleEventTypeChange}
                   >
-                    <option value="TRAINING">Entraînement</option>
-                    <option value="FRIENDLY">Match amical</option>
-                    <option value="COMPETITION">Compétition</option>
+                    <option value="TRAINING">{t('session.create.type_training')}</option>
+                    <option value="FRIENDLY">{t('session.create.type_friendly')}</option>
+                    <option value="COMPETITION">{t('session.create.type_competition')}</option>
                   </select>
                 </div>
               </div>
@@ -424,7 +414,7 @@ export default function CreateSessionPage() {
             <div className="cs-section">
               <div className="cs-row">
                 <div className="cs-field">
-                  <label>Visibilité</label>
+                  <label>{t('session.create.visibility_label')}</label>
                   <select
                     name="visibility"
                     className="input"
@@ -436,19 +426,19 @@ export default function CreateSessionPage() {
                         ...f,
                         visibility: v,
                         group_id: v === "GROUP" ? f.group_id : "",
-                        sport_id: v === "GROUP" ? "" : f.sport_id, // sport hérité quand GROUP
+                        sport_id: v === "GROUP" ? "" : f.sport_id,
                       }));
                     }}
                   >
-                    <option value="PUBLIC">Publique</option>
-                    <option value="PRIVATE">Privée</option>
-                    <option value="GROUP">Groupe</option>
+                    <option value="PUBLIC">{t('session.create.visibility_public')}</option>
+                    <option value="PRIVATE">{t('session.create.visibility_private')}</option>
+                    <option value="GROUP">{t('session.create.visibility_group')}</option>
                   </select>
                 </div>
 
                 {form.visibility === "GROUP" && (
                   <div className="cs-field">
-                    <label>Groupe</label>
+                    <label>{t('session.create.group_label')}</label>
                     <select
                       name="group_id"
                       className={fieldClass("group_id")}
@@ -461,7 +451,7 @@ export default function CreateSessionPage() {
                       aria-invalid={touched.group_id && !!errors.group_id}
                       required
                     >
-                      <option value="">Sélectionner un groupe</option>
+                      <option value="">{t('session.create.group_placeholder')}</option>
                       {groups.map((g) => (
                         <option key={g.id} value={g.id}>{g.name}</option>
                       ))}
@@ -475,7 +465,6 @@ export default function CreateSessionPage() {
 
           {/* Section: Équipes & Capacité */}
           <div className="cs-section">
-            {/* Quand TRAINING, on désactive le team mode et la capacité manuelle */}
             {isTraining ? (
               <>
                 <div className="cs-row cs-row-inline">
@@ -487,23 +476,23 @@ export default function CreateSessionPage() {
                       disabled
                       readOnly
                     />
-                    <span>Mode équipe</span>
+                    <span>{t('session.create.team_mode_label')}</span>
                   </label>
                   <div className="cs-tip">
-                    En entraînement de groupe, les membres du groupe sont ajoutés automatiquement.
+                    {t('session.create.trainings_group_members_auto')}
                   </div>
                 </div>
 
                 <div className="cs-row">
                   <div className="cs-field">
-                    <label>Participants</label>
+                    <label>{t('session.create.participants_label')}</label>
                     <input
                       className="input"
                       readOnly
                       value={
                         form.group_id
-                          ? "Les membres du groupe seront ajoutés automatiquement"
-                          : "Sélectionne un groupe"
+                          ? t('session.create.participants_auto_from_group')
+                          : t('session.create.select_group')
                       }
                     />
                   </div>
@@ -519,18 +508,18 @@ export default function CreateSessionPage() {
                       checked={form.team_mode}
                       onChange={handleChange}
                     />
-                    <span>Mode équipe</span>
+                    <span>{t('session.create.team_mode_label')}</span>
                   </label>
                   <div className="cs-tip">
                     {form.team_mode
-                      ? `Min ${minTotalPlayers} joueurs pour 2 équipes • Capacité ${cap}`
-                      : `Capacité ${cap} joueurs`}
+                      ? t('session.create.team_tip_on', { minTotalPlayers, cap })
+                      : t('session.create.team_tip_off', { cap })}
                   </div>
                 </div>
 
                 <div className="cs-row">
                   <div className="cs-field">
-                    <label>Max joueurs</label>
+                    <label>{t('session.create.max_players_label')}</label>
                     <input
                       type="number"
                       name="max_players"
@@ -546,7 +535,7 @@ export default function CreateSessionPage() {
                   </div>
 
                   <div className="cs-field">
-                    <label>Min joueurs/équipe</label>
+                    <label>{t('session.create.min_players_per_team_label')}</label>
                     <input
                       type="number"
                       name="min_players_per_team"
@@ -563,7 +552,7 @@ export default function CreateSessionPage() {
                   </div>
 
                   <div className="cs-field">
-                    <label>Max joueurs/équipe</label>
+                    <label>{t('session.create.max_players_per_team_label')}</label>
                     <input
                       type="number"
                       name="max_players_per_team"
@@ -592,10 +581,10 @@ export default function CreateSessionPage() {
               title={
                 canCreateOverall
                   ? undefined
-                  : (isTraining ? "Quota entraînements atteint / plan non autorisé" : "Quota de créations de sessions atteint")
+                  : (isTraining ? t('session.create.title_quota_trainings') : t('session.create.title_quota_sessions'))
               }
             >
-              {submitting ? "Création…" : "Créer la session"}
+              {submitting ? t('session.create.submit_creating') : t('session.create.submit_create')}
             </button>
           </div>
 

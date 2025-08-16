@@ -4,7 +4,7 @@ import { getAllUsers, deleteUser, updateUser } from "../../api/adminService";
 import "../../styles/UserManagement.css";
 import { extractApiError } from "../../utils/httpError";
 
-const ROLES = ["admin", "coach", "user"];
+const ROLES = ["admin", "coach", "user","premium"];
 const PAGE_SIZE = 10;
 
 export default function UserManagement({ query = "", onStats }) {
@@ -286,20 +286,6 @@ export default function UserManagement({ query = "", onStats }) {
                           title="Modifier"
                         >
                           ✏ Modifier
-                        </button>
-                        <button
-                          className="btn small"
-                          onClick={() => quickSetRole(u, "coach")}
-                          title="Basculer en coach"
-                        >
-                          → Coach
-                        </button>
-                        <button
-                          className="btn small"
-                          onClick={() => quickSetRole(u, "user")}
-                          title="Basculer en user"
-                        >
-                          → User
                         </button>
                         <button
                           className="btn danger small"

@@ -1,12 +1,14 @@
 // src/pages/Billing/BillingSuccess.jsx
 import { useEffect, useContext, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { QuotasContext } from "../../context/QuotasContext";
 import { AuthContext } from "../../context/AuthContext";
 import { verifySession } from "../../api/billingService";
 import "../../styles/Billing.css";
 
 export default function BillingSuccess() {
+  const { t } = useTranslation();
   const { refresh: refreshQuotas } = useContext(QuotasContext);
   const { refreshProfile, setUser } = useContext(AuthContext);
   const location = useLocation();
@@ -19,7 +21,7 @@ export default function BillingSuccess() {
     ranRef.current = true;
 
     const params = new URLSearchParams(location.search);
-    const session_id = params.get("session_id");
+    const session_id = params.get("session_id"); // Stripe Checkout session id
 
     (async () => {
       try {
@@ -27,21 +29,19 @@ export default function BillingSuccess() {
           // 1) Applique l’abonnement côté backend
           const res = await verifySession(session_id); // { status, plan, subscription_id, role }
 
-          // 2) Patch optimiste (pour badge/menus) — on ne touche qu'au role
+          // 2) Patch optimiste (pour badge/menus)
           if (res?.role) {
             setUser((u) => (u ? { ...u, role: res.role } : u));
           }
 
-          // 3) Nettoie l’URL pour éviter une re‑vérif au refresh
-          const cleanUrl = location.pathname; // même route, sans query
-          window.history.replaceState({}, "", cleanUrl);
+          // 3) Nettoie l’URL (éviter re-vérif au refresh)
+          window.history.replaceState({}, "", location.pathname);
         }
 
-        // 4) Recharge source de vérité en parallèle (profil + quotas)
+        // 4) Recharge profil + quotas
         await Promise.all([refreshProfile(), refreshQuotas()]);
       } catch (e) {
         console.error("[billing success]", e);
-        // On tente malgré tout de rafraîchir l'état
         try { await Promise.all([refreshProfile(), refreshQuotas()]); } catch {}
       }
     })();
@@ -52,18 +52,17 @@ export default function BillingSuccess() {
     <div className="billing-wrapper">
       <div className="panel">
         <div className="panel-head">
-          <h3 className="panel-title">Paiement confirmé ✅</h3>
+          <h3 className="panel-title">{t("billing.success.title")}</h3>
         </div>
         <p className="billing-sub">
-          Merci ! Ton abonnement est mis à jour. Si tu ne vois pas le changement,
-          clique sur « Retour à l’abonnement ».
+          {t("billing.success.subtitle")}
         </p>
         <div className="btns-row" style={{ marginTop: 10 }}>
           <Link to="/billing" className="billing-primary">
-            Retour à l’abonnement
+            {t("billing.success.back_to_billing")}
           </Link>
           <Link to="/sessions" className="billing-secondary">
-            Voir mes sessions
+            {t("billing.success.view_sessions")}
           </Link>
         </div>
       </div>

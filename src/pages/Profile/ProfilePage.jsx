@@ -1,4 +1,6 @@
+// src/pages/Profile/index.jsx (ou ProfilePage.jsx selon ton arbo)
 import { useContext, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AuthContext } from '../../context/AuthContext';
 import { updateMe } from '../../api/authService';
 import fallbackAvatar from '../../assets/avatar.png';
@@ -8,6 +10,7 @@ import UpgradeCard from "../../components/UpgradeCard";
 const USERNAME_RX = /^[a-z0-9_]{3,20}$/;
 
 export default function ProfilePage() {
+  const { t } = useTranslation();
   const { user, setUser, logout } = useContext(AuthContext);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -39,7 +42,7 @@ export default function ProfilePage() {
     setAvatarPreview(user?.avatar_src || fallbackAvatar);
   }, [user]);
 
-  if (!user) return <div className="profile-loading">Chargement...</div>;
+  if (!user) return <div className="profile-loading">{t('profile.loading')}</div>;
 
   const onChange = (e) => {
     const { name, value } = e.target;
@@ -75,10 +78,10 @@ export default function ProfilePage() {
       const { data } = await updateMe(fd);
       setUser?.(data);
       setAvatarPreview(data.avatar_src || fallbackAvatar);
-      setMsg('Avatar mis à jour ✅');
+      setMsg(t('profile.avatar_updated'));
       setAvatarUrlInput('');
     } catch {
-      setErr('Upload impossible');
+      setErr(t('profile.upload_failed'));
       setAvatarPreview(user?.avatar_src || fallbackAvatar);
     } finally {
       e.target.value = '';
@@ -94,11 +97,11 @@ export default function ProfilePage() {
       const { data } = await updateMe({ avatar_url: url });
       setUser?.(data);
       setAvatarPreview(data.avatar_src || fallbackAvatar);
-      setMsg('Avatar URL enregistré ✅');
+      setMsg(t('profile.avatar_url_saved'));
       setAvatarUrlInput('');
     } catch (error) {
       const api = error?.response?.data || {};
-      setErr(api.avatar_url?.[0] || api.detail || 'URL invalide ou non acceptée');
+      setErr(api.avatar_url?.[0] || api.detail || t('profile.invalid_or_rejected_url'));
     }
   };
 
@@ -108,10 +111,10 @@ export default function ProfilePage() {
       const { data } = await updateMe({ avatar: null, avatar_url: null });
       setUser?.(data);
       setAvatarPreview(data.avatar_src || fallbackAvatar);
-      setMsg('Avatar réinitialisé ✅');
+      setMsg(t('profile.avatar_reset'));
       setAvatarUrlInput('');
     } catch {
-      setErr('Impossible de réinitialiser');
+      setErr(t('profile.reset_failed'));
     }
   };
 
@@ -125,7 +128,7 @@ export default function ProfilePage() {
     const u = form.username.trim().toLowerCase();
     if (!USERNAME_RX.test(u)) {
       setSaving(false);
-      setErr("Username invalide (3–20, a-z 0-9 _)");
+      setErr(t('auth.username_invalid'));
       return;
     }
 
@@ -143,13 +146,13 @@ export default function ProfilePage() {
     try {
       const { data } = await updateMe(payload);
       setUser?.(data);
-      setMsg('Profil mis à jour ✅');
+      setMsg(t('profile.updated'));
       setEditing(false);
     } catch (error) {
       const api = error?.response?.data || {};
       const firstError =
         api.username?.[0] || api.first_name?.[0] || api.last_name?.[0] ||
-        api.detail || "Impossible de mettre à jour le profil";
+        api.detail || t('profile.update_failed');
       setErr(firstError);
     } finally {
       setSaving(false);
@@ -161,28 +164,28 @@ export default function ProfilePage() {
       <div className="profile-shell">
         <header className="profile-head">
           <div>
-            <h1 className="profile-title">Mon profil</h1>
-            <p className="profile-subtitle">Gère ton identité et ton avatar.</p>
+            <h1 className="profile-title">{t('profile.title')}</h1>
+            <p className="profile-subtitle">{t('profile.subtitle')}</p>
           </div>
           <div className="profile-head-actions">
             {editing ? (
               <>
                 <button className="profile-button outline" onClick={cancelEdit} disabled={saving}>
-                  Annuler
+                  {t('common.cancel')}
                 </button>
                 <button
                   className="profile-button"
                   onClick={onSave}
                   disabled={saving || !dirty}
-                  title={!dirty ? "Aucun changement" : ""}
+                  title={!dirty ? t('profile.no_changes') : ''}
                 >
-                  {saving ? '...' : 'Sauvegarder'}
+                  {saving ? '…' : t('common.save')}
                 </button>
               </>
             ) : (
               <>
-                <button className="profile-button" onClick={startEdit}>Modifier</button>
-                <button className="profile-button outline" onClick={logout}>Se déconnecter</button>
+                <button className="profile-button" onClick={startEdit}>{t('common.edit')}</button>
+                <button className="profile-button outline" onClick={logout}>{t('common.logout')}</button>
               </>
             )}
           </div>
@@ -194,7 +197,7 @@ export default function ProfilePage() {
             <div className="avatar-frame">
               <img
                 src={avatarPreview}
-                alt="Avatar"
+                alt={t('profile.avatar_alt')}
                 className="avatar-img"
                 onError={(e) => {
                   if (e.currentTarget.src !== fallbackAvatar) {
@@ -207,7 +210,7 @@ export default function ProfilePage() {
             {editing && (
               <div className="avatar-actions">
                 <label className="avatar-upload-btn">
-                  Uploader une image
+                  {t('profile.upload_image')}
                   <input
                     type="file"
                     accept="image/*"
@@ -219,15 +222,15 @@ export default function ProfilePage() {
                 <form onSubmit={onSetAvatarUrl} className="avatar-url-form">
                   <input
                     type="url"
-                    placeholder="https://exemple.com/mon-image.jpg"
+                    placeholder={t('profile.avatar_url_placeholder')}
                     value={avatarUrlInput}
                     onChange={(e) => setAvatarUrlInput(e.target.value)}
                   />
-                  <button type="submit" className="profile-button">Utiliser URL</button>
+                  <button type="submit" className="profile-button">{t('profile.use_url')}</button>
                 </form>
 
                 <button className="profile-button ghost" onClick={onResetAvatar}>
-                  Réinitialiser l’avatar
+                  {t('profile.reset_avatar')}
                 </button>
               </div>
             )}
@@ -236,14 +239,14 @@ export default function ProfilePage() {
           {/* Col droite : infos */}
           <section className="profile-info">
             <div className="profile-row">
-              <span className="profile-label">Identifiant</span>
+              <span className="profile-label">{t('profile.identifier')}</span>
               {editing ? (
                 <input
                   className="profile-input"
                   name="username"
                   value={form.username}
                   onChange={onChange}
-                  placeholder="ex: john_doe"
+                  placeholder={t('profile.identifier_placeholder')}
                   autoComplete="username"
                 />
               ) : (
@@ -252,7 +255,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="profile-row">
-              <span className="profile-label">Prénom</span>
+              <span className="profile-label">{t('auth.first_name')}</span>
               {editing ? (
                 <input
                   className="profile-input"
@@ -267,7 +270,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="profile-row">
-              <span className="profile-label">Nom</span>
+              <span className="profile-label">{t('auth.last_name')}</span>
               {editing ? (
                 <input
                   className="profile-input"
@@ -282,20 +285,19 @@ export default function ProfilePage() {
             </div>
 
             <div className="profile-row">
-              <span className="profile-label">Email</span>
+              <span className="profile-label">{t('auth.email')}</span>
               <span className="profile-value">{user.email}</span>
             </div>
 
             <div className="profile-row">
-              <span className="profile-label">Rôle</span>
+              <span className="profile-label">{t('profile.role')}</span>
               <span className="profile-value">{user.role}</span>
             </div>
 
             {msg && <p className="profile-success">{msg}</p>}
             {err && <p className="profile-error">{err}</p>}
 
-            {/* Ici, affichage de la carte d'upgrade */}
-            <UpgradeCard />
+            
           </section>
         </div>
       </div>
