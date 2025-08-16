@@ -1,6 +1,7 @@
 // src/components/GroupTrainingList.jsx
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   listGroupTrainings,
   deleteGroupTraining,
@@ -10,6 +11,7 @@ import {
 import TrainingAttendanceModal from "./TrainingAttendanceModal";
 
 export default function GroupTrainingList({ groupId, canManage }) {
+  const { t } = useTranslation();
   const nav = useNavigate();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,12 +23,10 @@ export default function GroupTrainingList({ groupId, canManage }) {
     setLoading(true);
     setErr(null);
     try {
-      const data = await listGroupTrainings(groupId, {
-        ordering: "-date,-start_time",
-      });
+      const data = await listGroupTrainings(groupId, { ordering: "-date,-start_time" });
       setRows(Array.isArray(data) ? data : []);
     } catch {
-      setErr("Impossible de charger les entraînements.");
+      setErr(t("group_training_list.load_error"));
     } finally {
       setLoading(false);
     }
@@ -38,12 +38,12 @@ export default function GroupTrainingList({ groupId, canManage }) {
   }, [groupId]);
 
   const handleDelete = async (sid) => {
-    if (!window.confirm("Supprimer cet entraînement ?")) return;
+    if (!window.confirm(t("group_training_list.delete_confirm"))) return;
     try {
       await deleteGroupTraining(groupId, sid);
       await load();
     } catch {
-      alert("Suppression impossible.");
+      alert(t("group_training_list.delete_error"));
     }
   };
 
@@ -60,9 +60,9 @@ export default function GroupTrainingList({ groupId, canManage }) {
     setAtt({ open: false, sessionId: null });
   }, []);
 
-  if (loading) return <div>Chargement…</div>;
+  if (loading) return <div>{t("group_training_list.loading")}</div>;
   if (err) return <div style={{ color: "tomato" }}>{err}</div>;
-  if (!rows.length) return <div>Aucun entraînement pour le moment.</div>;
+  if (!rows.length) return <div>{t("group_training_list.empty")}</div>;
 
   return (
     <div className="gtl">
@@ -75,7 +75,7 @@ export default function GroupTrainingList({ groupId, canManage }) {
               <div className="gtl-main">
                 <div className="gtl-title">
                   <strong>{s.title || "—"}</strong>
-                  {isTrainingSession(s) && <span className="gtl-chip">Training</span>}
+                  {isTrainingSession(s) && <span className="gtl-chip">{t("group_training_list.training_chip")}</span>}
                   {sidValid && <span className="gtl-id"># {Number(sid)}</span>}
                 </div>
                 <div className="gtl-sub">
@@ -92,9 +92,12 @@ export default function GroupTrainingList({ groupId, canManage }) {
                   className="gd-btn"
                   onClick={() => sidValid && nav(`/sessions/${Number(sid)}`)}
                   disabled={!sidValid}
-                  title={!sidValid ? "ID de session manquant" : "Ouvrir les détails"}
+                  title={!sidValid ? t("group_training_list.missing_id_title") : t("group_training_list.details_title")}
+                  aria-label={!sidValid
+                    ? t("group_training_list.missing_id_title")
+                    : t("group_training_list.details_aria", { id: Number(sid) })}
                 >
-                  Détails
+                  {t("group_training_list.details_btn")}
                 </button>
 
                 {canManage && (
@@ -103,16 +106,17 @@ export default function GroupTrainingList({ groupId, canManage }) {
                       className="gd-btn"
                       onClick={() => sidValid && openAttendance(Number(sid))}
                       disabled={!sidValid}
-                      title={!sidValid ? "ID de session manquant" : "Feuille de présence"}
+                      title={!sidValid ? t("group_training_list.missing_id_title") : t("group_training_list.attendance_title")}
                     >
-                      Feuille de présence
+                      {t("group_training_list.attendance_btn")}
                     </button>
                     <button
                       className="gd-btn danger"
                       onClick={() => sidValid && handleDelete(Number(sid))}
                       disabled={!sidValid}
+                      title={!sidValid ? t("group_training_list.missing_id_title") : t("group_training_list.delete_title")}
                     >
-                      Supprimer
+                      {t("group_training_list.delete_btn")}
                     </button>
                   </>
                 )}

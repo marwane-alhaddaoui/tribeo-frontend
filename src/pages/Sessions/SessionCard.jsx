@@ -1,6 +1,7 @@
 // src/components/SessionCard.jsx
 import { useContext, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import "../../styles/SessionCard.css";
 import { AuthContext } from "../../context/AuthContext";
 import { computeTiming, formatDateTime } from "../../utils/sessionTime";
@@ -14,6 +15,7 @@ function dicebearAvatar(seed) {
 }
 
 export default function SessionCard({ session, onFocus }) {
+  const { t } = useTranslation();
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -87,14 +89,20 @@ export default function SessionCard({ session, onFocus }) {
       tabIndex={clickable ? 0 : -1}
       onClick={clickable ? handleCardClick : undefined}
       onKeyDown={clickable ? handleKeyDown : undefined}
-      aria-label={`Session ${session.title || ""}`}
+      aria-label={`${t("session_card.label")} ${session.title || ""}`}
       aria-disabled={isPast ? "true" : "false"}
-      title={clickable ? "" : "Session passée — non cliquable"}
+      title={clickable ? "" : t("session_card.past_tooltip")}
     >
       {/* RIBBONS */}
-      {isPast && <div className="status-ribbon status-ribbon--past">PASSÉE</div>}
+      {isPast && (
+        <div className="status-ribbon status-ribbon--past">
+          {t("session_card.status_past")}
+        </div>
+      )}
       {!isPast && isFull && (
-        <div className="status-ribbon status-ribbon--full">COMPLET</div>
+        <div className="status-ribbon status-ribbon--full">
+          {t("session_card.status_full")}
+        </div>
       )}
 
       {/* Top row: créateur + badges */}
@@ -120,12 +128,13 @@ export default function SessionCard({ session, onFocus }) {
             </span>
           )}
           {String(session.visibility || "").toLowerCase() !== "public" && (
-            <span className="sc-badge">Privée</span>
+            <span className="sc-badge">{t("session_card.badge_private")}</span>
           )}
           {timing.isOngoing && (
-            <span className="sc-badge sc-badge-accent">En cours</span>
+            <span className="sc-badge sc-badge-accent">
+              {t("session_card.badge_ongoing")}
+            </span>
           )}
-          {/* {isPast && <span className="sc-badge sc-badge-muted">Passée</span>} */}
         </div>
       </div>
 
@@ -159,7 +168,9 @@ export default function SessionCard({ session, onFocus }) {
               🏆
             </span>
           )}
-          <span className="badge-sport-label">{sportName || "Sport"}</span>
+          <span className="badge-sport-label">
+            {sportName || t("session_card.sport_label")}
+          </span>
         </span>
       </div>
 
@@ -188,7 +199,9 @@ export default function SessionCard({ session, onFocus }) {
                 : "avail avail--ok"
             }
           >
-            {remaining ? `${remaining} places` : "Complet"}
+            {remaining
+              ? t("session_card.remaining_places", { count: remaining })
+              : t("session_card.full")}
           </span>
         </div>
       </div>
@@ -201,7 +214,7 @@ export default function SessionCard({ session, onFocus }) {
             className="btn-details"
             onClick={(e) => e.stopPropagation()}
           >
-            Voir les détails
+            {t("session_card.details")}
           </Link>
         </div>
       )}

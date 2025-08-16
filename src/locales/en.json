@@ -13,6 +13,8 @@
   "menu": "Menu",
   "close": "Close",
   "switch_language": "Change language",
+  "billing_label": "Billing",
+
 
   "welcome": "Welcome to Tribeo",
   "createSession": "Create a session",
@@ -222,5 +224,665 @@
       "back_to_billing": "Back to billing",
       "view_sessions": "View my sessions"
     }
+  },
+
+    
+  "sessions_index_title": "Find your next sports session",
+  "sessions_index_tabs_aria": "Tabs",
+  "sessions_index_tab_upcoming": "Upcoming",
+  "sessions_index_tab_archive": "Archive",
+
+  "sessions_index_filters_state_aria": "Session state filters",
+  "sessions_index_filter_all": "All",
+  "sessions_index_filter_open": "Open",
+  "sessions_index_filter_full": "Full",
+
+  "sessions_index_search_placeholder": "Search a session…",
+  "sessions_index_filter_country": "Filter by country",
+  "sessions_index_filter_city": "Filter by city",
+  "sessions_index_countries_all": "All countries",
+  "sessions_index_cities_all": "All cities",
+
+  "sessions_index_empty_upcoming": "No upcoming sessions.",
+  "sessions_index_empty_archive": "No archived sessions.",
+
+  "sessions_index_join_success": "✅ You joined the session!",
+  "sessions_index_leave_success": "✅ You left the session!",
+  "sessions_index_join_error": "Error while joining the session",
+  "sessions_index_leave_error": "Error while leaving the session",
+
+  
+  "create_session_cta_btn": "Create a session",
+  "create_session_cta_login_btn": "Log in to create",
+  "create_session_cta_quota_btn": "Quota reached — Upgrade",
+
+  "create_session_cta_aria": "Create a session",
+  "create_session_cta_title": "Create a session",
+
+  "create_session_cta_login_aria": "Log in to create a session",
+  "create_session_cta_login_title": "Log in to create a session",
+
+  "create_session_cta_quota_aria": "Quota reached — go Premium",
+  "create_session_cta_quota_title": "Quota reached — go Premium",
+
+  "create_session_cta_quota_confirm": "You reached your creation quota. Switch to Premium?",
+
+  
+  "sport_filter_all": "All sports",
+  "sport_filter_aria": "Filter by sport",
+  "sport_filter_all_title": "Show sessions for all sports",
+  "sport_filter_select_title": "Show sessions for {{name}}",
+
+  
+  "sports_names": {
+    "football": "Football",
+    "padel": "Padel",
+    "tennis": "Tennis",
+    "boxing": "Boxing",
+    "basketball": "Basketball",
+    "natation": "Swimming",
+    "running": "Running",
+    "trail": "Trail running",
+    "kickboxing": "Kickboxing",
+    "pilate": "Pilates",
+
+    "soccer": "Soccer",
+    "futsal": "Futsal",
+    "american_football": "American football",
+    "rugby": "Rugby",
+    "handball": "Handball",
+    "volleyball": "Volleyball",
+    "beach_volleyball": "Beach volleyball",
+    "badminton": "Badminton",
+    "table_tennis": "Table tennis",
+    "squash": "Squash",
+    "pickleball": "Pickleball",
+    "golf": "Golf",
+    "cricket": "Cricket",
+    "baseball": "Baseball",
+    "softball": "Softball",
+    "hockey": "Hockey",
+    "field_hockey": "Field hockey",
+    "ice_hockey": "Ice hockey",
+    "lacrosse": "Lacrosse",
+
+    "martial_arts": "Martial arts",
+    "mma": "MMA",
+    "muay_thai": "Muay Thai",
+    "karate": "Karate",
+    "taekwondo": "Taekwondo",
+    "judo": "Judo",
+    "bjj": "Brazilian Jiu-Jitsu",
+    "grappling": "Grappling",
+    "wrestling": "Wrestling",
+
+    "crossfit": "CrossFit",
+    "fitness": "Fitness",
+    "gym": "Gym / Weight training",
+    "strength_training": "Strength training",
+    "weightlifting": "Olympic weightlifting",
+    "powerlifting": "Powerlifting",
+    "calisthenics": "Calisthenics",
+    "yoga": "Yoga",
+    "pilates": "Pilates",
+    "zumba": "Zumba",
+    "dance": "Dance",
+
+    "cycling": "Cycling",
+    "mountain_bike": "Mountain bike",
+    "bmx": "BMX",
+    "triathlon": "Triathlon",
+    "duathlon": "Duathlon",
+
+    "swimming": "Swimming",
+    "open_water_swimming": "Open water swimming",
+    "rowing": "Rowing",
+    "canoe": "Canoe",
+    "kayak": "Kayak",
+    "canoe_kayak": "Canoe/Kayak",
+    "sailing": "Sailing",
+    "surfing": "Surfing",
+    "windsurfing": "Windsurfing",
+    "kitesurfing": "Kitesurfing",
+    "sup": "Stand-up paddle",
+
+    "climbing": "Climbing",
+    "bouldering": "Bouldering",
+    "hiking": "Hiking",
+    "walking": "Walking",
+    "orienteering": "Orienteering",
+
+    "skateboarding": "Skateboarding",
+    "rollerblading": "Inline skating",
+    "ice_skating": "Ice skating",
+    "ski": "Skiing",
+    "snowboard": "Snowboarding",
+    "biathlon": "Biathlon",
+
+    "archery": "Archery",
+    "shooting": "Shooting",
+    "fencing": "Fencing",
+    "darts": "Darts",
+    "billiards": "Billiards",
+    "snooker": "Snooker",
+    "bowling": "Bowling",
+
+    "equestrian": "Equestrian",
+    "horse_riding": "Horse riding",
+    "petanque": "Pétanque",
+    "bocce": "Bocce",
+
+    "ultimate_frisbee": "Ultimate frisbee",
+    "disc_golf": "Disc golf",
+
+    "parkour": "Parkour",
+    "strongman": "Strongman",
+    "aerobics": "Aerobics"
+  },
+
+  "session_card": {
+  "label": "Session",
+  "past_tooltip": "Past session — not clickable",
+  "status_past": "PAST",
+  "status_full": "FULL",
+  "badge_private": "Private",
+  "badge_ongoing": "Ongoing",
+  "sport_label": "Sport",
+  "remaining_places": "{{count}} spots left",
+  "full": "Full",
+  "details": "View details"
+},
+
+ "location_filter": {
+    "aria_country": "Filter by country",
+    "aria_city": "Filter by city",
+    "country_all": "All countries",
+    "city_all": "All cities",
+    "city_all_in_country": "All cities"
+  },
+
+  "sd_loading": "Loading…",
+  "sd_retry": "Retry",
+  "sd_refresh": "Refresh",
+  "sd_action_impossible": "Action not possible.",
+
+  "sd_countdown_ongoing_or_past": "ongoing / past",
+  "sd_min": "min",
+  "sd_link_copied": "Link copied!",
+  "sd_load_failed": "Unable to load the session.",
+
+  "sd_banner_past": "This session is in the past — registrations closed.",
+  "sd_banner_ongoing": "Session in progress.",
+  "sd_banner_locked": "This session is locked.",
+  "sd_banner_finished": "Session finished.",
+  "sd_banner_canceled": "Session canceled.",
+
+  "sd_badge_full": "Full",
+  "sd_badge_private": "Private",
+
+  "sd_meta_creator": "Creator",
+  "sd_meta_sport": "Sport",
+  "sd_meta_location": "Location",
+  "sd_meta_date": "Date",
+  "sd_meta_capacity": "Capacity",
+  "sd_meta_remaining": "Remaining",
+  "sd_meta_starts_in": "Starts in",
+  "sd_places": "spots",
+
+  "sd_join": "Join",
+  "sd_leave": "Leave",
+  "sd_join_title": "Join the session",
+  "sd_leave_title": "Leave the session",
+  "sd_creator_cant_leave": "Organizer · cannot leave",
+  "sd_creator_cant_leave_title": "You are the organizer, you cannot leave this session. Delete it if needed.",
+  "sd_copy_link": "Copy link",
+  "sd_open_in_maps": "Open in Maps",
+
+  "sd_join_disabled_past": "This session is in the past. Registrations closed.",
+  "sd_join_disabled_locked": "This session is locked.",
+  "sd_join_disabled_finished": "Session finished.",
+  "sd_join_disabled_canceled": "Session canceled.",
+  "sd_join_disabled_full": "The session is full.",
+
+  "sd_must_login": "Log in to join.",
+  "sd_join_failed": "Unable to join.",
+  "sd_leave_failed": "Unable to leave.",
+
+  "sd_quota_reached_prompt": "You've reached your monthly participation quota. Upgrade to Premium?",
+
+  "sd_description": "Description",
+  "sd_danger_zone_title": "Danger zone",
+  "sd_danger_zone_text_prefix": "Deletion is",
+  "sd_danger_zone_text_suffix": "Double-check before continuing.",
+  "sd_definitive": "permanent",
+  "sd_delete_session": "Delete session",
+  "sd_delete_confirm": "Delete this session? This action is permanent.",
+  "sd_delete_failed": "Deletion failed.",
+
+  "sd_participants": "Participants",
+  "sd_no_participants": "No participants yet.",
+  "sd_session_chat": "Session chat",
+
+  "sd_restricted_title": "Members-only access",
+  "sd_restricted_text": "Join the session to view teams, participants, and chat.",
+
+  "sd_vs": "VS",
+  "sd_team_label": "Team {{n}}",
+
+  "billing_cancel": {
+    "title": "Payment cancelled ❌",
+    "subtitle": "No change of plan. You can try again anytime.",
+    "back_button": "Back to subscription"
+  },
+
+   "gp_title": "Groups",
+  "gp_subtitle": "Organize your teams and start your sessions.",
+
+  "gp_create_button": "+ Create a group",
+  "gp_create_title": "Create a group",
+  "gp_cta_title_login": "Log in to create a group",
+  "gp_cta_title_check_premium": "Checking… (premium detected)",
+  "gp_cta_title_check_quotas": "Checking quotas…",
+  "gp_cta_title_forbidden": "Your plan does not allow creating groups",
+  "gp_cta_title_quota_reached": "Group quota reached for this month",
+
+  "gp_ph_search": "Search a group",
+  "gp_ph_sport": "Sport ID (temporary)",
+  "gp_ph_city": "City",
+  "gp_filter": "Filter",
+  "gp_reset": "Reset",
+
+  "gp_loading": "Loading…",
+  "gp_results": "{{count}} group",
+  "gp_results_plural": "{{count}} groups",
+
+  "gp_chip_q": "q",
+  "gp_chip_sport": "sport",
+  "gp_chip_city": "city",
+
+  "gp_preview_strong": "Preview content",
+  "gp_preview_text": "Log in to see groups clearly and access them.",
+  "gp_login": "Log in",
+  "gp_register": "Create an account",
+
+  "gp_empty_filters": "No groups match these filters.",
+  "gp_create_first": "Create the first one",
+
+  "gd_loading": "Loading…",
+  "gd_not_found": "Group not found.",
+  "gd_load_failed": "Unable to load the group.",
+  "gd_reload_failed": "Unable to reload the group.",
+  "gd_action_failed": "Action not possible.",
+
+  "gd_type_private": "Private",
+  "gd_type_coach": "Coach-only",
+  "gd_type_public": "Public",
+
+  "gd_join_policy_private": "By request (approval required)",
+  "gd_join_policy_coach": "By coach invitation",
+  "gd_join_policy_open": "Open",
+
+  "gd_invitation_required_title": "Invitation required by the coach",
+  "gd_invitation_only": "Invitation only",
+  "gd_request_join": "Request to join",
+  "gd_join": "Join",
+  "gd_leave": "Leave",
+  "gd_join_success": "You joined the group.",
+  "gd_request_sent": "Request sent.",
+  "gd_leave_success": "You left the group.",
+  "gd_quota_reached_prompt": "You've reached your group limit for your plan. Upgrade to Premium?",
+
+  "gd_tab_overview": "Overview",
+  "gd_tab_members": "Members",
+  "gd_tab_chat": "Chat",
+  "gd_tab_sessions": "Sessions",
+  "gd_tab_requests": "Requests",
+
+  "gd_about": "About",
+  "gd_access_rules": "Access rules",
+  "gd_membership": "Membership:",
+  "gd_type": "Type:",
+  "gd_members_count_one": "{{count}} member",
+  "gd_members_count_other": "{{count}} members",
+
+  "gd_fact_coach": "Coach",
+  "gd_fact_sport": "Sport",
+  "gd_fact_city": "City",
+  "gd_fact_members": "Members",
+  "gd_fact_created": "Created",
+  "gd_fact_updated": "Updated",
+
+  "gd_member_added": "Member added: {{who}}",
+  "gd_add_member_failed": "Unable to add member.",
+  "gd_remove_member_confirm": "Remove this member from the group?",
+  "gd_member_removed": "Member removed.",
+  "gd_remove_member_failed": "Unable to remove member.",
+
+  "gd_danger_zone_title": "Danger zone",
+  "gd_danger_zone_text_prefix": "Deletion is",
+  "gd_danger_zone_text_suffix": "Double-check before continuing.",
+  "gd_definitive": "permanent",
+  "gd_delete_group": "Delete group",
+  "gd_delete_confirm": "Delete this group? This action is permanent.",
+  "gd_delete_failed": "Unable to delete the group.",
+
+  "gd_tab_requests_none": "Requests",
+  "gd_tab_requests_some": "Requests ({{count}})",
+
+   "gform_title": "Create a group",
+
+  "gform_label_name": "Name",
+  "gform_label_sport": "Sport",
+  "gform_label_type": "Group type",
+  "gform_label_city": "City",
+  "gform_label_desc": "Description",
+
+  "gform_ph_name": "Group name",
+  "gform_ph_sport": "Type to search a sport",
+  "gform_ph_city": "e.g., Brussels",
+  "gform_ph_desc": "Useful info, group rules, etc.",
+
+  "gform_type_open": "Open (direct join)",
+  "gform_type_private": "Private (request/approval)",
+  "gform_type_coach": "Coach (invitation only)",
+
+  "gform_hint_open": "Anyone can join directly.",
+  "gform_hint_private": "Users send a request that you accept or reject.",
+  "gform_hint_coach": "Invitation only (Join button disabled).",
+  "gform_hint_searching": "Searching…",
+  "gform_hint_no_sport": "No sport",
+  "gform_selected": "Selected:",
+  "gform_id": "id",
+
+  "gform_err_required": "Name and sport are required.",
+  "gform_err_plan_blocks": "Your plan does not allow creating groups.",
+  "gform_err_quota_month": "Group quota reached for this month.",
+  "gform_err_forbidden": "Creation refused (plan/quota/permissions).",
+  "gform_err_create": "Creation failed.",
+
+  "gform_created": "Group created.",
+  "gform_create": "Create",
+  "gform_creating": "Creating…",
+  "gform_cancel": "Cancel",
+
+  "gform_title_plan_blocks": "Your plan does not allow group creation",
+  "gform_title_quota_month": "Quota reached for this month",
+
+  "gform_quota_unlimited": "Group quota: {{used}} / ∞",
+  "gform_quota_limited": "Group quota: {{used}} / {{limit}}",
+
+  "aa_placeholder": "Type an address…",
+  "aa_loading": "Searching…",
+  "aa_no_results": "No results",
+  "aa_min_chars_one": "Type at least {{count}} character…",
+  "aa_min_chars_other": "Type at least {{count}} characters…",
+  "am_add_internal_ph": "Add an internal member (username / email)",
+
+  "cp_title": "Chat",
+  "cp_placeholder_msg": "Message",
+  "cp_join_to_view": "Join the session to view the chat",
+  "cp_members_only": "Members-only discussion",
+  "cp_empty": "No messages yet.",
+  "cp_deleted": "Message deleted",
+  "cp_delete": "Delete",
+  "cp_delete_short": "Delete",
+  "cp_placeholder_input": "Your message…",
+  "cp_send": "Send",
+
+  "cp_err_load": "Unable to load the chat.",
+  "cp_err_send": "Unable to send.",
+  "cp_err_delete": "Unable to delete.",
+  "cp_confirm_delete": "Delete this message?",
+
+   "cc_prev_month_aria": "Previous month",
+  "cc_prev_month_title": "Previous month (←)",
+  "cc_today": "Today",
+  "cc_today_title": "Today (T)",
+  "cc_month_aria": "Month",
+  "cc_year_aria": "Year",
+  "cc_next_month_aria": "Next month",
+  "cc_next_month_title": "Next month (→)",
+
+  "cc_wd_mon": "Mon",
+  "cc_wd_tue": "Tue",
+  "cc_wd_wed": "Wed",
+  "cc_wd_thu": "Thu",
+  "cc_wd_fri": "Fri",
+  "cc_wd_sat": "Sat",
+  "cc_wd_sun": "Sun",
+
+  "cc_loading": "Loading…",
+  "cc_time_unknown": "??:??",
+
+  "cc_publish": "Publish",
+  "cc_cancel": "Cancel",
+
+  "cc_more_one": "+{{count}} more",
+  "cc_more_other": "+{{count}} more",
+  "cc_more_title_one": "{{count}} more event",
+  "cc_more_title_other": "{{count}} more events",
+
+  "cc_status_draft": "Draft",
+  "cc_status_open": "Open",
+  "cc_status_locked": "Locked",
+  "cc_status_finished": "Finished",
+  "cc_status_canceled": "Canceled",
+
+  "external_members": {
+    "loading": "Loading…",
+    "load_error": "Unable to load external members.",
+    "add_error": "Failed to add external member.",
+    "delete_error": "Deletion failed.",
+    "delete_confirm": "Delete this external member?",
+
+    "first_name_ph": "First name",
+    "last_name_ph": "Last name",
+    "note_ph": "Note (optional)",
+    "add_btn": "Add",
+
+    "filter_ph": "Filter an external member (name / note)",
+    "empty": "No external members.",
+    "delete_btn": "Delete"
+  },
+
+   "group_card": {
+    "type_private": "Private",
+    "type_coach_only": "Coach-only",
+    "type_public": "Public",
+
+    "members": "{{count}} member",
+    "members_plural": "{{count}} members",
+
+    "details_btn": "Details",
+    "login_required_title": "Log in to view",
+    "view_group_title": "View group"
+  },
+
+   "group_join_requests": {
+    "loading": "Loading…",
+    "load_error": "Unable to load requests.",
+    "action_error": "Action failed.",
+    "empty": "No requests.",
+
+    "reject_btn": "Reject",
+    "approve_btn": "Approve",
+
+    "reject_title": "Reject request",
+    "approve_title": "Approve request",
+
+    "reject_aria": "Reject {{name}}’s request",
+    "approve_aria": "Approve {{name}}’s request"
+  },
+
+  "group_members": {
+    "empty": "No members yet.",
+    "list_aria": "Members ({{count}})",
+    "remove_btn": "Remove",
+    "remove_title": "Remove {{name}} from the group",
+    "remove_aria": "Remove {{name}} from the group"
+  },
+
+    "group_sessions_tab": {
+    "title": "Group trainings",
+    "create_btn": "+ Create",
+    "loading": "Loading…",
+    "load_error": "Unable to load trainings.",
+    "empty": "No trainings yet.",
+    "details_btn": "Details",
+    "details_title": "View details",
+    "details_aria": "View details for “{{title}}”",
+    "attendance_btn": "Attendance sheet",
+    "attendance_title": "Open attendance sheet",
+    "delete_btn": "Delete",
+    "delete_confirm": "Delete this training?",
+    "delete_error": "Deletion failed."
+  },
+  "group_training_list": {
+    "loading": "Loading…",
+    "load_error": "Unable to load trainings.",
+    "empty": "No trainings yet.",
+    "training_chip": "Training",
+
+    "details_btn": "Details",
+    "details_title": "Open details",
+    "details_aria": "Open details for session #{{id}}",
+
+    "attendance_btn": "Attendance sheet",
+    "attendance_title": "Open attendance sheet",
+
+    "delete_btn": "Delete",
+    "delete_title": "Delete training",
+    "delete_confirm": "Delete this training?",
+    "delete_error": "Deletion failed.",
+
+    "missing_id_title": "Missing session ID"
+  },
+
+  "quotas_banner": {
+    "creations_label": "Creations / month",
+    "participations_label": "Joins / month",
+    "groups_label": "Max active groups",
+    "plan_title": "Plan {{plan}}"
+  },
+
+  "session_filters": {
+    "bar_aria": "Session filters",
+    "all": "All",
+    "open": "Open",
+    "finished": "Finished",
+    "full": "Full",
+    "refresh": "Refresh",
+    "refresh_aria": "Refresh session list",
+    "refresh_title": "Refresh",
+    "filter_title": "Filter by “{{label}}”"
+  },
+
+  "session_map": {
+    "sport_label": "Sport:",
+    "date_label": "Date:",
+    "place_label": "Place:",
+    "preview_overlay": "Preview — log in to view details."
+  },
+
+  "session_slots": {
+    "occupied": "Occupied",
+    "join": "Join",
+    "legend_empty": "Free",
+    "legend_filled": "Occupied",
+    "legend_mine": "You"
+  },
+
+  "training_attendance": {
+    "title": "Attendance sheet",
+    "close_btn": "Close",
+
+    "loading": "Loading…",
+    "load_error": "Unable to load.",
+    "invalid_session_id": "Invalid session ID.",
+    "api_unavailable": "Attendance API unavailable on server.",
+    "save_error": "Save failed.",
+
+    "present_word": "present",
+    "external_word": "externals",
+    "external_badge": "external",
+    "external_title": "External member",
+    "external_short": "Ext #{{id}}",
+
+    "all_present_btn": "All present",
+    "all_absent_btn": "All absent",
+    "invert_btn": "Invert",
+
+    "empty": "No members to display.",
+
+    "saving": "Saving…",
+    "save_btn": "Save",
+    "cancel_btn": "Cancel",
+
+    "last_saved_at": "Last saved: {{time}}",
+    "toggle_presence_aria": "Toggle presence for {{name}}"
+  },
+
+  "training_form": {
+    "loading": "Loading…",
+    "group_load_error": "Unable to load group.",
+    "create_error": "Creation error",
+
+    "title": "New training (group)",
+
+    "field_title": "Title",
+    "field_sport": "Sport",
+    "field_description": "Description",
+    "field_location": "Location",
+    "field_date": "Date",
+    "field_start_time": "Start time",
+    "team_mode": "Team mode",
+    "field_max_players": "Max players",
+    "field_min_per_team": "Min players/team",
+    "field_max_per_team": "Max players/team",
+
+    "inherited_from_group": "inherited from group",
+
+    "loc_ok": "location OK",
+    "loc_hint": "Pick an address from the list",
+
+    "tip_team": "Min {{minTotalPlayers}} players for 2 teams • Capacity {{cap}}",
+    "tip_solo": "Capacity {{cap}} players",
+
+    "err_title_min": "Min. 3 characters",
+    "err_description_min": "Min. 10 characters",
+    "err_location_select": "Select an address via autocomplete",
+    "err_required": "Required",
+    "err_datetime_future": "Date/time must be in the future (≥ 5 min)",
+    "err_ge1": "≥ 1",
+    "err_max_ge_min": "Must be ≥ min/team",
+    "err_cap_insufficient": "Capacity insufficient for 2 teams (min/team)",
+
+    "creating": "Creating…",
+    "create_btn": "Create training",
+    "cancel_btn": "Cancel",
+
+    "open_in_maps": "Open location in Google Maps ↗",
+    "open_in_maps_title": "Open in Google Maps"
+  },
+
+
+  "upgrade_card": {
+    "title": "My plan",
+    "loading": "Loading plan…",
+    "until_date": "· until {{date}}",
+
+    "creations_label": "Creations / month",
+    "participations_label": "Joins / month",
+    "groups_label": "Max active groups",
+
+    "premium_btn": "Go Premium",
+    "premium_title": "Upgrade to Premium",
+    "coach_btn": "Become a Coach",
+    "coach_title": "Subscribe to Coach plan",
+
+    "payment_error": "Payment error. Please try again."
   }
+
 }
+
+

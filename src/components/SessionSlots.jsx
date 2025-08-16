@@ -1,5 +1,6 @@
 // components/SessionSlots.jsx
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import "./SessionSlots.css";
 
 export default function SessionSlots({
@@ -12,6 +13,8 @@ export default function SessionSlots({
   currentUserId,
   layout: layoutProp,
 }) {
+  const { t } = useTranslation();
+
   const layout = useMemo(() => {
     if (layoutProp) return layoutProp;
     if (["football","futsal","basket","hand","volley"].includes(sport)) return "half";
@@ -37,7 +40,16 @@ export default function SessionSlots({
               key={i}
               className={`slot ${filled ? "filled" : "empty"} ${isMe ? "mine" : ""}`}
               onClick={onClick}
-              title={filled ? (s.user.name || "Occupé") : "Rejoindre"}
+              title={
+                filled
+                  ? (s.user.name || t("session_slots.occupied"))
+                  : t("session_slots.join")
+              }
+              aria-label={
+                filled
+                  ? (s.user.name || t("session_slots.occupied"))
+                  : t("session_slots.join")
+              }
             >
               {filled ? avatarOrInitials(s.user) : "+"}
             </button>
@@ -45,9 +57,9 @@ export default function SessionSlots({
         })}
       </div>
       <div className="legend">
-        <span className="dot empty" /> Libre
-        <span className="dot filled" /> Occupé
-        <span className="dot mine" /> Toi
+        <span className="dot empty" /> {t("session_slots.legend_empty")}
+        <span className="dot filled" /> {t("session_slots.legend_filled")}
+        <span className="dot mine" /> {t("session_slots.legend_mine")}
       </div>
     </div>
   );
@@ -55,12 +67,18 @@ export default function SessionSlots({
 
 function normalizeSlots(total, slots) {
   const out = Array.from({ length: total }, (_, i) => ({ index: i, user: null }));
-  for (const s of slots || []) if (s && Number.isInteger(s.index) && s.index < total) out[s.index] = s;
+  for (const s of slots || [])
+    if (s && Number.isInteger(s.index) && s.index < total) out[s.index] = s;
   return out;
 }
 
 function avatarOrInitials(user) {
   if (user?.avatar) return <img src={user.avatar} alt={user.name || "User"} />;
-  const initials = (user?.name || "?").split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
+  const initials = (user?.name || "?")
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
   return <span>{initials}</span>;
 }

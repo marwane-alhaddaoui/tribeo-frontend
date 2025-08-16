@@ -1,4 +1,6 @@
+// src/components/CoachCalendar.jsx
 import { useEffect, useMemo, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import {
   getMySessionsInRange,
   publishSession,
@@ -20,28 +22,30 @@ const isSameDay = (a, b) =>
   a.getMonth() === b.getMonth() &&
   a.getDate() === b.getDate();
 
-const STATUS_LABEL = {
-  DRAFT: "Brouillon",
-  OPEN: "Ouverte",
-  LOCKED: "Fermée",
-  FINISHED: "Terminée",
-  CANCELED: "Annulée",
-};
-const statusClass = (s) =>
-  ({
-    DRAFT: "badge draft",
-    OPEN: "badge open",
-    LOCKED: "badge locked",
-    FINISHED: "badge finished",
-    CANCELED: "badge canceled",
-  }[s] || "badge");
-
 // Combien d’events max “visibles” par case avant de compacter
 const MAX_VISIBLE = 3;
 
 export default function CoachCalendar() {
+  const { t, i18n } = useTranslation();
+
+  const STATUS_LABEL = useMemo(() => ({
+    DRAFT: t("cc_status_draft"),
+    OPEN: t("cc_status_open"),
+    LOCKED: t("cc_status_locked"),
+    FINISHED: t("cc_status_finished"),
+    CANCELED: t("cc_status_canceled"),
+  }), [t]);
+
+  const statusClass = (s) =>
+    ({
+      DRAFT: "badge draft",
+      OPEN: "badge open",
+      LOCKED: "badge locked",
+      FINISHED: "badge finished",
+      CANCELED: "badge canceled",
+    }[s] || "badge");
+
   const [cursor, setCursor] = useState(() => {
-    // aligne sur le 1er du mois pour éviter les “sauts”
     const d = new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
   });
@@ -98,7 +102,6 @@ export default function CoachCalendar() {
       if (!map[key]) map[key] = [];
       map[key].push(s);
     }
-    // tri horaire dans la journée
     for (const k of Object.keys(map)) {
       map[k].sort((a, b) => (a.start_time || "").localeCompare(b.start_time || ""));
     }
@@ -152,6 +155,22 @@ export default function CoachCalendar() {
     return Array.from({ length: 7 }, (_, i) => y - 3 + i);
   }, [today]);
 
+  // noms localisés
+  const monthLabel = (m) =>
+    new Date(2000, m, 1).toLocaleString(i18n.language || undefined, { month: "long" });
+  const weekdays = useMemo(
+    () => [
+      t("cc_wd_mon"),
+      t("cc_wd_tue"),
+      t("cc_wd_wed"),
+      t("cc_wd_thu"),
+      t("cc_wd_fri"),
+      t("cc_wd_sat"),
+      t("cc_wd_sun"),
+    ],
+    [t]
+  );
+
   return (
     <div className="coach-cal">
       {/* Header */}
@@ -160,29 +179,29 @@ export default function CoachCalendar() {
           <button
             className="cal-nav"
             onClick={() => setCursor((c) => addMonths(c, -1))}
-            aria-label="Mois précédent"
-            title="Mois précédent (←)"
+            aria-label={t("cc_prev_month_aria")}
+            title={t("cc_prev_month_title")}
           >
             ←
           </button>
           <button
             className="cal-nav"
             onClick={() => setCursor(new Date(today.getFullYear(), today.getMonth(), 1))}
-            title="Aujourd’hui (T)"
+            title={t("cc_today_title")}
           >
-            Aujourd’hui
+            {t("cc_today")}
           </button>
         </div>
 
         <div className="cal-title">
-          <select className="cal-select" value={cursor.getMonth()} onChange={onMonthChange} aria-label="Mois">
+          <select className="cal-select" value={cursor.getMonth()} onChange={onMonthChange} aria-label={t("cc_month_aria")}>
             {Array.from({ length: 12 }).map((_, m) => (
               <option key={m} value={m}>
-                {new Date(2000, m, 1).toLocaleString("fr-FR", { month: "long" })}
+                {monthLabel(m)}
               </option>
             ))}
           </select>
-          <select className="cal-select" value={cursor.getFullYear()} onChange={onYearChange} aria-label="Année">
+          <select className="cal-select" value={cursor.getFullYear()} onChange={onYearChange} aria-label={t("cc_year_aria")}>
             {yearsAround.map((y) => (
               <option key={y} value={y}>
                 {y}
@@ -195,8 +214,8 @@ export default function CoachCalendar() {
           <button
             className="cal-nav"
             onClick={() => setCursor((c) => addMonths(c, 1))}
-            aria-label="Mois suivant"
-            title="Mois suivant (→)"
+            aria-label={t("cc_next_month_aria")}
+            title={t("cc_next_month_title")}
           >
             →
           </button>
@@ -205,7 +224,7 @@ export default function CoachCalendar() {
 
       {/* Weekdays */}
       <div className="cal-weekdays">
-        {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map((d) => (
+        {weekdays.map((d) => (
           <div key={d} className="wd">
             {d}
           </div>
@@ -214,7 +233,7 @@ export default function CoachCalendar() {
 
       {/* Grid */}
       {loading ? (
-        <div className="cal-loading">Chargement…</div>
+        <div className="cal-loading">{t("cc_loading")}</div>
       ) : (
         <div className="cal-grid">
           {gridDays.map((d, idx) => {
@@ -241,17 +260,17 @@ export default function CoachCalendar() {
                           </div>
                           <div className="event-title" title={ev.title}>{ev.title}</div>
                           <div className="event-time" title={`${hhmm} • ${sport}`}>
-                            {hhmm || "??:??"} • {sport}
+                            {hhmm || t("cc_time_unknown")} • {sport}
                           </div>
                           <div className="event-actions">
                             {ev.status === "DRAFT" && (
                               <button className="btn btn-primary" disabled={busy} onClick={() => doPublish(ev.id)}>
-                                {busy ? "…" : "Publier"}
+                                {busy ? "…" : t("cc_publish")}
                               </button>
                             )}
                             {ev.status !== "CANCELED" && (
                               <button className="btn btn-danger" disabled={busy} onClick={() => doCancel(ev.id)}>
-                                {busy ? "…" : "Annuler"}
+                                {busy ? "…" : t("cc_cancel")}
                               </button>
                             )}
                           </div>
@@ -260,8 +279,8 @@ export default function CoachCalendar() {
                     })}
 
                     {moreCount > 0 && (
-                      <div className="event more" title={`${moreCount} autre(s) événement(s)`}>
-                        +{moreCount} autres
+                      <div className="event more" title={t("cc_more_title", { count: moreCount })}>
+                        {t("cc_more", { count: moreCount })}
                       </div>
                     )}
                   </div>
@@ -272,13 +291,13 @@ export default function CoachCalendar() {
         </div>
       )}
 
-      {/* Légende (optionnelle) */}
+      {/* Légende */}
       <div className="cal-legend">
-        <span className="legend-item"><i className="dot draft" /> Brouillon</span>
-        <span className="legend-item"><i className="dot open" /> Ouverte</span>
-        <span className="legend-item"><i className="dot locked" /> Fermée</span>
-        <span className="legend-item"><i className="dot finished" /> Terminée</span>
-        <span className="legend-item"><i className="dot canceled" /> Annulée</span>
+        <span className="legend-item"><i className="dot draft" /> {t("cc_status_draft")}</span>
+        <span className="legend-item"><i className="dot open" /> {t("cc_status_open")}</span>
+        <span className="legend-item"><i className="dot locked" /> {t("cc_status_locked")}</span>
+        <span className="legend-item"><i className="dot finished" /> {t("cc_status_finished")}</span>
+        <span className="legend-item"><i className="dot canceled" /> {t("cc_status_canceled")}</span>
       </div>
     </div>
   );

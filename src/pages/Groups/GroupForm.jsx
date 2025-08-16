@@ -1,13 +1,16 @@
+// src/pages/Groups/GroupForm.jsx
 import { useEffect, useMemo, useRef, useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { createGroup } from "../../api/groupService";
 import { listSports } from "../../api/sportService";
 import { QuotasContext } from "../../context/QuotasContext";
 import "../../styles/GroupForm.css";
 
 export default function GroupForm() {
+  const { t } = useTranslation();
   const nav = useNavigate();
-  const { quotas, refresh: refreshQuotas,bumpUsage } = useContext(QuotasContext);
+  const { quotas, refresh: refreshQuotas, bumpUsage } = useContext(QuotasContext);
 
   // ----- quotas -----
   const L = quotas?.limits || {};
@@ -79,33 +82,34 @@ export default function GroupForm() {
   };
 
   const selectSport = (s) => {
-    setSelectedSport({ id: s.id, name: s.name || s.label || s.title || String(s.id) });
-    setSportQuery(s.name || s.label || s.title || String(s.id));
+    const nm = s.name || s.label || s.title || String(s.id);
+    setSelectedSport({ id: s.id, name: nm });
+    setSportQuery(nm);
     setOpen(false);
   };
 
   const filteredSports = useMemo(() => {
-    const t = sportQuery.trim().toLowerCase();
-    if (!t) return sports;
-    return sports.filter(s => `${s.name || s.label || s.title || ""}`.toLowerCase().includes(t));
+    const tquery = sportQuery.trim().toLowerCase();
+    if (!tquery) return sports;
+    return sports.filter(s => `${s.name || s.label || s.title || ""}`.toLowerCase().includes(tquery));
   }, [sports, sportQuery]);
 
   const hint = useMemo(() => {
-    if (loadingSports) return "Recherche…";
-    if (open && filteredSports.length === 0) return "Aucun sport";
+    if (loadingSports) return t("gform_hint_searching");
+    if (open && filteredSports.length === 0) return t("gform_hint_no_sport");
     return null;
-  }, [loadingSports, open, filteredSports]);
+  }, [loadingSports, open, filteredSports, t]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
     setErr(null); setMsg(null);
 
     if (!name.trim() || !selectedSport?.id) {
-      setErr("Nom et sport sont obligatoires.");
+      setErr(t("gform_err_required"));
       return;
     }
     if (!quotaOK) {
-      setErr(planBlocks ? "Ton plan ne permet pas de créer des groupes." : "Quota de groupes atteint pour ce mois.");
+      setErr(planBlocks ? t("gform_err_plan_blocks") : t("gform_err_quota_month"));
       return;
     }
 
@@ -119,22 +123,21 @@ export default function GroupForm() {
         group_type: groupType,          // OPEN | PRIVATE | COACH
       };
       const created = await createGroup(payload);
-      setMsg("Groupe créé.");
+      setMsg(t("gform_created"));
 
-      // 🔄 refresh quotas juste après la création (usage.groups_created++)
       try { bumpUsage({ groups_created: +1 }); } catch {}
       await refreshQuotas();
 
       nav(`/groups/${created.id}`);
     } catch (e) {
       if (e?.response?.status === 403) {
-        setErr("Création refusée (plan/quota/droits).");
+        setErr(t("gform_err_forbidden"));
       } else if (e?.response?.data) {
         const d = e.response.data;
         const firstKey = Object.keys(d)[0];
-        setErr(typeof d === "string" ? d : Array.isArray(d[firstKey]) ? d[firstKey][0] : "Création impossible.");
+        setErr(typeof d === "string" ? d : Array.isArray(d[firstKey]) ? d[firstKey][0] : t("gform_err_create"));
       } else {
-        setErr("Création impossible.");
+        setErr(t("gform_err_create"));
       }
     } finally {
       setSaving(false);
@@ -143,7 +146,7 @@ export default function GroupForm() {
 
   return (
     <div className="gf-wrap">
-      <h1 className="gf-title">Créer un groupe</h1>
+      <h1 className="gf-title">{t("gform_title")}</h1>
 
       {(err || msg) && (
         <div style={{ marginBottom: 10, color: err ? "#f66" : "#6f6" }}>
@@ -154,25 +157,25 @@ export default function GroupForm() {
       <form className="gf-form" onSubmit={onSubmit}>
         {/* Nom */}
         <div>
-          <div className="gf-label">Nom *</div>
+          <div className="gf-label">{t("gform_label_name")} *</div>
           <input
             className="gf-input"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Nom du groupe"
+            placeholder={t("gform_ph_name")}
           />
         </div>
 
         {/* Sport (combobox) */}
         <div className="gf-combobox" ref={boxRef}>
-          <div className="gf-label">Sport *</div>
+          <div className="gf-label">{t("gform_label_sport")} *</div>
           <input
             className="gf-input"
             value={sportQuery}
             onChange={onSportChange}
             onFocus={onSportFocus}
             onKeyDown={onSportKeyDown}
-            placeholder="Tape pour rechercher un sport"
+            placeholder={t("gform_ph_sport")}
             autoComplete="off"
           />
           {open && (filteredSports.length > 0 || hint) && (
@@ -192,49 +195,49 @@ export default function GroupForm() {
           )}
           {selectedSport && (
             <div className="gf-empty" style={{ paddingTop: 6 }}>
-              Sélectionné : <b>{selectedSport.name}</b> <span style={{ opacity:.7 }}> (id {selectedSport.id})</span>
+              {t("gform_selected")} <b>{selectedSport.name}</b> <span style={{ opacity:.7 }}> ({t("gform_id")} {selectedSport.id})</span>
             </div>
           )}
         </div>
 
         {/* Type de groupe */}
         <div>
-          <div className="gf-label">Type de groupe *</div>
+          <div className="gf-label">{t("gform_label_type")} *</div>
           <select
             className="gf-input"
             value={groupType}
             onChange={(e) => setGroupType(e.target.value)}
           >
-            <option value="OPEN">Ouvert (adhésion directe)</option>
-            <option value="PRIVATE">Privé (demande/validation)</option>
-            <option value="COACH">Coach (invitation uniquement)</option>
+            <option value="OPEN">{t("gform_type_open")}</option>
+            <option value="PRIVATE">{t("gform_type_private")}</option>
+            <option value="COACH">{t("gform_type_coach")}</option>
           </select>
           <div className="gf-empty" style={{ paddingTop: 6 }}>
-            {groupType === "OPEN" && "N'importe qui peut rejoindre directement."}
-            {groupType === "PRIVATE" && "Les utilisateurs envoient une demande, que tu acceptes ou refuses."}
-            {groupType === "COACH" && "Sur invitation seulement (bouton \"Rejoindre\" désactivé)."}
+            {groupType === "OPEN" && t("gform_hint_open")}
+            {groupType === "PRIVATE" && t("gform_hint_private")}
+            {groupType === "COACH" && t("gform_hint_coach")}
           </div>
         </div>
 
         {/* Ville */}
         <div>
-          <div className="gf-label">Ville</div>
+          <div className="gf-label">{t("gform_label_city")}</div>
           <input
             className="gf-input"
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            placeholder="ex: Bruxelles"
+            placeholder={t("gform_ph_city")}
           />
         </div>
 
         {/* Description */}
         <div>
-          <div className="gf-label">Description</div>
+          <div className="gf-label">{t("gform_label_desc")}</div>
           <textarea
             className="gf-textarea"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Infos utiles, règles du groupe, etc."
+            placeholder={t("gform_ph_desc")}
           />
         </div>
 
@@ -247,19 +250,19 @@ export default function GroupForm() {
             title={
               quotaOK
                 ? undefined
-                : (planBlocks ? "Ton plan ne permet pas la création de groupes" : "Quota atteint pour ce mois")
+                : (planBlocks ? t("gform_title_plan_blocks") : t("gform_title_quota_month"))
             }
           >
-            {saving ? "Création…" : "Créer"}
+            {saving ? t("gform_creating") : t("gform_create")}
           </button>
-          <Link to="/groups" style={{ marginLeft: 8 }}>Annuler</Link>
+          <Link to="/groups" style={{ marginLeft: 8 }}>{t("gform_cancel")}</Link>
         </div>
 
         {/* Hint quotas */}
         <div className="gf-empty" style={{ paddingTop: 10, opacity: .8 }}>
           {limit == null
-            ? `Quota groupes : ${used} / ∞`
-            : `Quota groupes : ${used} / ${limit}`}
+            ? t("gform_quota_unlimited", { used })
+            : t("gform_quota_limited", { used, limit })}
         </div>
       </form>
     </div>

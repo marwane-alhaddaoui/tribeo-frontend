@@ -1,20 +1,19 @@
 // src/components/GroupMembers.jsx
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import "./GroupMembers.css";
 
-/** Utilities (no external deps) */
+/** Utilities */
 function labelOf(m) {
   return m?.username || m?.email || `user#${m?.id ?? "?"}`;
 }
 function subOf(m) {
-  // montre l'email en sous-texte uniquement si différent du label
   if (!m?.email) return "";
   const main = m?.username || "";
   return main && m.email !== main ? m.email : "";
 }
 function avatarUrl(seed) {
   const s = encodeURIComponent(String(seed || "user"));
-  // Dicebear initials, zéro install/clé
   return `https://api.dicebear.com/7.x/initials/svg?seed=${s}`;
 }
 
@@ -23,21 +22,24 @@ export default function GroupMembers({
   canManage = false,
   onRemove, // (member) => void
 }) {
-  // List safe + tri alpha par username/email
+  const { t } = useTranslation();
+
+  // List safe + tri alpha
   const list = useMemo(() => {
     const arr = Array.isArray(members) ? members.slice() : [];
-    return arr.sort((a, b) => labelOf(a).localeCompare(labelOf(b), undefined, { sensitivity: "base" }));
+    return arr.sort((a, b) =>
+      labelOf(a).localeCompare(labelOf(b), undefined, { sensitivity: "base" })
+    );
   }, [members]);
 
   if (!list.length) {
-    return <div className="gm-empty">Aucun membre pour l’instant.</div>;
+    return <div className="gm-empty">{t("group_members.empty")}</div>;
   }
 
   return (
-    <ul className="gm-list" aria-label={`Membres (${list.length})`}>
+    <ul className="gm-list" aria-label={t("group_members.list_aria", { count: list.length })}>
       {list.map((m, idx) => {
         const label = labelOf(m);
-        const sub = subOf(m);
         const key = m?.id ?? `${label}-${idx}`;
         const seed = m?.username || m?.email || m?.id;
 
@@ -59,10 +61,10 @@ export default function GroupMembers({
               <button
                 className="gm-remove"
                 onClick={() => onRemove?.(m)}
-                title={`Retirer ${label} du groupe`}
-                aria-label={`Retirer ${label} du groupe`}
+                title={t("group_members.remove_title", { name: label })}
+                aria-label={t("group_members.remove_aria", { name: label })}
               >
-                Retirer
+                {t("group_members.remove_btn")}
               </button>
             )}
           </li>

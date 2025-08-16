@@ -1,25 +1,35 @@
 // src/components/GroupSessionsTab.jsx
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   listGroupTrainings,
   deleteGroupTraining,
   isTrainingSession,
-   extractSessionId,
+  extractSessionId,
 } from "../api/sessionService";
 import TrainingForm from "./TrainingForm";
 import TrainingAttendanceModal from "./TrainingAttendanceModal";
 
 function fmt(date, time) {
   try {
-    const iso = date ? `${date}${time ? "T"+time : ""}` : null;
+    const iso = date ? `${date}${time ? "T" + time : ""}` : null;
     const d = iso ? new Date(iso) : (date ? new Date(date) : null);
-    return d ? d.toLocaleString(undefined, {
-      weekday:"short", day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit"
-    }) : "—";
-  } catch { return "—"; }
+    return d
+      ? d.toLocaleString(undefined, {
+          weekday: "short",
+          day: "2-digit",
+          month: "short",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "—";
+  } catch {
+    return "—";
+  }
 }
 
 export default function GroupSessionsTab({ groupId, canCreateTraining }) {
+  const { t } = useTranslation();
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
@@ -29,42 +39,47 @@ export default function GroupSessionsTab({ groupId, canCreateTraining }) {
   const [attSession, setAttSession] = useState(null);
 
   const load = async () => {
-    setLoading(true); setErr("");
+    setLoading(true);
+    setErr("");
     try {
-      const data = await listGroupTrainings(groupId, { ordering: "-date,-start_time" })
+      const data = await listGroupTrainings(groupId, { ordering: "-date,-start_time" });
       setList(Array.isArray(data) ? data : []);
     } catch {
-      setErr("Impossible de charger les entraînements.");
+      setErr(t("group_sessions_tab.load_error"));
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { load(); }, [groupId]);
+  useEffect(() => {
+    load();
+  }, [groupId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onDelete = async (s) => {
-    if (!window.confirm("Supprimer cet entraînement ?")) return;
+    if (!window.confirm(t("group_sessions_tab.delete_confirm"))) return;
     try {
       await deleteGroupTraining(groupId, s.id);
       await load();
     } catch {
-      alert("Suppression impossible.");
+      alert(t("group_sessions_tab.delete_error"));
     }
   };
 
   return (
     <div>
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
-        <h3 style={{ margin:0 }}>Entraînements du groupe</h3>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <h3 style={{ margin: 0 }}>{t("group_sessions_tab.title")}</h3>
         {canCreateTraining && (
-          <button className="btn primary" onClick={() => setCreating(true)}>+ Créer</button>
+          <button className="btn primary" onClick={() => setCreating(true)}>
+            {t("group_sessions_tab.create_btn")}
+          </button>
         )}
       </div>
 
-      {err && <div className="toast error" style={{ marginBottom:8 }}>{err}</div>}
+      {err && <div className="toast error" style={{ marginBottom: 8 }}>{err}</div>}
 
       {loading ? (
-        <div>Chargement…</div>
+        <div>{t("group_sessions_tab.loading")}</div>
       ) : list.length ? (
         <div className="gt-list">
           {list.map((s) => (
@@ -81,15 +96,32 @@ export default function GroupSessionsTab({ groupId, canCreateTraining }) {
               </div>
 
               <div className="gt-actions">
-                {/* Bouton "Détails" (remplace "Rejoindre") */}
-                <a className="btn" href={`/sessions/${s.id}`} title="Voir le détail">Détails</a>
+                {/* Détails */}
+                <a
+                  className="btn"
+                  href={`/sessions/${s.id}`}
+                  title={t("group_sessions_tab.details_title")}
+                  aria-label={t("group_sessions_tab.details_aria", { title: s.title })}
+                >
+                  {t("group_sessions_tab.details_btn")}
+                </a>
 
                 {/* Coach: présence + suppression */}
                 {canCreateTraining && isTrainingSession(s) && (
                   <>
-                    <button className="btn" onClick={() => { setAttSession(s); setAttOpen(true); }}>                      Feuille de présence
+                    <button
+                      className="btn"
+                      onClick={() => {
+                        setAttSession(s);
+                        setAttOpen(true);
+                      }}
+                      title={t("group_sessions_tab.attendance_title")}
+                    >
+                      {t("group_sessions_tab.attendance_btn")}
                     </button>
-                    <button className="btn danger" onClick={() => onDelete(s)}>Supprimer</button>
+                    <button className="btn danger" onClick={() => onDelete(s)}>
+                      {t("group_sessions_tab.delete_btn")}
+                    </button>
                   </>
                 )}
               </div>
@@ -97,7 +129,7 @@ export default function GroupSessionsTab({ groupId, canCreateTraining }) {
           ))}
         </div>
       ) : (
-        <div>Aucun entraînement pour le moment.</div>
+        <div>{t("group_sessions_tab.empty")}</div>
       )}
 
       {creating && (
@@ -105,20 +137,29 @@ export default function GroupSessionsTab({ groupId, canCreateTraining }) {
           <div className="modal-card" style={{ maxWidth: 720 }}>
             <TrainingForm
               groupId={groupId}
-              onCreated={() => { setCreating(false); load(); }}
+              onCreated={() => {
+                setCreating(false);
+                load();
+              }}
               onClose={() => setCreating(false)}
             />
           </div>
         </div>
       )}
 
-       {attOpen && attSession && Number.isFinite(Number(extractSessionId(attSession))) && Number(extractSessionId(attSession)) > 0 && (
-        <TrainingAttendanceModal
-          groupId={groupId}
-          sessionId={Number(extractSessionId(attSession))}
-          onClose={() => { setAttOpen(false); setAttSession(null); }}
-        />
-      )}
+      {attOpen &&
+        attSession &&
+        Number.isFinite(Number(extractSessionId(attSession))) &&
+        Number(extractSessionId(attSession)) > 0 && (
+          <TrainingAttendanceModal
+            groupId={groupId}
+            sessionId={Number(extractSessionId(attSession))}
+            onClose={() => {
+              setAttOpen(false);
+              setAttSession(null);
+            }}
+          />
+        )}
 
       <style>{`
         .gt-list{display:grid;gap:10px}

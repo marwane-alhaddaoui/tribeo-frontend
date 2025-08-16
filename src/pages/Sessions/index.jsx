@@ -1,5 +1,6 @@
 // src/pages/Sessions/SessionsPage.jsx
 import { useEffect, useState, useContext, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { getSessions, joinSession, leaveSession } from "../../api/sessionService";
 import SportFilter from "./SportFilter";
 import SessionCard from "./SessionCard";
@@ -22,7 +23,6 @@ function isFull(session) {
   return capacity > 0 && count >= capacity;
 }
 
-/** Supporte nouveau back (start/end) + legacy (date + start_time/end_time) */
 function getStartEndMs(s = {}) {
   const startIso = s.start || (s.date ? `${s.date}${s.start_time ? "T" + s.start_time : ""}` : null);
   const endIso = s.end || (s.date && s.end_time ? `${s.date}T${s.end_time}` : null) || null;
@@ -75,19 +75,16 @@ function extractCountryCity(s = {}) {
 export default function SessionsPage() {
   const { user } = useContext(AuthContext);
   const isVisitor = !user;
+  const { t } = useTranslation();
 
   const [sessions, setSessions] = useState([]);
   const [selectedSport, setSelectedSport] = useState("");
   const [search, setSearch] = useState("");
   const [focused, setFocused] = useState(null);
 
-  // Onglet: "UPCOMING" | "ARCHIVE"
   const [tab, setTab] = useState("UPCOMING");
-
-  // Filtres d’état (utiles uniquement en UPCOMING)
   const [stateFilter, setStateFilter] = useState(SESSION_FILTERS.ALL);
 
-  // Filtres lieu
   const [country, setCountry] = useState("");
   const [city, setCity] = useState("");
 
@@ -96,8 +93,8 @@ export default function SessionsPage() {
     if (!isVisitor) {
       if (selectedSport) filters.sport_id = selectedSport;
       if (search.trim()) filters.search = search.trim();
-      if (country) filters.country = country; // alias backend → location
-      if (city) filters.city = city;         // alias backend → location
+      if (country) filters.country = country;
+      if (city) filters.city = city;
     }
     getSessions(filters).then(setSessions).catch(console.error);
   };
@@ -107,7 +104,6 @@ export default function SessionsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSport, search, country, city]);
 
-  // Pays depuis sessions
   const countries = useMemo(() => {
     const set = new Map();
     (sessions || []).forEach((s) => {
@@ -117,7 +113,6 @@ export default function SessionsPage() {
     return Array.from(set.values()).sort((a, b) => a.localeCompare(b, "fr"));
   }, [sessions]);
 
-  // Villes dépendantes
   const cities = useMemo(() => {
     const set = new Map();
     (sessions || []).forEach((s) => {
@@ -128,7 +123,6 @@ export default function SessionsPage() {
     return Array.from(set.values()).sort((a, b) => a.localeCompare(b, "fr"));
   }, [sessions, country]);
 
-  // Focus map
   const handleFocus = (s) => {
     if (isVisitor) return;
     if (!s?.latitude || !s?.longitude) return;
@@ -141,10 +135,10 @@ export default function SessionsPage() {
     if (isVisitor) return;
     try {
       await joinSession(id);
-      alert("✅ Vous avez rejoint la session !");
+      alert(t("sessions_index_join_success"));
       fetchSessions();
     } catch (err) {
-      alert(`❌ ${err?.response?.data?.detail || "Erreur lors de la participation"}`);
+      alert(`❌ ${err?.response?.data?.detail || t("sessions_index_join_error")}`);
     }
   };
 
@@ -152,17 +146,16 @@ export default function SessionsPage() {
     if (isVisitor) return;
     try {
       await leaveSession(id);
-      alert("✅ Vous avez quitté la session !");
+      alert(t("sessions_index_leave_success"));
       fetchSessions();
     } catch (err) {
-      alert(`❌ ${err?.response?.data?.detail || "Erreur lors de la sortie"}`);
+      alert(`❌ ${err?.response?.data?.detail || t("sessions_index_leave_error")}`);
     }
   };
 
   const onChangeSearch = (e) => { if (!isVisitor) setSearch(e.target.value); };
   const onSelectSport = (sId) => { if (!isVisitor) setSelectedSport(sId); };
 
-  /* ---------- Filtrage local par lieu (fallback si API ignore) ---------- */
   const sessionsByLocation = useMemo(() => {
     if (!country && !city) return sessions || [];
     return (sessions || []).filter((s) => {
@@ -173,7 +166,6 @@ export default function SessionsPage() {
     });
   }, [sessions, country, city]);
 
-  /* ---------- Data views selon onglet ---------- */
   const upcoming = useMemo(
     () => (Array.isArray(sessionsByLocation) ? sessionsByLocation.filter((s) => !isArchived(s)) : []),
     [sessionsByLocation]
@@ -205,13 +197,11 @@ export default function SessionsPage() {
     return arr;
   }, [sessionsByLocation]);
 
-  // Nettoyage focus
   useEffect(() => {
     const list = tab === "UPCOMING" ? upcomingOrdered : archivesOrdered;
     if (focused && !list.some((s) => s.id === focused.id)) setFocused(null);
   }, [tab, upcomingOrdered, archivesOrdered, focused]);
 
-  // Pays/Ville handlers
   const onChangeCountry = (e) => {
     const next = e.target.value || "";
     setCountry(next);
@@ -222,13 +212,12 @@ export default function SessionsPage() {
   return (
     <div className="sessions-wrapper">
       <div className="sessions-toolbar">
-        <h1 className="sessions-title">Trouve ta prochaine session sportive</h1>
+        <h1 className="sessions-title">{t("sessions_index_title")}</h1>
         <CreateSessionCTA variant="button" />
       </div>
 
-      {/* 🔥 Barre FUSION: Onglets + (états quand UPCOMING) */}
       <div className={`sessions-controls ${isVisitor ? "is-disabled" : ""}`}>
-        <div className="seg" role="tablist" aria-label="Onglets">
+        <div className="seg" role="tablist" aria-label={t("sessions_index_tabs_aria")}>
           <button
             type="button"
             className={`seg-btn ${tab === "UPCOMING" ? "active" : ""}`}
@@ -236,7 +225,7 @@ export default function SessionsPage() {
             role="tab"
             aria-selected={tab === "UPCOMING"}
           >
-            À venir
+            {t("sessions_index_tab_upcoming")}
           </button>
           <button
             type="button"
@@ -245,18 +234,18 @@ export default function SessionsPage() {
             role="tab"
             aria-selected={tab === "ARCHIVE"}
           >
-            Archives
+            {t("sessions_index_tab_archive")}
           </button>
         </div>
 
         <span className="seg-sep" aria-hidden="true"></span>
 
         {tab === "UPCOMING" && (
-          <div className="seg" aria-label="État des sessions">
+          <div className="seg" aria-label={t("sessions_index_filters_state_aria")}>
             {[
-              { key: SESSION_FILTERS.ALL, label: "Tout" },
-              { key: SESSION_FILTERS.OPEN, label: "Ouvertes" },
-              { key: SESSION_FILTERS.FULL, label: "Complètes" },
+              { key: SESSION_FILTERS.ALL, label: t("sessions_index_filter_all") },
+              { key: SESSION_FILTERS.OPEN, label: t("sessions_index_filter_open") },
+              { key: SESSION_FILTERS.FULL, label: t("sessions_index_filter_full") },
             ].map((it) => (
               <button
                 key={it.key}
@@ -272,11 +261,10 @@ export default function SessionsPage() {
         )}
       </div>
 
-      {/* Barre de recherche + sports + filtres lieu */}
       <div className={`sessions-filters ${isVisitor ? "is-disabled" : ""}`}>
         <input
           type="text"
-          placeholder="Rechercher une session…"
+          placeholder={t("sessions_index_search_placeholder")}
           value={search}
           onChange={onChangeSearch}
           className="search-input"
@@ -291,9 +279,9 @@ export default function SessionsPage() {
             value={country}
             onChange={onChangeCountry}
             disabled={isVisitor || countries.length === 0}
-            aria-label="Filtrer par pays"
+            aria-label={t("sessions_index_filter_country")}
           >
-            <option value="">Tous pays</option>
+            <option value="">{t("sessions_index_countries_all")}</option>
             {countries.map((c) => (
               <option key={c} value={c}>{c}</option>
             ))}
@@ -304,9 +292,9 @@ export default function SessionsPage() {
             value={city}
             onChange={onChangeCity}
             disabled={isVisitor || (country ? cities.length === 0 : countries.length === 0 && cities.length === 0)}
-            aria-label="Filtrer par ville"
+            aria-label={t("sessions_index_filter_city")}
           >
-            <option value="">{country ? "Toutes villes" : "Toutes villes"}</option>
+            <option value="">{t("sessions_index_cities_all")}</option>
             {cities.map((v) => (
               <option key={v} value={v}>{v}</option>
             ))}
@@ -331,7 +319,7 @@ export default function SessionsPage() {
               />
             ))
           ) : (
-            <p className="sessions-empty">Aucune session à venir.</p>
+            <p className="sessions-empty">{t("sessions_index_empty_upcoming")}</p>
           )
         ) : archivesOrdered.length ? (
           archivesOrdered.map((s) => (
@@ -344,7 +332,7 @@ export default function SessionsPage() {
             />
           ))
         ) : (
-          <p className="sessions-empty">Aucune session archivée.</p>
+          <p className="sessions-empty">{t("sessions_index_empty_archive")}</p>
         )}
       </div>
     </div>

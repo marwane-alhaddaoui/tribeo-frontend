@@ -68,7 +68,7 @@ export default function Header() {
               {user.role === 'admin'
                 ? <Link to="/admin/dashboard" onClick={closeMenu}>{t('dashboard')}</Link>
                 : <Link to="/dashboard" onClick={closeMenu}>{t('dashboard')}</Link>}
-              <Link to="/billing" onClick={closeMenu}>{t('billing.title')}</Link>
+              <Link to="/billing" onClick={closeMenu}>{t('billing_label')}</Link>
 
               <span className="header-profile-with-badge">
                 <Link
@@ -148,7 +148,7 @@ export default function Header() {
             {!isAuthed && <Link to="/" onClick={closeMenu}>{t('home')}</Link>}
             <Link to="/sessions" onClick={closeMenu}>{t('sessions')}</Link>
             <Link to="/groups" onClick={closeMenu}>{t('groups')}</Link>
-            {isAuthed && <Link to="/billing" onClick={closeMenu}>{t('billing')}</Link>}
+            {isAuthed && <Link to="/billing" onClick={closeMenu}>{t('billing_label')}</Link>}
 
             {isAuthed ? (
               <>

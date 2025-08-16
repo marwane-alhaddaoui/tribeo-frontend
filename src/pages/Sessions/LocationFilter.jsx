@@ -1,4 +1,6 @@
+// src/components/LocationFilter.jsx
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import "../../styles/SessionPage.css";
 
 /* Helpers de normalisation */
@@ -32,6 +34,9 @@ function extractCountryCity(s = {}) {
 }
 
 export default function LocationFilter({ sessions = [], country, city, onChange, disabled }) {
+  const { t, i18n } = useTranslation();
+  const collator = new Intl.Collator(i18n.language || "en", { sensitivity: "base" });
+
   // Liste des pays possibles à partir des sessions déjà fetchées
   const countries = useMemo(() => {
     const set = new Map();
@@ -39,8 +44,8 @@ export default function LocationFilter({ sessions = [], country, city, onChange,
       const { country } = extractCountryCity(s);
       if (country) set.set(key(country), country);
     });
-    return Array.from(set.values()).sort((a, b) => a.localeCompare(b, "fr"));
-  }, [sessions]);
+    return Array.from(set.values()).sort(collator.compare);
+  }, [sessions, collator]);
 
   // Liste des villes dépendante du pays choisi (ou toutes si aucun pays)
   const cities = useMemo(() => {
@@ -50,8 +55,8 @@ export default function LocationFilter({ sessions = [], country, city, onChange,
       if (country && key(loc.country) !== key(country)) return;
       if (loc.city) set.set(key(loc.city), loc.city);
     });
-    return Array.from(set.values()).sort((a, b) => a.localeCompare(b, "fr"));
-  }, [sessions, country]);
+    return Array.from(set.values()).sort(collator.compare);
+  }, [sessions, country, collator]);
 
   const handleCountry = (e) => {
     const nextCountry = e.target.value || "";
@@ -71,9 +76,9 @@ export default function LocationFilter({ sessions = [], country, city, onChange,
         value={country}
         onChange={handleCountry}
         disabled={disabled}
-        aria-label="Filtrer par pays"
+        aria-label={t("location_filter.aria_country")}
       >
-        <option value="">Tous pays</option>
+        <option value="">{t("location_filter.country_all")}</option>
         {countries.map((c) => (
           <option key={c} value={c}>{c}</option>
         ))}
@@ -84,9 +89,11 @@ export default function LocationFilter({ sessions = [], country, city, onChange,
         value={city}
         onChange={handleCity}
         disabled={disabled || (!country && cities.length === 0)}
-        aria-label="Filtrer par ville"
+        aria-label={t("location_filter.aria_city")}
       >
-        <option value="">{country ? "Toutes villes" : "Toutes villes"}</option>
+        <option value="">
+          {country ? t("location_filter.city_all_in_country") : t("location_filter.city_all")}
+        </option>
         {cities.map((v) => (
           <option key={v} value={v}>{v}</option>
         ))}

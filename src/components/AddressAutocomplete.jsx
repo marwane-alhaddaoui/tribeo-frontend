@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+// src/components/AddressAutocomplete.jsx
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function AddressAutocomplete({
   value = "",
@@ -7,6 +9,7 @@ export default function AddressAutocomplete({
   debounceMs = 500,
   countryCodes = "",   // ex: "fr,be"
 }) {
+  const { t, i18n } = useTranslation();
   const [inputValue, setInputValue] = useState(value || "");
   const [suggestions, setSuggestions] = useState([]);
   const [open, setOpen] = useState(false);
@@ -27,11 +30,12 @@ export default function AddressAutocomplete({
 
   const buildUrl = (q) => {
     const base = "https://nominatim.openstreetmap.org/search";
+    const lang = (i18n?.language || navigator?.language || "fr").split("-")[0];
     const p = new URLSearchParams({
       format: "json",
       limit: "8",
       addressdetails: "0",
-      "accept-language": "fr",
+      "accept-language": lang,
       q,
     });
     if (countryCodes) p.set("countrycodes", countryCodes);
@@ -130,23 +134,23 @@ export default function AddressAutocomplete({
   const handleChange = (e) => setInputValue(e.target.value);
 
   const handleSelect = (place) => {
-  // stoppe tout timer/requête en cours
-  if (fetchTimerRef.current) clearTimeout(fetchTimerRef.current);
-  if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
-  if (abortRef.current) abortRef.current.abort();
+    // stoppe tout timer/requête en cours
+    if (fetchTimerRef.current) clearTimeout(fetchTimerRef.current);
+    if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
+    if (abortRef.current) abortRef.current.abort();
 
-  const location  = (place?.label ?? place?.display_name ?? "").toString();
-  const latitude  = Number(place?.lat);
-  const longitude = Number(place?.lon);
+    const location  = (place?.label ?? place?.display_name ?? "").toString();
+    const latitude  = Number(place?.lat);
+    const longitude = Number(place?.lon);
 
-  lastChosenRef.current   = location;
-  lastFetchedRef.current  = location.trim(); // évite refetch immédiat
-  setInputValue(location);
-  setSuggestions([]);
-  setOpen(false);
+    lastChosenRef.current   = location;
+    lastFetchedRef.current  = location.trim(); // évite refetch immédiat
+    setInputValue(location);
+    setSuggestions([]);
+    setOpen(false);
 
-  onSelect?.(location, latitude, longitude);
-};
+    onSelect?.(location, latitude, longitude);
+  };
 
   const qLen = trimStr(inputValue).length;
   const canOpen = qLen >= minChars && suggestions.length > 0;
@@ -155,7 +159,7 @@ export default function AddressAutocomplete({
     <div ref={boxRef} style={{ position: "relative" }}>
       <input
         type="text"
-        placeholder="Tapez une adresse…"
+        placeholder={t("aa_placeholder")}
         value={toStr(inputValue)}
         onChange={handleChange}
         onFocus={() => canOpen && setOpen(true)}
@@ -187,7 +191,7 @@ export default function AddressAutocomplete({
             boxShadow: "0 10px 24px rgba(0,0,0,.35)",
           }}
         >
-          {loading && <li style={{ padding: 10, color: "#bbb" }}>Recherche…</li>}
+          {loading && <li style={{ padding: 10, color: "#bbb" }}>{t("aa_loading")}</li>}
           {!loading &&
             suggestions.map((s) => (
               <li
@@ -198,27 +202,23 @@ export default function AddressAutocomplete({
                   padding: "10px",
                   cursor: "pointer",
                   color: "#fff",
-                  borderBottom: "1px solid #3a3a3a",
+                  borderBottom: "1px solid #3a3a3a", // ✅ corrigé
                 }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#3a3a3a")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = "transparent")
-                }
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a3a3a")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
               >
                 {toStr(s.label)}
               </li>
             ))}
           {!loading && !suggestions.length && open && (
-            <li style={{ padding: 10, color: "#bbb" }}>Aucun résultat</li>
+            <li style={{ padding: 10, color: "#bbb" }}>{t("aa_no_results")}</li>
           )}
         </ul>
       )}
 
       {qLen > 0 && qLen < minChars && (
         <div style={{ marginTop: 6, fontSize: 12, color: "#ffd27d" }}>
-          Tape au moins {minChars} caractères…
+          {t("aa_min_chars", { count: minChars })}
         </div>
       )}
     </div>

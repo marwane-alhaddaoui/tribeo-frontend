@@ -1,5 +1,7 @@
+// src/components/TrainingAttendanceModal.jsx
 import { useEffect, useMemo, useState } from "react";
-import { getGroup } from "../api/groupService"; // utile pour avoir les noms des membres internes
+import { useTranslation } from "react-i18next";
+import { getGroup } from "../api/groupService";
 import { getTrainingAttendance, saveTrainingAttendance } from "../api/sessionService";
 
 /* ---------------------------
@@ -14,8 +16,8 @@ function normArray(x) {
 }
 
 /**
- * Construit un "id synthétique" pour piloter le Set de présents :
- * - membres internes : id positif = user_id
+ * Id synthétique pour piloter le Set de présents :
+ * - internes : id positif = user_id
  * - externes : id négatif = -external_attendee_id
  */
 function makeSyntheticId(userId, externalAttendeeId) {
@@ -27,6 +29,7 @@ function makeSyntheticId(userId, externalAttendeeId) {
    Composant
 ============================ */
 export default function TrainingAttendanceModal({ groupId, sessionId, onClose }) {
+  const { t } = useTranslation();
   const gid = asInt(groupId);
   const sid = asInt(sessionId);
   const sidValid = sid != null && sid > 0;
@@ -96,7 +99,7 @@ export default function TrainingAttendanceModal({ groupId, sessionId, onClose })
       setErr(null);
       if (!sidValid) {
         setLoading(false);
-        setErr("ID de session invalide.");
+        setErr(t("training_attendance.invalid_session_id"));
         return;
       }
       setLoading(true);
@@ -119,7 +122,6 @@ export default function TrainingAttendanceModal({ groupId, sessionId, onClose })
               .map((m) => [m.id, { username: m.username, email: m.email }])
           );
         } catch {
-          // si le GET groupe échoue, on continue sans enrichissement
           groupLookup = new Map();
         }
 
@@ -133,7 +135,7 @@ export default function TrainingAttendanceModal({ groupId, sessionId, onClose })
         }
       } catch {
         if (alive) {
-          setErr("Chargement impossible.");
+          setErr(t("training_attendance.load_error"));
           setMembers([]);
           setPresent(new Set());
         }
@@ -142,10 +144,8 @@ export default function TrainingAttendanceModal({ groupId, sessionId, onClose })
       }
     })();
 
-    return () => {
-      alive = false;
-    };
-  }, [gid, sid, sidValid]);
+    return () => { alive = false; };
+  }, [gid, sid, sidValid, t]);
 
   const toggle = (syntheticId) => {
     setPresent((prev) => {
@@ -166,9 +166,7 @@ export default function TrainingAttendanceModal({ groupId, sessionId, onClose })
   const invertAll = () => {
     setPresent((prev) => {
       const n = new Set();
-      for (const m of members) {
-        if (!prev.has(m.id)) n.add(m.id);
-      }
+      for (const m of members) if (!prev.has(m.id)) n.add(m.id);
       return n;
     });
   };
@@ -181,7 +179,6 @@ export default function TrainingAttendanceModal({ groupId, sessionId, onClose })
         if (m.external_attendee_id != null) {
           return { ...base, external_attendee_id: m.external_attendee_id };
         }
-        // interne
         return { ...base, user_id: m.user_id ?? m.id };
       }),
     [members, present]
@@ -204,7 +201,7 @@ export default function TrainingAttendanceModal({ groupId, sessionId, onClose })
       // 1) save
       await saveTrainingAttendance(gid, sid, rowsToSave);
 
-      // 2) refetch état réellement persisté
+      // 2) refetch
       try {
         const fresh = await getTrainingAttendance(gid, sid);
         const { merged, presentIds } = (function () {
@@ -215,7 +212,6 @@ export default function TrainingAttendanceModal({ groupId, sessionId, onClose })
               : Array.isArray(fresh?.attendees)
                 ? fresh.attendees
                 : [];
-          // pas d’enrichissement groupe sur le refetch (inutile)
           const map = new Map();
           const pset = new Set();
           for (const r of items) {
@@ -245,12 +241,12 @@ export default function TrainingAttendanceModal({ groupId, sessionId, onClose })
         console.warn("attendance.refresh après save a échoué", refreshErr);
       }
 
-      setLastSavedAt(new Date()); // recap
+      setLastSavedAt(new Date());
     } catch (e) {
       if (e?.response?.status === 404) {
-        setErr("API de présence non disponible côté serveur.");
+        setErr(t("training_attendance.api_unavailable"));
       } else {
-        setErr("Sauvegarde impossible.");
+        setErr(t("training_attendance.save_error"));
       }
     } finally {
       setSaving(false);
@@ -258,7 +254,7 @@ export default function TrainingAttendanceModal({ groupId, sessionId, onClose })
   };
 
   const savedMsg = lastSavedAt
-    ? `Dernier enregistrement : ${lastSavedAt.toLocaleTimeString()}`
+    ? t("training_attendance.last_saved_at", { time: lastSavedAt.toLocaleTimeString() })
     : null;
 
   return (
@@ -268,31 +264,35 @@ export default function TrainingAttendanceModal({ groupId, sessionId, onClose })
     >
       <div className="modal-card">
         <div className="modal-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h3>Feuille de présence</h3>
-          <button className="gd-btn" onClick={onClose}>Fermer</button>
+          <h3>{t("training_attendance.title")}</h3>
+          <button className="gd-btn" onClick={onClose}>{t("training_attendance.close_btn")}</button>
         </div>
 
         {loading ? (
-          <div>Chargement…</div>
+          <div>{t("training_attendance.loading")}</div>
         ) : err ? (
           <div style={{ color: "tomato", marginBottom: 8 }}>{err}</div>
         ) : (
           <>
             {/* RÉCAP */}
             <div className="att-recap" style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 10 }}>
-              <span><strong>{stats.nbPresent}</strong> / {stats.total} présents</span>
+              <span>
+                <strong>{stats.nbPresent}</strong> / {stats.total} {t("training_attendance.present_word")}
+              </span>
               <span>({stats.pct}%)</span>
               {stats.externals > 0 && (
-                <span style={{ opacity: 0.8 }}>• {stats.externals} externes</span>
+                <span style={{ opacity: 0.8 }}>
+                  • {stats.externals} {t("training_attendance.external_word")}
+                </span>
               )}
               {savedMsg && <span style={{ marginLeft: "auto", opacity: 0.7 }}>{savedMsg}</span>}
             </div>
 
             {/* ACTIONS RAPIDES */}
             <div className="att-bulk" style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-              <button className="gd-btn" onClick={() => setAll(true)}>Tout présent</button>
-              <button className="gd-btn" onClick={() => setAll(false)}>Tout absent</button>
-              <button className="gd-btn" onClick={invertAll}>Inverser</button>
+              <button className="gd-btn" onClick={() => setAll(true)}>{t("training_attendance.all_present_btn")}</button>
+              <button className="gd-btn" onClick={() => setAll(false)}>{t("training_attendance.all_absent_btn")}</button>
+              <button className="gd-btn" onClick={invertAll}>{t("training_attendance.invert_btn")}</button>
             </div>
 
             {/* LISTE */}
@@ -303,7 +303,7 @@ export default function TrainingAttendanceModal({ groupId, sessionId, onClose })
                     m.username ||
                     m.email ||
                     [m.first_name, m.last_name].filter(Boolean).join(" ") ||
-                    (m.user_id != null ? m.user_id : `Ext #${Math.abs(m.id)}`);
+                    (m.user_id != null ? m.user_id : t("training_attendance.external_short", { id: Math.abs(m.id) }));
 
                   return (
                     <li key={m.id} className="att-row" style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -312,34 +312,40 @@ export default function TrainingAttendanceModal({ groupId, sessionId, onClose })
                           type="checkbox"
                           checked={present.has(m.id)}
                           onChange={() => toggle(m.id)}
+                          aria-label={t("training_attendance.toggle_presence_aria", { name: label })}
                         />
                         <span>{label}</span>
                       </label>
                       {m.external && (
-                        <span style={{
-                          marginLeft: "auto",
-                          fontSize: 12,
-                          padding: "2px 8px",
-                          border: "1px solid #999",
-                          borderRadius: 999,
-                          opacity: 0.8,
-                        }}>
-                          externe
+                        <span
+                          style={{
+                            marginLeft: "auto",
+                            fontSize: 12,
+                            padding: "2px 8px",
+                            border: "1px solid #999",
+                            borderRadius: 999,
+                            opacity: 0.8,
+                          }}
+                          title={t("training_attendance.external_title")}
+                        >
+                          {t("training_attendance.external_badge")}
                         </span>
                       )}
                     </li>
                   );
                 })
               ) : (
-                <li className="att-row">Aucun membre à afficher.</li>
+                <li className="att-row">{t("training_attendance.empty")}</li>
               )}
             </ul>
 
             <div className="modal-actions" style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
               <button className="gd-btn primary" onClick={submit} disabled={saving || !sidValid}>
-                {saving ? "Enregistrement…" : "Enregistrer"}
+                {saving ? t("training_attendance.saving") : t("training_attendance.save_btn")}
               </button>
-              <button className="gd-btn" onClick={onClose} disabled={saving}>Annuler</button>
+              <button className="gd-btn" onClick={onClose} disabled={saving}>
+                {t("training_attendance.cancel_btn")}
+              </button>
             </div>
           </>
         )}

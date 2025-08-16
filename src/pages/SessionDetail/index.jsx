@@ -1,5 +1,7 @@
+// src/pages/Sessions/SessionDetailPage.jsx
 import { useParams, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useMemo, useState, useContext } from "react";
+import { useTranslation } from "react-i18next";
 import {
   getSessionById,
   joinSession,
@@ -41,7 +43,6 @@ function getApiError(e, fallback = "Action impossible.") {
 
 /** Bridge pour supporter `start/end` (nouveau back) ET `date + start_time/end_time` (ancien) */
 function getStartEndISO(s = {}) {
-  // priorité au nouveau back
   const startIso = s.start || (s.date ? `${s.date}${s.start_time ? "T" + s.start_time : ""}` : null);
   const endIso =
     s.end ||
@@ -67,17 +68,17 @@ function fmtDate(date, time) {
     return null;
   }
 }
-function toCountdown(date, time) {
+function toCountdown(date, time, t) {
   try {
     const iso = date ? `${date}${time ? "T" + time : ""}` : null;
     if (!iso) return null;
     const target = new Date(iso).getTime();
     const now = Date.now();
     const diff = target - now;
-    if (diff <= 0) return "en cours / passé";
+    if (diff <= 0) return t("sd_countdown_ongoing_or_past");
     const h = Math.floor(diff / (1000 * 60 * 60));
     const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    return h ? `${h}h${m.toString().padStart(2, "0")}` : `${m} min`;
+    return h ? `${h}h${m.toString().padStart(2, "0")}` : `${m} ${t("sd_min")}`;
   } catch {
     return null;
   }
@@ -91,23 +92,23 @@ function prettyFormat(format) {
     return format;
   }
 }
-function copyInvite(id) {
+function copyInvite(id, t) {
   const url = `${window.location.origin}/sessions/${id}`;
   if (navigator.clipboard?.writeText) {
     navigator.clipboard
       .writeText(url)
-      .then(() => alert("Lien copié !"))
-      .catch(() => fallbackCopy(url));
-  } else fallbackCopy(url);
+      .then(() => alert(t("sd_link_copied")))
+      .catch(() => fallbackCopy(url, t));
+  } else fallbackCopy(url, t);
 }
-function fallbackCopy(text) {
+function fallbackCopy(text, t) {
   const ta = document.createElement("textarea");
   ta.value = text;
   document.body.appendChild(ta);
   ta.select();
   document.execCommand("copy");
   document.body.removeChild(ta);
-  alert("Lien copié !");
+  alert(t("sd_link_copied"));
 }
 
 /** Calcule les états temporels (passée/en cours/à venir) */
@@ -129,11 +130,10 @@ function normalizeSession(s) {
     participants: Array.isArray(s?.participants) ? s.participants : [],
     max_players: Number(s?.max_players ?? s?.capacity ?? s?.max_participants) || 0,
     team_count: Number(s?.team_count) || (s?.team_mode ? 2 : 1),
-    creator: s?.creator ?? null, // peut être un objet ou un id
+    creator: s?.creator ?? null,
     team_mode: !!s?.team_mode,
     _timing: timing,
   };
-  // Compléter les champs legacy si absents (pour l'affichage existant)
   if (!base.date && timing.startIso) base.date = timing.startIso.slice(0, 10);
   if (!base.start_time && timing.startIso) base.start_time = timing.startIso.slice(11, 16);
   if (!base.end_time && timing.endIso) base.end_time = timing.endIso.slice(11, 16);
@@ -145,11 +145,11 @@ const eq = (a, b) => String(a ?? "").trim().toLowerCase() === String(b ?? "").tr
 
 /* ====================== Page ====================== */
 export default function SessionDetailPage() {
+  const { t } = useTranslation();
   const { quotas } = useContext(QuotasContext);
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // on privilégie AuthContext si présent, sinon fallback localStorage (pour ne rien casser)
   const { user: ctxUser } = useContext(AuthContext) || {};
   const localUser = useMemo(() => {
     try {
@@ -184,31 +184,26 @@ export default function SessionDetailPage() {
       setSession(normalizeSession(data));
     } catch (e) {
       console.error(e);
-      setError("Impossible de charger la session.");
+      setError(t("sd_load_failed"));
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, t]);
 
   useEffect(() => {
     refetch();
   }, [refetch]);
 
-  // détecte si l'utilisateur courant EST le créateur (match id OU email OU username)
   const isCreator = useMemo(() => {
     if (!session || !currentUser) return false;
-
     const c = session.creator;
-    // cas 1: objet { id, email, username }
     if (c && typeof c === "object") {
       if (me.id != null && c.id != null && Number(me.id) === Number(c.id)) return true;
       if (me.email && c.email && eq(me.email, c.email)) return true;
       if (me.username && c.username && eq(me.username, c.username)) return true;
       return false;
     }
-    // cas 2: id numérique ou chaîne
     if (c != null && me.id != null && Number(c) === Number(me.id)) return true;
-    // (si l’API renvoyait un email/username “brut”, on tente quand même)
     if (typeof c === "string") {
       if (me.email && eq(me.email, c)) return true;
       if (me.username && eq(me.username, c)) return true;
@@ -216,24 +211,20 @@ export default function SessionDetailPage() {
     return false;
   }, [session, currentUser, me.id, me.email, me.username]);
 
-  // ✅ Backend autorise: créateur OU participant. On reflète ça côté UI :
   const isIn = useMemo(() => {
     if (!session || !me.email) return false;
     return (session.participants || []).some((p) => eq(p.email, me.email));
   }, [session, me.email]);
 
-  // ⛔️ tant que pendingJoin, on ne monte pas le chat
   const canReadChat = ((isIn && !pendingJoin) || isCreator);
   const canWriteChat = ((isIn && !pendingJoin) || isCreator);
 
-  // 👇 vue restreinte quand group/private & pas membre/creator
   const isRestrictedView = useMemo(() => {
     const vis = String(session?.visibility || "").toUpperCase();
     const isGroupOnly = vis === "GROUP" || vis === "PRIVATE" || vis === "RESTRICTED";
     return isGroupOnly && !(isIn || isCreator);
   }, [session?.visibility, isIn, isCreator]);
 
-  // Modération: créateur ou owner/manager du groupe parent (si fourni par l’API)
   const canModerateChat = !!(isCreator || (session?.group && session.group.is_owner_or_manager));
 
   const full = useMemo(() => {
@@ -258,16 +249,16 @@ export default function SessionDetailPage() {
   }, [timing.isPast, full, status]);
 
   const joinDisabledReason = useMemo(() => {
-    if (timing.isPast) return "Cette session est passée. Inscriptions fermées.";
-    if (status === "LOCKED") return "Cette session est verrouillée.";
-    if (status === "FINISHED") return "Session terminée.";
-    if (status === "CANCELED") return "Session annulée.";
-    if (full) return "La session est complète.";
-    return "Action impossible.";
-  }, [timing.isPast, status, full]);
+    if (timing.isPast) return t("sd_join_disabled_past");
+    if (status === "LOCKED") return t("sd_join_disabled_locked");
+    if (status === "FINISHED") return t("sd_join_disabled_finished");
+    if (status === "CANCELED") return t("sd_join_disabled_canceled");
+    if (full) return t("sd_join_disabled_full");
+    return t("sd_action_impossible");
+  }, [timing.isPast, status, full, t]);
 
   const handleJoin = async () => {
-    if (!me.email) return alert("Connecte-toi pour rejoindre.");
+    if (!me.email) return alert(t("sd_must_login"));
     if (busy || isIn) return;
     if (joinDisabled) {
       alert(joinDisabledReason);
@@ -295,20 +286,16 @@ export default function SessionDetailPage() {
       console.error(e);
       await refetch();
 
-      // 👇 on lit le message d'erreur renvoyé par le backend
       const msg =
         e?.response?.data?.detail || e?.response?.data?.error || String(e);
 
-      // Quota backend atteint -> proposer l'upgrade
       if (/Quota mensuel de participation/i.test(msg)) {
-        const go = confirm(
-          "Tu as atteint ton quota de participations ce mois-ci. Passer Premium ?"
-        );
-        if (go) navigate("/profile"); // UpgradeCard est sur le profil
+        const go = confirm(t("sd_quota_reached_prompt"));
+        if (go) navigate("/profile");
         return;
       }
 
-      alert(msg || "Impossible de rejoindre.");
+      alert(msg || t("sd_join_failed"));
     } finally {
       setPendingJoin(false);
       setBusy(false);
@@ -332,42 +319,41 @@ export default function SessionDetailPage() {
     } catch (e) {
       console.error(e);
       await refetch();
-      alert("Impossible de quitter.");
+      alert(t("sd_leave_failed"));
     } finally {
       setBusy(false);
     }
   };
 
-  // 🗑 Danger Zone — suppression (créateur uniquement)
   const handleDelete = async () => {
     if (!isCreator) return;
-    if (!window.confirm("Supprimer cette session ? Cette action est définitive.")) return;
+    if (!window.confirm(t("sd_delete_confirm"))) return;
     setBusy(true);
     try {
       await deleteSession(id);
       navigate("/sessions");
     } catch (e) {
       console.error(e);
-      alert(e?.response?.data?.detail || "Suppression impossible.");
+      alert(e?.response?.data?.detail || t("sd_delete_failed"));
     } finally {
       setBusy(false);
     }
   };
 
-  if (loading) return <p className="session-loading">Chargement…</p>;
+  if (loading) return <p className="session-loading">{t("sd_loading")}</p>;
   if (error)
     return (
       <div className="session-error">
         <p className="session-error-text">{error}</p>
         <button onClick={refetch} className="session-detail-button">
-          Réessayer
+          {t("sd_retry")}
         </button>
       </div>
     );
   if (!session) return null;
 
   const dateStr = fmtDate(session.date, session.start_time);
-  const countdown = toCountdown(session.date, session.start_time);
+  const countdown = toCountdown(session.date, session.start_time, t);
 
   const capacity = session.max_players || 0;
   const count = Array.isArray(session.participants) ? session.participants.length : 0;
@@ -396,17 +382,17 @@ export default function SessionDetailPage() {
           {/* Bannières état */}
           {timing.isPast && (
             <div className="session-banner danger">
-              Cette session est passée — inscriptions fermées.
+              {t("sd_banner_past")}
             </div>
           )}
           {timing.isOngoing && !timing.isPast && (
-            <div className="session-banner info">Session en cours.</div>
+            <div className="session-banner info">{t("sd_banner_ongoing")}</div>
           )}
           {["LOCKED", "FINISHED", "CANCELED"].includes(status) && !timing.isPast && (
             <div className="session-banner danger">
-              {status === "LOCKED" && "Cette session est verrouillée."}
-              {status === "FINISHED" && "Session terminée."}
-              {status === "CANCELED" && "Session annulée."}
+              {status === "LOCKED" && t("sd_banner_locked")}
+              {status === "FINISHED" && t("sd_banner_finished")}
+              {status === "CANCELED" && t("sd_banner_canceled")}
             </div>
           )}
 
@@ -415,11 +401,11 @@ export default function SessionDetailPage() {
               <h1 className="session-detail-title">{session.title}</h1>
               <div className="session-badges">
                 {isFull(count, capacity) && (
-                  <span className="session-badge session-badge-red">Complet</span>
+                  <span className="session-badge session-badge-red">{t("sd_badge_full")}</span>
                 )}
                 {session.visibility &&
                   String(session.visibility).toLowerCase() !== "public" && (
-                    <span className="session-badge">Privée</span>
+                    <span className="session-badge">{t("sd_badge_private")}</span>
                   )}
                 {session.format && (
                   <span className="session-badge session-badge-outline">
@@ -436,7 +422,7 @@ export default function SessionDetailPage() {
 
             <div className="meta-list">
               <Meta
-                label="Créateur"
+                label={t("sd_meta_creator")}
                 value={
                   <span className="meta-with-avatar">
                     <img
@@ -449,12 +435,12 @@ export default function SessionDetailPage() {
                   </span>
                 }
               />
-              <Meta label="Sport" value={session.sport?.name ?? "—"} />
-              <Meta label="Lieu" value={session.location ?? "—"} />
-              <Meta label="Date" value={dateStr ?? "—"} />
-              <Meta label="Capacité" value={`${capacity} places`} />
-              <Meta label="Restant" value={`${remaining}`} />
-              {countdown && <Meta label="Début dans" value={countdown} />}
+              <Meta label={t("sd_meta_sport")} value={session.sport?.name ?? "—"} />
+              <Meta label={t("sd_meta_location")} value={session.location ?? "—"} />
+              <Meta label={t("sd_meta_date")} value={dateStr ?? "—"} />
+              <Meta label={t("sd_meta_capacity")} value={`${capacity} ${t("sd_places")}`} />
+              <Meta label={t("sd_meta_remaining")} value={`${remaining}`} />
+              {countdown && <Meta label={t("sd_meta_starts_in")} value={countdown} />}
             </div>
 
             {/* Barre de capacité */}
@@ -471,57 +457,57 @@ export default function SessionDetailPage() {
 
             {/* Actions */}
             <div className="session-actions">
-            {!isIn ? (
-              <button
-                onClick={handleJoin}
-                className="session-detail-button"
-                disabled={busy || joinDisabled}
-                title={joinDisabled ? joinDisabledReason : "Rejoindre la session"}
-              >
-                Rejoindre
-              </button>
-            ) : !isCreator ? (
-              <button
-                onClick={handleLeave}
-                className="session-secondary-btn"
-                disabled={busy}
-                title="Quitter la session"
-              >
-                Quitter
-              </button>
-            ) : (
-              <button
-                className="session-secondary-btn"
-                disabled
-                title="Tu es l’organisateur, tu ne peux pas quitter cette session. Supprime-la si nécessaire."
-              >
-                Organisateur · non quittable
-              </button>
-            )}          
+              {!isIn ? (
+                <button
+                  onClick={handleJoin}
+                  className="session-detail-button"
+                  disabled={busy || joinDisabled}
+                  title={joinDisabled ? joinDisabledReason : t("sd_join_title")}
+                >
+                  {t("sd_join")}
+                </button>
+              ) : !isCreator ? (
+                <button
+                  onClick={handleLeave}
+                  className="session-secondary-btn"
+                  disabled={busy}
+                  title={t("sd_leave_title")}
+                >
+                  {t("sd_leave")}
+                </button>
+              ) : (
+                <button
+                  className="session-secondary-btn"
+                  disabled
+                  title={t("sd_creator_cant_leave_title")}
+                >
+                  {t("sd_creator_cant_leave")}
+                </button>
+              )}
 
-            <button onClick={() => copyInvite(id)} className="session-secondary-btn">
-              Copier lien
-            </button>         
+              <button onClick={() => copyInvite(id, t)} className="session-secondary-btn">
+                {t("sd_copy_link")}
+              </button>
 
-            {session.location && (
-              <a
-                className="session-secondary-btn"
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                  session.location
-                )}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Ouvrir dans Maps
-              </a>
-            )}
-          </div>
+              {session.location && (
+                <a
+                  className="session-secondary-btn"
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                    session.location
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {t("sd_open_in_maps")}
+                </a>
+              )}
+            </div>
           </header>
 
           {/* Description */}
           {session.description && (
             <div className="session-desc">
-              <h2 className="session-section-title">Description</h2>
+              <h2 className="session-section-title">{t("sd_description")}</h2>
               <p className="session-desc-text">{session.description}</p>
             </div>
           )}
@@ -529,13 +515,12 @@ export default function SessionDetailPage() {
           {/* 🛑 Danger Zone — CREATOR ONLY */}
           {isCreator && (
             <section className="danger-zone" style={{ marginTop: 24 }}>
-              <h2>Zone dangereuse</h2>
+              <h2>{t("sd_danger_zone_title")}</h2>
               <p>
-                La suppression est <strong>définitive</strong>. Vérifie bien
-                avant de continuer.
+                {t("sd_danger_zone_text_prefix")} <strong>{t("sd_definitive")}</strong>. {t("sd_danger_zone_text_suffix")}
               </p>
               <button className="gd-btn danger" onClick={handleDelete} disabled={busy}>
-                🗑 Supprimer la session
+                🗑 {t("sd_delete_session")}
               </button>
             </section>
           )}
@@ -543,22 +528,12 @@ export default function SessionDetailPage() {
 
         {/* Colonne droite — Équipes & Participants & Chat */}
         <section className="session-col-right">
-          
-
-          {/* Contenu flouté si accès restreint */}
           <div className={`session-obscured${isRestrictedView ? " is-restricted" : ""}`}>
             <div className="obscured-content">
-              <TeamBoard
-                teams={teams}
-                perTeam={perTeam}
-                onClickEmpty={() =>
-                  joinDisabled ? alert(joinDisabledReason) : handleJoin()
-                }
-                onClickMine={() => handleLeave()}
-              />
+              <TeamBoard teams={teams} perTeam={perTeam} />
 
               <div className="session-participants">
-                <h2 className="session-section-title">Participants</h2>
+                <h2 className="session-section-title">{t("sd_participants")}</h2>
                 {participantObjs.length ? (
                   <div className="participants-row">
                     {participantObjs.map((u) => (
@@ -574,44 +549,42 @@ export default function SessionDetailPage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="session-empty">Aucun participant pour le moment.</p>
+                  <p className="session-empty">{t("sd_no_participants")}</p>
                 )}
               </div>
 
-              {/* 👇 Chat de la session (privé créateur/participants) */}
+              {/* 👇 Chat de la session */}
               <div style={{ marginTop: 24 }}>
-                <h2 className="session-section-title">Chat de la session</h2>
+                <h2 className="session-section-title">{t("sd_session_chat")}</h2>
                 <ChatPanel
                   key={`${id}-${canReadChat ? 'r' : 'nr'}`}
                   api={chatService.session(id)}
                   canRead={canReadChat}
                   canWrite={canWriteChat}
                   canModerate={canModerateChat}
-                  // 🔥 blur si l'utilisateur n'a pas l'accès et que la session n'est pas publique
                   blurred={!canReadChat && String(session?.visibility || '').toUpperCase() !== 'PUBLIC'}
                 />
               </div>
             </div>
 
-            {/* Overlay seulement quand restreint */}
             {isRestrictedView && (
               <div className="obscured-overlay">
                 <div className="obscured-card">
-                  <div className="obscured-title">Accès réservé aux membres</div>
+                  <div className="obscured-title">{t("sd_restricted_title")}</div>
                   <div className="obscured-text">
-                    Rejoins la session pour afficher les équipes, participants et le chat.
+                    {t("sd_restricted_text")}
                   </div>
                   <div className="obscured-actions">
                     <button
                       className="session-detail-button"
                       onClick={handleJoin}
                       disabled={busy || joinDisabled}
-                      title={joinDisabled ? joinDisabledReason : "Rejoindre la session"}
+                      title={joinDisabled ? joinDisabledReason : t("sd_join_title")}
                     >
-                      Rejoindre
+                      {t("sd_join")}
                     </button>
                     <button className="session-secondary-btn" onClick={refetch}>
-                      Rafraîchir
+                      {t("sd_refresh")}
                     </button>
                   </div>
                 </div>
@@ -625,6 +598,7 @@ export default function SessionDetailPage() {
 }
 /* ====================== TEAM BOARD ====================== */
 function TeamBoard({ teams, perTeam }) {
+  const { t } = useTranslation();
   if (!Array.isArray(teams) || !teams.length) return null;
 
   const pairs = [];
@@ -640,12 +614,14 @@ function TeamBoard({ teams, perTeam }) {
             teamIndex={idx * 2}
             users={pair[0] || []}
             perTeam={perTeam}
+            t={t}
           />
-          <div className="team-vs">VS</div>
+          <div className="team-vs">{t("sd_vs")}</div>
           <TeamRow
             teamIndex={idx * 2 + 1}
             users={pair[1] || []}
             perTeam={perTeam}
+            t={t}
           />
         </div>
       ))}
@@ -653,11 +629,11 @@ function TeamBoard({ teams, perTeam }) {
   );
 }
 
-function TeamRow({ teamIndex, users, perTeam }) {
+function TeamRow({ teamIndex, users, perTeam, t }) {
   const slots = Array.from({ length: perTeam }, (_, i) => users[i] || null);
   return (
     <div className="team-row">
-      <span className="team-label">Équipe {teamIndex + 1}</span>
+      <span className="team-label">{t("sd_team_label", { n: teamIndex + 1 })}</span>
       <div className="team-slots">
         {slots.map((u, i) =>
           u ? (
@@ -677,7 +653,6 @@ function TeamRow({ teamIndex, users, perTeam }) {
 }
 
 function SlotBubble({ avatar, label, isMe }) {
-  // 👉 plus de clic pour changer/choisir quoi que ce soit
   return (
     <div
       className={`slot-bubble${isMe ? " slot-bubble-me" : ""}`}

@@ -1,12 +1,13 @@
 // src/components/SessionMap.jsx
 import { MapContainer, TileLayer, Popup, CircleMarker, useMap } from "react-leaflet";
 import { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import "leaflet/dist/leaflet.css";
 
 function FlyToControl({ focus, locked }) {
   const map = useMap();
   useEffect(() => {
-    if (locked) return; // 🔒 pas de flyTo pour les visiteurs
+    if (locked) return; // 🔒 no flyTo for visitors
     if (focus?.latitude != null && focus?.longitude != null) {
       map.flyTo([focus.latitude, focus.longitude], 13, { duration: 0.75 });
     }
@@ -14,7 +15,7 @@ function FlyToControl({ focus, locked }) {
   return null;
 }
 
-/** Ferme toute popup quand on passe en locked (sécurité absolue) */
+/** Close popups when switching to locked (safety) */
 function ClosePopupsOnLock({ locked }) {
   const map = useMap();
   useEffect(() => {
@@ -27,8 +28,10 @@ export default function SessionMap({
   sessions = [],
   focus = null,
   height = "30vh",
-  locked = false, // 👈 NEW: visiteur = true
+  locked = false, // 👈 visitor mode
 }) {
+  const { t } = useTranslation();
+
   const markers = useMemo(
     () =>
       Array.isArray(sessions)
@@ -39,13 +42,13 @@ export default function SessionMap({
 
   const isFocused = (s) => focus && s && s.id === focus.id;
 
-  // centre par défaut
+  // default center
   const center = useMemo(() => {
     if (!locked && focus?.latitude != null && focus?.longitude != null) {
       return [focus.latitude, focus.longitude];
     }
     if (markers.length) return [markers[0].latitude, markers[0].longitude];
-    // Paris par défaut
+    // Paris fallback
     return [48.8566, 2.3522];
   }, [focus, markers, locked]);
 
@@ -59,7 +62,7 @@ export default function SessionMap({
         zoom={6}
         style={{ height: "100%", width: "100%" }}
         attributionControl={false}
-        // 🔒 coupe TOUTES les interactions en visiteur
+        // 🔒 disable interactions for visitors
         scrollWheelZoom={!locked}
         dragging={!locked}
         doubleClickZoom={!locked}
@@ -75,7 +78,7 @@ export default function SessionMap({
         <FlyToControl focus={focus} locked={locked} />
         <ClosePopupsOnLock locked={locked} />
 
-        {/* Points */}
+        {/* Markers */}
         {markers.map((s) => {
           const focused = isFocused(s);
           return (
@@ -86,7 +89,7 @@ export default function SessionMap({
               color={focused ? "#ffcc00" : "red"}
               fillColor={focused ? "#ffcc00" : "red"}
               fillOpacity={1}
-              interactive={!locked}              // 🔒 pas d'interaction sur le marker
+              interactive={!locked}
               eventHandlers={
                 locked
                   ? {
@@ -97,22 +100,22 @@ export default function SessionMap({
                   : undefined
               }
             >
-              {/* ✅ popups seulement si connecté */}
+              {/* ✅ popups only when logged in */}
               {!locked && (
                 <Popup>
                   <h4 style={{ margin: 0 }}>{s.title}</h4>
                   {s.sport?.name && (
                     <p style={{ margin: "4px 0" }}>
-                      <strong>Sport:</strong> {s.sport.name}
+                      <strong>{t("session_map.sport_label")} </strong>{s.sport.name}
                     </p>
                   )}
                   <p style={{ margin: "4px 0" }}>
-                    <strong>Date:</strong> {s.date}
+                    <strong>{t("session_map.date_label")} </strong>{s.date}
                     {s.start_time ? ` • ${s.start_time}` : ""}
                   </p>
                   {s.location && (
                     <p style={{ margin: "4px 0" }}>
-                      <strong>Lieu:</strong> {s.location}
+                      <strong>{t("session_map.place_label")} </strong>{s.location}
                     </p>
                   )}
                 </Popup>
@@ -122,7 +125,7 @@ export default function SessionMap({
         })}
       </MapContainer>
 
-      {/* Overlay qui capte les clics pour empêcher toute popup en mode visiteur */}
+      {/* Overlay to block any interaction/popups in visitor mode */}
       {locked && (
         <div
           aria-hidden="true"
@@ -130,7 +133,7 @@ export default function SessionMap({
             position: "absolute",
             inset: 0,
             borderRadius: 16,
-            pointerEvents: "auto", // <- capture les clics
+            pointerEvents: "auto",
             background: "linear-gradient(180deg, rgba(18,18,18,0) 65%, rgba(18,18,18,.45))",
             display: "flex",
             alignItems: "flex-end",
@@ -152,7 +155,7 @@ export default function SessionMap({
               boxShadow: "0 6px 20px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,45,45,.03)",
             }}
           >
-            Prévisualisation — connecte‑toi pour voir les détails.
+            {t("session_map.preview_overlay")}
           </div>
         </div>
       )}

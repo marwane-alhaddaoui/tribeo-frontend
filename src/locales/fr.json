@@ -13,6 +13,7 @@
   "menu": "Menu",
   "close": "Fermer",
   "switch_language": "Changer de langue",
+  "billing_label": "Abonnement",
 
   "welcome": "Bienvenue sur Tribeo",
   "createSession": "Créer une session",
@@ -207,5 +208,663 @@
       "back_to_billing": "Retour à l’abonnement",
       "view_sessions": "Voir mes sessions"
     }
+  },
+  "sessions_index_title": "Trouve ta prochaine session sportive",
+  "sessions_index_tabs_aria": "Onglets",
+  "sessions_index_tab_upcoming": "À venir",
+  "sessions_index_tab_archive": "Archives",
+
+  "sessions_index_filters_state_aria": "Filtres d’état des sessions",
+  "sessions_index_filter_all": "Tout",
+  "sessions_index_filter_open": "Ouvertes",
+  "sessions_index_filter_full": "Complètes",
+
+  "sessions_index_search_placeholder": "Rechercher une session…",
+  "sessions_index_filter_country": "Filtrer par pays",
+  "sessions_index_filter_city": "Filtrer par ville",
+  "sessions_index_countries_all": "Tous pays",
+  "sessions_index_cities_all": "Toutes villes",
+
+  "sessions_index_empty_upcoming": "Aucune session à venir.",
+  "sessions_index_empty_archive": "Aucune session archivée.",
+
+  "sessions_index_join_success": "✅ Vous avez rejoint la session !",
+  "sessions_index_leave_success": "✅ Vous avez quitté la session !",
+  "sessions_index_join_error": "Erreur lors de la participation",
+  "sessions_index_leave_error": "Erreur lors de la sortie",
+
+   "create_session_cta_btn": "Créer une session",
+  "create_session_cta_login_btn": "Se connecter pour créer",
+  "create_session_cta_quota_btn": "Quota atteint — Upgrade",
+
+  "create_session_cta_aria": "Créer une session",
+  "create_session_cta_title": "Créer une session",
+
+  "create_session_cta_login_aria": "Se connecter pour créer une session",
+  "create_session_cta_login_title": "Connecte-toi pour créer une session",
+
+  "create_session_cta_quota_aria": "Quota atteint — passer Premium",
+  "create_session_cta_quota_title": "Quota atteint — passer Premium",
+
+  "create_session_cta_quota_confirm": "Tu as atteint le quota de création. Passer Premium ?",
+
+  "sport_filter_all": "Tous les sports",
+  "sport_filter_aria": "Filtrer par sport",
+  "sport_filter_all_title": "Afficher les sessions pour tous les sports",
+  "sport_filter_select_title": "Afficher les sessions de {{name}}",
+
+  "sports_names": {
+    "football": "Football",
+    "padel": "Padel",
+    "tennis": "Tennis",
+    "boxing": "Boxe",
+    "basketball": "Basket",
+    "natation": "Natation",
+    "running": "Course à pied",
+    "trail": "Trail",
+    "kickboxing": "Kickboxing",
+    "pilate": "Pilates",
+
+    "soccer": "Football (soccer)",
+    "futsal": "Futsal",
+    "american_football": "Football américain",
+    "rugby": "Rugby",
+    "handball": "Handball",
+    "volleyball": "Volley-ball",
+    "beach_volleyball": "Beach-volley",
+    "badminton": "Badminton",
+    "table_tennis": "Tennis de table",
+    "squash": "Squash",
+    "pickleball": "Pickleball",
+    "golf": "Golf",
+    "cricket": "Cricket",
+    "baseball": "Baseball",
+    "softball": "Softball",
+    "hockey": "Hockey",
+    "field_hockey": "Hockey sur gazon",
+    "ice_hockey": "Hockey sur glace",
+    "lacrosse": "Lacrosse",
+
+    "martial_arts": "Arts martiaux",
+    "mma": "MMA",
+    "muay_thai": "Muay Thaï",
+    "karate": "Karaté",
+    "taekwondo": "Taekwondo",
+    "judo": "Judo",
+    "bjj": "Jiu-jitsu brésilien",
+    "grappling": "Grappling",
+    "wrestling": "Lutte",
+
+    "crossfit": "CrossFit",
+    "fitness": "Fitness",
+    "gym": "Musculation",
+    "strength_training": "Renforcement musculaire",
+    "weightlifting": "Haltérophilie",
+    "powerlifting": "Powerlifting",
+    "calisthenics": "Callisthénie",
+    "yoga": "Yoga",
+    "pilates": "Pilates",
+    "zumba": "Zumba",
+    "dance": "Danse",
+
+    "cycling": "Cyclisme",
+    "mountain_bike": "VTT",
+    "bmx": "BMX",
+    "triathlon": "Triathlon",
+    "duathlon": "Duathlon",
+
+    "swimming": "Natation",
+    "open_water_swimming": "Natation en eau libre",
+    "rowing": "Aviron",
+    "canoe": "Canoë",
+    "kayak": "Kayak",
+    "canoe_kayak": "Canoë-kayak",
+    "sailing": "Voile",
+    "surfing": "Surf",
+    "windsurfing": "Planche à voile",
+    "kitesurfing": "Kitesurf",
+    "sup": "Stand up paddle",
+
+    "climbing": "Escalade",
+    "bouldering": "Bloc",
+    "hiking": "Randonnée",
+    "walking": "Marche",
+    "orienteering": "Course d’orientation",
+
+    "skateboarding": "Skateboard",
+    "rollerblading": "Roller",
+    "ice_skating": "Patinage sur glace",
+    "ski": "Ski",
+    "snowboard": "Snowboard",
+    "biathlon": "Biathlon",
+
+    "archery": "Tir à l’arc",
+    "shooting": "Tir sportif",
+    "fencing": "Escrime",
+    "darts": "Fléchettes",
+    "billiards": "Billard",
+    "snooker": "Snooker",
+    "bowling": "Bowling",
+
+    "equestrian": "Équitation",
+    "horse_riding": "Balade à cheval",
+    "petanque": "Pétanque",
+    "bocce": "Bocce",
+
+    "ultimate_frisbee": "Ultimate frisbee",
+    "disc_golf": "Disc golf",
+
+    "parkour": "Parkour",
+    "strongman": "Strongman",
+    "aerobics": "Aérobic"
+  },
+
+    "session_card": {
+  "label": "Session",
+  "past_tooltip": "Session passée — non cliquable",
+  "status_past": "PASSÉE",
+  "status_full": "COMPLET",
+  "badge_private": "Privée",
+  "badge_ongoing": "En cours",
+  "sport_label": "Sport",
+  "remaining_places": "{{count}} places",
+  "full": "Complet",
+  "details": "Voir les détails"
+},
+
+"location_filter": {
+    "aria_country": "Filtrer par pays",
+    "aria_city": "Filtrer par ville",
+    "country_all": "Tous les pays",
+    "city_all": "Toutes les villes",
+    "city_all_in_country": "Toutes les villes"
+  },
+
+  
+  "sd_loading": "Chargement…",
+  "sd_retry": "Réessayer",
+  "sd_refresh": "Rafraîchir",
+  "sd_action_impossible": "Action impossible.",
+
+  "sd_countdown_ongoing_or_past": "en cours / passé",
+  "sd_min": "min",
+  "sd_link_copied": "Lien copié !",
+  "sd_load_failed": "Impossible de charger la session.",
+
+  "sd_banner_past": "Cette session est passée — inscriptions fermées.",
+  "sd_banner_ongoing": "Session en cours.",
+  "sd_banner_locked": "Cette session est verrouillée.",
+  "sd_banner_finished": "Session terminée.",
+  "sd_banner_canceled": "Session annulée.",
+
+  "sd_badge_full": "Complet",
+  "sd_badge_private": "Privée",
+
+  "sd_meta_creator": "Créateur",
+  "sd_meta_sport": "Sport",
+  "sd_meta_location": "Lieu",
+  "sd_meta_date": "Date",
+  "sd_meta_capacity": "Capacité",
+  "sd_meta_remaining": "Restant",
+  "sd_meta_starts_in": "Début dans",
+  "sd_places": "places",
+
+  "sd_join": "Rejoindre",
+  "sd_leave": "Quitter",
+  "sd_join_title": "Rejoindre la session",
+  "sd_leave_title": "Quitter la session",
+  "sd_creator_cant_leave": "Organisateur · non quittable",
+  "sd_creator_cant_leave_title": "Tu es l’organisateur, tu ne peux pas quitter cette session. Supprime-la si nécessaire.",
+  "sd_copy_link": "Copier lien",
+  "sd_open_in_maps": "Ouvrir dans Maps",
+
+  "sd_join_disabled_past": "Cette session est passée. Inscriptions fermées.",
+  "sd_join_disabled_locked": "Cette session est verrouillée.",
+  "sd_join_disabled_finished": "Session terminée.",
+  "sd_join_disabled_canceled": "Session annulée.",
+  "sd_join_disabled_full": "La session est complète.",
+
+  "sd_must_login": "Connecte-toi pour rejoindre.",
+  "sd_join_failed": "Impossible de rejoindre.",
+  "sd_leave_failed": "Impossible de quitter.",
+
+  "sd_quota_reached_prompt": "Tu as atteint ton quota de participations ce mois-ci. Passer Premium ?",
+
+  "sd_description": "Description",
+  "sd_danger_zone_title": "Zone dangereuse",
+  "sd_danger_zone_text_prefix": "La suppression est",
+  "sd_danger_zone_text_suffix": "Vérifie bien avant de continuer.",
+  "sd_definitive": "définitive",
+  "sd_delete_session": "Supprimer la session",
+  "sd_delete_confirm": "Supprimer cette session ? Cette action est définitive.",
+  "sd_delete_failed": "Suppression impossible.",
+
+  "sd_participants": "Participants",
+  "sd_no_participants": "Aucun participant pour le moment.",
+  "sd_session_chat": "Chat de la session",
+
+  "sd_restricted_title": "Accès réservé aux membres",
+  "sd_restricted_text": "Rejoins la session pour afficher les équipes, participants et le chat.",
+
+  "sd_vs": "VS",
+  "sd_team_label": "Équipe {{n}}",
+
+  "billing_cancel": {
+    "title": "Paiement annulé ❌",
+    "subtitle": "Aucun changement de plan. Tu peux réessayer quand tu veux.",
+    "back_button": "Retour à l’abonnement"
+  },
+
+   "gp_title": "Groupes",
+  "gp_subtitle": "Organise tes équipes et lance vos sessions.",
+
+  "gp_create_button": "+ Créer un groupe",
+  "gp_create_title": "Créer un groupe",
+  "gp_cta_title_login": "Connecte-toi pour créer un groupe",
+  "gp_cta_title_check_premium": "Vérification… (premium détecté)",
+  "gp_cta_title_check_quotas": "Vérification quotas…",
+  "gp_cta_title_forbidden": "Ton plan ne permet pas de créer des groupes",
+  "gp_cta_title_quota_reached": "Quota de groupes atteint pour ce mois",
+
+  "gp_ph_search": "Rechercher un groupe",
+  "gp_ph_sport": "Sport ID (temporaire)",
+  "gp_ph_city": "Ville",
+  "gp_filter": "Filtrer",
+  "gp_reset": "Réinitialiser",
+
+  "gp_loading": "Chargement…",
+  "gp_results": "{{count}} groupe",
+  "gp_results_plural": "{{count}} groupes",
+
+  "gp_chip_q": "q",
+  "gp_chip_sport": "sport",
+  "gp_chip_city": "ville",
+
+  "gp_preview_strong": "Contenu prévisualisé",
+  "gp_preview_text": "Connecte-toi pour voir les groupes en clair et y accéder.",
+  "gp_login": "Se connecter",
+  "gp_register": "Créer un compte",
+
+  "gp_empty_filters": "Aucun groupe avec ces filtres.",
+  "gp_create_first": "Créer le premier",
+
+  "gd_loading": "Chargement…",
+  "gd_not_found": "Groupe introuvable.",
+  "gd_load_failed": "Impossible de charger le groupe.",
+  "gd_reload_failed": "Impossible de recharger le groupe.",
+  "gd_action_failed": "Action impossible.",
+
+  "gd_type_private": "Privé",
+  "gd_type_coach": "Coach-only",
+  "gd_type_public": "Public",
+
+  "gd_join_policy_private": "Sur demande (validation requise)",
+  "gd_join_policy_coach": "Sur invitation du coach",
+  "gd_join_policy_open": "Ouvert",
+
+  "gd_invitation_required_title": "Invitation requise par le coach",
+  "gd_invitation_only": "Sur invitation",
+  "gd_request_join": "Demander à rejoindre",
+  "gd_join": "Rejoindre",
+  "gd_leave": "Quitter",
+  "gd_join_success": "Tu as rejoint le groupe.",
+  "gd_request_sent": "Demande envoyée.",
+  "gd_leave_success": "Tu as quitté le groupe.",
+  "gd_quota_reached_prompt": "Tu as atteint la limite de groupes pour ton plan. Passer Premium ?",
+
+  "gd_tab_overview": "Aperçu",
+  "gd_tab_members": "Membres",
+  "gd_tab_chat": "Chat",
+  "gd_tab_sessions": "Sessions",
+  "gd_tab_requests": "Demandes",
+
+  "gd_about": "À propos",
+  "gd_access_rules": "Règles d’accès",
+  "gd_membership": "Adhésion :",
+  "gd_type": "Type :",
+  "gd_members_count_one": "{{count}} membre",
+  "gd_members_count_other": "{{count}} membres",
+
+  "gd_fact_coach": "Coach",
+  "gd_fact_sport": "Sport",
+  "gd_fact_city": "Ville",
+  "gd_fact_members": "Membres",
+  "gd_fact_created": "Créé le",
+  "gd_fact_updated": "Mis à jour",
+
+  "gd_member_added": "Membre ajouté : {{who}}",
+  "gd_add_member_failed": "Ajout du membre impossible.",
+  "gd_remove_member_confirm": "Retirer ce membre du groupe ?",
+  "gd_member_removed": "Membre retiré.",
+  "gd_remove_member_failed": "Suppression du membre impossible.",
+
+  "gd_danger_zone_title": "Zone dangereuse",
+  "gd_danger_zone_text_prefix": "La suppression est",
+  "gd_danger_zone_text_suffix": "Vérifie bien avant de continuer.",
+  "gd_definitive": "définitive",
+  "gd_delete_group": "Supprimer le groupe",
+  "gd_delete_confirm": "Supprimer ce groupe ? Cette action est définitive.",
+  "gd_delete_failed": "Suppression du groupe impossible.",
+
+  "gd_tab_requests_none": "Demandes",
+  "gd_tab_requests_some": "Demandes ({{count}})",
+
+   "gform_title": "Créer un groupe",
+
+  "gform_label_name": "Nom",
+  "gform_label_sport": "Sport",
+  "gform_label_type": "Type de groupe",
+  "gform_label_city": "Ville",
+  "gform_label_desc": "Description",
+
+  "gform_ph_name": "Nom du groupe",
+  "gform_ph_sport": "Tape pour rechercher un sport",
+  "gform_ph_city": "ex: Bruxelles",
+  "gform_ph_desc": "Infos utiles, règles du groupe, etc.",
+
+  "gform_type_open": "Ouvert (adhésion directe)",
+  "gform_type_private": "Privé (demande/validation)",
+  "gform_type_coach": "Coach (invitation uniquement)",
+
+  "gform_hint_open": "N'importe qui peut rejoindre directement.",
+  "gform_hint_private": "Les utilisateurs envoient une demande, que tu acceptes ou refuses.",
+  "gform_hint_coach": "Sur invitation seulement (bouton « Rejoindre » désactivé).",
+  "gform_hint_searching": "Recherche…",
+  "gform_hint_no_sport": "Aucun sport",
+  "gform_selected": "Sélectionné :",
+  "gform_id": "id",
+
+  "gform_err_required": "Nom et sport sont obligatoires.",
+  "gform_err_plan_blocks": "Ton plan ne permet pas de créer des groupes.",
+  "gform_err_quota_month": "Quota de groupes atteint pour ce mois.",
+  "gform_err_forbidden": "Création refusée (plan/quota/droits).",
+  "gform_err_create": "Création impossible.",
+
+  "gform_created": "Groupe créé.",
+  "gform_create": "Créer",
+  "gform_creating": "Création…",
+  "gform_cancel": "Annuler",
+
+  "gform_title_plan_blocks": "Ton plan ne permet pas la création de groupes",
+  "gform_title_quota_month": "Quota atteint pour ce mois",
+
+  "gform_quota_unlimited": "Quota groupes : {{used}} / ∞",
+  "gform_quota_limited": "Quota groupes : {{used}} / {{limit}}",
+
+   "aa_placeholder": "Tapez une adresse…",
+  "aa_loading": "Recherche…",
+  "aa_no_results": "Aucun résultat",
+  "aa_min_chars_one": "Tape au moins {{count}} caractère…",
+  "aa_min_chars_other": "Tape au moins {{count}} caractères…",
+  "am_add_internal_ph": "Ajouter un membre interne (username / email)",
+  "cp_title": "Chat",
+  "cp_placeholder_msg": "Message",
+  "cp_join_to_view": "Rejoins la session pour voir le chat",
+  "cp_members_only": "Discussion réservée aux membres",
+  "cp_empty": "Aucun message pour l’instant.",
+  "cp_deleted": "Message supprimé",
+  "cp_delete": "Supprimer",
+  "cp_delete_short": "Suppr",
+  "cp_placeholder_input": "Votre message…",
+  "cp_send": "Envoyer",
+
+  "cp_err_load": "Impossible de charger le chat.",
+  "cp_err_send": "Envoi impossible.",
+  "cp_err_delete": "Suppression impossible.",
+  "cp_confirm_delete": "Supprimer ce message ?",
+
+  "cc_prev_month_aria": "Mois précédent",
+  "cc_prev_month_title": "Mois précédent (←)",
+  "cc_today": "Aujourd’hui",
+  "cc_today_title": "Aujourd’hui (T)",
+  "cc_month_aria": "Mois",
+  "cc_year_aria": "Année",
+  "cc_next_month_aria": "Mois suivant",
+  "cc_next_month_title": "Mois suivant (→)",
+
+  "cc_wd_mon": "Lun",
+  "cc_wd_tue": "Mar",
+  "cc_wd_wed": "Mer",
+  "cc_wd_thu": "Jeu",
+  "cc_wd_fri": "Ven",
+  "cc_wd_sat": "Sam",
+  "cc_wd_sun": "Dim",
+
+  "cc_loading": "Chargement…",
+  "cc_time_unknown": "??:??",
+
+  "cc_publish": "Publier",
+  "cc_cancel": "Annuler",
+
+  "cc_more_one": "+{{count}} autre",
+  "cc_more_other": "+{{count}} autres",
+  "cc_more_title_one": "{{count}} autre événement",
+  "cc_more_title_other": "{{count}} autres événements",
+
+  "cc_status_draft": "Brouillon",
+  "cc_status_open": "Ouverte",
+  "cc_status_locked": "Fermée",
+  "cc_status_finished": "Terminée",
+  "cc_status_canceled": "Annulée",
+
+  "external_members": {
+    "loading": "Chargement…",
+    "load_error": "Impossible de charger les membres externes.",
+    "add_error": "Échec de l’ajout du membre externe.",
+    "delete_error": "Échec de la suppression.",
+    "delete_confirm": "Supprimer ce membre externe ?",
+
+    "first_name_ph": "Prénom",
+    "last_name_ph": "Nom",
+    "note_ph": "Note (optionnel)",
+    "add_btn": "Ajouter",
+
+    "filter_ph": "Filtrer un membre externe (nom / note)",
+    "empty": "Aucun membre externe.",
+    "delete_btn": "Supprimer"
+  },
+
+  "group_card": {
+    "type_private": "Privé",
+    "type_coach_only": "Coach-only",
+    "type_public": "Public",
+
+    "members": "{{count}} membre",
+    "members_plural": "{{count}} membres",
+
+    "details_btn": "Détails",
+    "login_required_title": "Connecte-toi pour voir",
+    "view_group_title": "Voir le groupe"
+  },
+
+  "group_join_requests": {
+    "loading": "Chargement…",
+    "load_error": "Impossible de charger les demandes.",
+    "action_error": "Échec de l’action.",
+    "empty": "Aucune demande.",
+
+    "reject_btn": "Refuser",
+    "approve_btn": "Accepter",
+
+    "reject_title": "Refuser la demande",
+    "approve_title": "Accepter la demande",
+
+    "reject_aria": "Refuser la demande de {{name}}",
+    "approve_aria": "Accepter la demande de {{name}}"
+  },
+
+  "group_members": {
+    "empty": "Aucun membre pour l’instant.",
+    "list_aria": "Membres ({{count}})",
+    "remove_btn": "Retirer",
+    "remove_title": "Retirer {{name}} du groupe",
+    "remove_aria": "Retirer {{name}} du groupe"
+  },
+
+  "group_sessions_tab": {
+    "title": "Entraînements du groupe",
+    "create_btn": "+ Créer",
+    "loading": "Chargement…",
+    "load_error": "Impossible de charger les entraînements.",
+    "empty": "Aucun entraînement pour le moment.",
+    "details_btn": "Détails",
+    "details_title": "Voir le détail",
+    "details_aria": "Voir le détail de « {{title}} »",
+    "attendance_btn": "Feuille de présence",
+    "attendance_title": "Ouvrir la feuille de présence",
+    "delete_btn": "Supprimer",
+    "delete_confirm": "Supprimer cet entraînement ?",
+    "delete_error": "Suppression impossible."
+  },
+
+  "group_training_list": {
+    "loading": "Chargement…",
+    "load_error": "Impossible de charger les entraînements.",
+    "empty": "Aucun entraînement pour le moment.",
+    "training_chip": "Entraînement",
+
+    "details_btn": "Détails",
+    "details_title": "Ouvrir les détails",
+    "details_aria": "Ouvrir les détails de la session #{{id}}",
+
+    "attendance_btn": "Feuille de présence",
+    "attendance_title": "Ouvrir la feuille de présence",
+
+    "delete_btn": "Supprimer",
+    "delete_title": "Supprimer l’entraînement",
+    "delete_confirm": "Supprimer cet entraînement ?",
+    "delete_error": "Suppression impossible.",
+
+    "missing_id_title": "ID de session manquant"
+},
+
+"quotas_banner": {
+    "creations_label": "Créations / mois",
+    "participations_label": "Participations / mois",
+    "groups_label": "Groupes actifs max",
+    "plan_title": "Forfait {{plan}}"
+  },
+
+   "session_filters": {
+    "bar_aria": "Filtres des sessions",
+    "all": "Tout",
+    "open": "Ouvertes",
+    "finished": "Terminées",
+    "full": "Complètes",
+    "refresh": "Rafraîchir",
+    "refresh_aria": "Rafraîchir la liste des sessions",
+    "refresh_title": "Rafraîchir",
+    "filter_title": "Filtrer par « {{label}} »"
+  },
+
+   "session_map": {
+    "sport_label": "Sport :",
+    "date_label": "Date :",
+    "place_label": "Lieu :",
+    "preview_overlay": "Prévisualisation — connecte-toi pour voir les détails."
+  },
+
+   "session_slots": {
+    "occupied": "Occupé",
+    "join": "Rejoindre",
+    "legend_empty": "Libre",
+    "legend_filled": "Occupé",
+    "legend_mine": "Toi"
+  },
+
+   "training_attendance": {
+    "title": "Feuille de présence",
+    "close_btn": "Fermer",
+
+    "loading": "Chargement…",
+    "load_error": "Chargement impossible.",
+    "invalid_session_id": "ID de session invalide.",
+    "api_unavailable": "API de présence non disponible côté serveur.",
+    "save_error": "Sauvegarde impossible.",
+
+    "present_word": "présents",
+    "external_word": "externes",
+    "external_badge": "externe",
+    "external_title": "Membre externe",
+    "external_short": "Ext #{{id}}",
+
+    "all_present_btn": "Tout présent",
+    "all_absent_btn": "Tout absent",
+    "invert_btn": "Inverser",
+
+    "empty": "Aucun membre à afficher.",
+
+    "saving": "Enregistrement…",
+    "save_btn": "Enregistrer",
+    "cancel_btn": "Annuler",
+
+    "last_saved_at": "Dernier enregistrement : {{time}}",
+    "toggle_presence_aria": "Basculer la présence de {{name}}"
+  },
+
+   "training_form": {
+    "loading": "Chargement…",
+    "group_load_error": "Impossible de charger le groupe.",
+    "create_error": "Erreur à la création",
+
+    "title": "Nouvel entraînement (groupe)",
+
+    "field_title": "Titre",
+    "field_sport": "Sport",
+    "field_description": "Description",
+    "field_location": "Lieu",
+    "field_date": "Date",
+    "field_start_time": "Heure de début",
+    "team_mode": "Mode équipe",
+    "field_max_players": "Max joueurs",
+    "field_min_per_team": "Min joueurs/équipe",
+    "field_max_per_team": "Max joueurs/équipe",
+
+    "inherited_from_group": "hérité du groupe",
+
+    "loc_ok": "localisation OK",
+    "loc_hint": "Sélectionne une adresse dans la liste",
+
+    "tip_team": "Min {{minTotalPlayers}} joueurs pour 2 équipes • Capacité {{cap}}",
+    "tip_solo": "Capacité {{cap}} joueurs",
+
+    "err_title_min": "Min. 3 caractères",
+    "err_description_min": "Min. 10 caractères",
+    "err_location_select": "Sélectionne une adresse via l’autocomplete",
+    "err_required": "Obligatoire",
+    "err_datetime_future": "La date/heure doit être dans le futur (≥ 5 min)",
+    "err_ge1": "≥ 1",
+    "err_max_ge_min": "Doit être ≥ min/équipe",
+    "err_cap_insufficient": "Capacité insuffisante pour 2 équipes (min/équipe)",
+
+    "creating": "Création…",
+    "create_btn": "Créer l’entraînement",
+    "cancel_btn": "Annuler",
+
+    "open_in_maps": "Ouvrir l’emplacement sur Google Maps ↗",
+    "open_in_maps_title": "Ouvrir dans Google Maps"
+  },
+
+  "upgrade_card": {
+    "title": "Mon plan",
+    "loading": "Chargement du plan…",
+    "until_date": "· jusqu’au {{date}}",
+
+    "creations_label": "Créations / mois",
+    "participations_label": "Participations / mois",
+    "groups_label": "Groupes actifs max",
+
+    "premium_btn": "Passer Premium",
+    "premium_title": "Passer à l’offre Premium",
+    "coach_btn": "Devenir Coach",
+    "coach_title": "Souscrire à l’offre Coach",
+
+    "payment_error": "Erreur de paiement. Réessaie."
   }
+
+
 }
+
+
+  
+

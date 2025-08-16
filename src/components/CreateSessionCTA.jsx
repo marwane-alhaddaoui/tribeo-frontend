@@ -1,15 +1,16 @@
-// src/components/sessions/CreateSessionCTA.jsx
 import { useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { AuthContext } from "../context/AuthContext";
 import { QuotasContext } from "../context/QuotasContext";
 import "./createSessionCta.css";
 
 export default function CreateSessionCTA({ variant = "button", visibleFor = null }) {
   const { user } = useContext(AuthContext);
-  const { quotas } = useContext(QuotasContext); // 👈 Ajout quotas
+  const { quotas } = useContext(QuotasContext);
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const isVisitor = !user;
 
@@ -17,7 +18,7 @@ export default function CreateSessionCTA({ variant = "button", visibleFor = null
     if (!quotas || !quotas.limits) return false;
     const lim = quotas.limits.sessions_create_per_month;
     const used = quotas.usage?.sessions_created ?? 0;
-    return lim != null && used >= lim; // bloqué si quota plein
+    return lim != null && used >= lim;
   })();
 
   const canSee = () => {
@@ -32,7 +33,7 @@ export default function CreateSessionCTA({ variant = "button", visibleFor = null
       return;
     }
     if (quotaBlocked) {
-      const go = confirm("Tu as atteint le quota de création. Passer Premium ?");
+      const go = confirm(t("create_session_cta_quota_confirm"));
       if (go) navigate("/profile");
       return;
     }
@@ -48,13 +49,13 @@ export default function CreateSessionCTA({ variant = "button", visibleFor = null
         onClick={handleClick}
         aria-label={
           isVisitor
-            ? "Se connecter pour créer une session"
-            : (quotaBlocked ? "Quota atteint — passer Premium" : "Créer une session")
+            ? t("create_session_cta_login_aria")
+            : (quotaBlocked ? t("create_session_cta_quota_aria") : t("create_session_cta_aria"))
         }
         title={
           isVisitor
-            ? "Connecte-toi pour créer une session"
-            : (quotaBlocked ? "Quota atteint — passer Premium" : "Créer une session")
+            ? t("create_session_cta_login_title")
+            : (quotaBlocked ? t("create_session_cta_quota_title") : t("create_session_cta_title"))
         }
       >
         {isVisitor ? "🔒" : (quotaBlocked ? "🔒" : "+")}
@@ -68,18 +69,18 @@ export default function CreateSessionCTA({ variant = "button", visibleFor = null
       onClick={handleClick}
       aria-label={
         isVisitor
-          ? "Se connecter pour créer une session"
-          : (quotaBlocked ? "Quota atteint — passer Premium" : "Créer une session")
+          ? t("create_session_cta_login_aria")
+          : (quotaBlocked ? t("create_session_cta_quota_aria") : t("create_session_cta_aria"))
       }
       title={
         isVisitor
-          ? "Connecte-toi pour créer une session"
-          : (quotaBlocked ? "Quota atteint — passer Premium" : "Créer une session")
+          ? t("create_session_cta_login_title")
+          : (quotaBlocked ? t("create_session_cta_quota_title") : t("create_session_cta_title"))
       }
     >
       {isVisitor
-        ? "🔒 Se connecter pour créer"
-        : (quotaBlocked ? "🔒 Quota atteint — Upgrade" : "+ Créer une session")}
+        ? `🔒 ${t("create_session_cta_login_btn")}`
+        : (quotaBlocked ? `🔒 ${t("create_session_cta_quota_btn")}` : `+ ${t("create_session_cta_btn")}`)}
     </button>
   );
 }

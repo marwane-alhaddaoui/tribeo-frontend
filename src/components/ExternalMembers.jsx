@@ -1,12 +1,14 @@
 // src/components/ExternalMembers.jsx
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import "../styles/ExternalMembers.css";
 
 export default function ExternalMembers({
   groupId,
   loader, // () => Promise<void>
-  api: { listExternalMembers, addExternalMember, deleteExternalMember, onCount }, // 👈 onCount (optionnel)
+  api: { listExternalMembers, addExternalMember, deleteExternalMember, onCount },
 }) {
+  const { t } = useTranslation();
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [op, setOp] = useState(false);
@@ -22,11 +24,10 @@ export default function ExternalMembers({
       const data = await listExternalMembers(groupId);
       const arr = Array.isArray(data) ? data : [];
       setList(arr);
-      // 👇 remonte le compteur au parent (GroupDetail) pour afficher le total
       if (typeof onCount === "function") onCount(arr.length);
     } catch (e) {
       console.error(e);
-      setErr("Impossible de charger les membres externes.");
+      setErr(t("external_members.load_error"));
       if (typeof onCount === "function") onCount(0);
     } finally {
       setLoading(false);
@@ -35,7 +36,8 @@ export default function ExternalMembers({
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [groupId]);
 
-  const onChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  const onChange = (e) =>
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
   const submit = async (e) => {
     e.preventDefault();
@@ -49,14 +51,14 @@ export default function ExternalMembers({
       await loader?.();
     } catch (e) {
       console.error(e);
-      alert("Échec de l’ajout du membre externe.");
+      alert(t("external_members.add_error"));
     } finally {
       setOp(false);
     }
   };
 
   const remove = async (id) => {
-    if (!window.confirm("Supprimer ce membre externe ?")) return;
+    if (!window.confirm(t("external_members.delete_confirm"))) return;
     try {
       setOp(true);
       await deleteExternalMember(id);
@@ -64,53 +66,80 @@ export default function ExternalMembers({
       await loader?.();
     } catch (e) {
       console.error(e);
-      alert("Échec de la suppression.");
+      alert(t("external_members.delete_error"));
     } finally {
       setOp(false);
     }
   };
 
   const filtered = useMemo(() => {
-    const t = q.trim().toLowerCase();
-    if (!t) return list;
-    return list.filter(m =>
-      `${m.first_name} ${m.last_name}`.toLowerCase().includes(t) ||
-      (m.note || "").toLowerCase().includes(t)
+    const tq = q.trim().toLowerCase();
+    if (!tq) return list;
+    return list.filter(
+      (m) =>
+        `${m.first_name} ${m.last_name}`.toLowerCase().includes(tq) ||
+        (m.note || "").toLowerCase().includes(tq)
     );
   }, [list, q]);
 
-  if (loading) return <div className="em-wrap">Chargement…</div>;
+  if (loading) return <div className="em-wrap">{t("external_members.loading")}</div>;
   if (err) return <div className="em-wrap error">{err}</div>;
 
   return (
     <div className="em-wrap">
       <form className="em-form" onSubmit={submit}>
-        <input name="first_name" placeholder="Prénom" value={form.first_name} onChange={onChange} />
-        <input name="last_name" placeholder="Nom" value={form.last_name} onChange={onChange} />
-        <input name="note" placeholder="Note (optionnel)" value={form.note} onChange={onChange} />
-        <button disabled={op || !form.first_name.trim() || !form.last_name.trim()} className="em-btn primary">
-          Ajouter
+        <input
+          name="first_name"
+          placeholder={t("external_members.first_name_ph")}
+          value={form.first_name}
+          onChange={onChange}
+          aria-label={t("external_members.first_name_ph")}
+        />
+        <input
+          name="last_name"
+          placeholder={t("external_members.last_name_ph")}
+          value={form.last_name}
+          onChange={onChange}
+          aria-label={t("external_members.last_name_ph")}
+        />
+        <input
+          name="note"
+          placeholder={t("external_members.note_ph")}
+          value={form.note}
+          onChange={onChange}
+          aria-label={t("external_members.note_ph")}
+        />
+        <button
+          disabled={op || !form.first_name.trim() || !form.last_name.trim()}
+          className="em-btn primary"
+        >
+          {t("external_members.add_btn")}
         </button>
       </form>
 
       <div className="em-tools">
         <input
           className="em-filter"
-          placeholder="Filtrer un membre externe (nom / note)"
+          placeholder={t("external_members.filter_ph")}
           value={q}
-          onChange={(e)=>setQ(e.target.value)}
+          onChange={(e) => setQ(e.target.value)}
+          aria-label={t("external_members.filter_ph")}
         />
       </div>
 
       {filtered.length === 0 ? (
-        <div className="em-empty">Aucun membre externe.</div>
+        <div className="em-empty">{t("external_members.empty")}</div>
       ) : (
         <ul className="em-list">
           {filtered.map((m) => (
             <li key={m.id} className="em-item">
-              <div className="em-name">{m.first_name} {m.last_name}</div>
+              <div className="em-name">
+                {m.first_name} {m.last_name}
+              </div>
               {m.note && <div className="em-note">{m.note}</div>}
-              <button className="em-btn" disabled={op} onClick={() => remove(m.id)}>Supprimer</button>
+              <button className="em-btn" disabled={op} onClick={() => remove(m.id)}>
+                {t("external_members.delete_btn")}
+              </button>
             </li>
           ))}
         </ul>

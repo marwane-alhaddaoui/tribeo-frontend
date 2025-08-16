@@ -1,4 +1,6 @@
+// src/pages/Groups/GroupsPage.jsx
 import { useEffect, useMemo, useState, useContext } from "react";
+import { useTranslation } from "react-i18next";
 import { listGroups } from "../../api/groupService";
 import GroupCard from "../../components/GroupCard";
 import { Link } from "react-router-dom";
@@ -53,6 +55,7 @@ function canCreateGroupFromQuotasOrRole(user, quotas, quotasLoading) {
 }
 
 export default function GroupsPage() {
+  const { t } = useTranslation();
   const { user } = useContext(AuthContext);
   const { quotas, loading: quotasLoading } = useContext(QuotasContext);
 
@@ -108,36 +111,34 @@ export default function GroupsPage() {
 
   const resultText = useMemo(() => {
     const n = groups.length;
-    if (loading) return "Chargement…";
-    if (n === 0) return "Aucun groupe";
-    if (n === 1) return "1 groupe";
-    return `${n} groupes`;
-  }, [groups, loading]);
+    if (loading) return t("gp_loading");
+    return t("gp_results", { count: n });
+  }, [groups, loading, t]);
 
   // Tooltip explicite (utilise le rôle + état de chargement)
   const role = String(user?.role || quotas?.plan || "").toUpperCase();
   const createTitle = isVisitor
-    ? "Connecte-toi pour créer un groupe"
+    ? t("gp_cta_title_login")
     : quotasLoading
       ? (role === "PREMIUM" || role === "COACH"
-          ? "Vérification… (premium détecté)"
-          : "Vérification quotas…")
+          ? t("gp_cta_title_check_premium")
+          : t("gp_cta_title_check_quotas"))
       : (quotas?.limits?.can_create_groups === false
-          ? "Ton plan ne permet pas de créer des groupes"
-          : "Quota de groupes atteint pour ce mois");
+          ? t("gp_cta_title_forbidden")
+          : t("gp_cta_title_quota_reached"));
 
   return (
     <div className="groups-wrap">
       {/* Header */}
       <div className="groups-head">
         <div>
-          <h1 className="groups-title">Groupes</h1>
-          <p className="groups-sub">Organise tes équipes et lance vos sessions.</p>
+          <h1 className="groups-title">{t("gp_title")}</h1>
+          <p className="groups-sub">{t("gp_subtitle")}</p>
         </div>
 
         {allowCreate ? (
-          <Link to="/groups/new" className="btn-primary" title="Créer un groupe">
-            + Créer un groupe
+          <Link to="/groups/new" className="btn-primary" title={t("gp_create_title")}>
+            {t("gp_create_button")}
           </Link>
         ) : (
           <button
@@ -147,7 +148,7 @@ export default function GroupsPage() {
             aria-disabled="true"
             type="button"
           >
-            + Créer un groupe
+            {t("gp_create_button")}
           </button>
         )}
       </div>
@@ -157,27 +158,27 @@ export default function GroupsPage() {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Rechercher un groupe"
+          placeholder={t("gp_ph_search")}
           className="gf-input"
           disabled={isVisitor}
         />
         <input
           value={sport}
           onChange={(e) => setSport(e.target.value)}
-          placeholder="Sport ID (temporaire)"
+          placeholder={t("gp_ph_sport")}
           className="gf-input"
           disabled={isVisitor}
         />
         <input
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          placeholder="Ville"
+          placeholder={t("gp_ph_city")}
           className="gf-input"
           disabled={isVisitor}
         />
         <div className="gf-actions">
-          <button className="gf-button" type="submit" disabled={isVisitor}>Filtrer</button>
-          <button className="gf-reset" type="button" onClick={onReset} disabled={isVisitor}>Réinitialiser</button>
+          <button className="gf-button" type="submit" disabled={isVisitor}>{t("gp_filter")}</button>
+          <button className="gf-reset" type="button" onClick={onReset} disabled={isVisitor}>{t("gp_reset")}</button>
         </div>
       </form>
 
@@ -186,9 +187,9 @@ export default function GroupsPage() {
         <span className="groups-count">{resultText}</span>
         {(q || sport || city) && (
           <div className="groups-active-filters">
-            {q && <span className="chip">q: {q}</span>}
-            {sport && <span className="chip">sport: {sport}</span>}
-            {city && <span className="chip">ville: {city}</span>}
+            {q && <span className="chip">{t("gp_chip_q")}: {q}</span>}
+            {sport && <span className="chip">{t("gp_chip_sport")}: {sport}</span>}
+            {city && <span className="chip">{t("gp_chip_city")}: {city}</span>}
           </div>
         )}
       </div>
@@ -197,11 +198,11 @@ export default function GroupsPage() {
       {isVisitor && (
         <div className="groups-locked-banner">
           <div className="glb-text">
-            <strong>Contenu prévisualisé</strong> — Connecte-toi pour voir les groupes en clair et y accéder.
+            <strong>{t("gp_preview_strong")}</strong> — {t("gp_preview_text")}
           </div>
           <div className="glb-actions">
-            <Link className="btn-primary" to="/login">Se connecter</Link>
-            <Link className="btn-ghost" to="/register">Créer un compte</Link>
+            <Link className="btn-primary" to="/login">{t("gp_login")}</Link>
+            <Link className="btn-ghost" to="/register">{t("gp_register")}</Link>
           </div>
         </div>
       )}
@@ -221,14 +222,14 @@ export default function GroupsPage() {
         </div>
       ) : (
         <div className="groups-empty">
-          <p>Aucun groupe avec ces filtres.</p>
+          <p>{t("gp_empty_filters")}</p>
           <div className="groups-empty-actions">
-            <button className="btn-ghost" onClick={onReset} disabled={isVisitor}>Réinitialiser</button>
+            <button className="btn-ghost" onClick={onReset} disabled={isVisitor}>{t("gp_reset")}</button>
             {allowCreate ? (
-              <Link to="/groups/new" className="btn-primary">Créer le premier</Link>
+              <Link to="/groups/new" className="btn-primary">{t("gp_create_first")}</Link>
             ) : (
               <button className="btn-primary btn-disabled" disabled aria-disabled="true" type="button">
-                Créer le premier
+                {t("gp_create_first")}
               </button>
             )}
           </div>

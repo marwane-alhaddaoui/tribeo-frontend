@@ -1,4 +1,6 @@
+// src/components/GroupJoinRequests.jsx
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function GroupJoinRequests({
   groupId,
@@ -6,6 +8,7 @@ export default function GroupJoinRequests({
   api: { listJoinRequests, approveJoinReq, rejectJoinReq },
   onCount, // (n:number) => void
 }) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [op, setOp] = useState(false);
   const [err, setErr] = useState(null);
@@ -21,7 +24,7 @@ export default function GroupJoinRequests({
       onCount?.(arr.length);
     } catch (e) {
       console.error(e);
-      setErr("Impossible de charger les demandes.");
+      setErr(t("group_join_requests.load_error"));
       onCount?.(0);
     } finally {
       setLoading(false);
@@ -42,15 +45,15 @@ export default function GroupJoinRequests({
       await loader?.();
     } catch (e) {
       console.error(e);
-      alert("Échec de l’action.");
+      alert(t("group_join_requests.action_error"));
     } finally {
       setOp(false);
     }
   };
 
-  if (loading) return <div>Chargement…</div>;
+  if (loading) return <div>{t("group_join_requests.loading")}</div>;
   if (err) return <div className="gjr-empty">{err}</div>;
-  if (!reqs.length) return <div className="gjr-empty">Aucune demande.</div>;
+  if (!reqs.length) return <div className="gjr-empty">{t("group_join_requests.empty")}</div>;
 
   return (
     <div className="gjr-wrap">
@@ -58,7 +61,8 @@ export default function GroupJoinRequests({
         {reqs.map((r) => {
           const user = r?.user || {};
           const name = user.username || user.email || `#${user.id || r.id}`;
-          const subtitle = user.email && user.username ? user.email : (user.email || "");
+          const subtitle =
+            user.email && user.username ? user.email : (user.email || "");
           return (
             <li className="gjr-item" key={r.id || name}>
               <div>
@@ -66,11 +70,23 @@ export default function GroupJoinRequests({
                 {subtitle ? <div className="gjr-meta">{subtitle}</div> : null}
               </div>
               <div className="gjr-actions">
-                <button className="gjr-btn" disabled={op} onClick={() => handle(r.id, "reject")}>
-                  Refuser
+                <button
+                  className="gjr-btn"
+                  disabled={op}
+                  onClick={() => handle(r.id, "reject")}
+                  aria-label={t("group_join_requests.reject_aria", { name })}
+                  title={t("group_join_requests.reject_title")}
+                >
+                  {t("group_join_requests.reject_btn")}
                 </button>
-                <button className="gjr-btn primary" disabled={op} onClick={() => handle(r.id, "approve")}>
-                  Accepter
+                <button
+                  className="gjr-btn primary"
+                  disabled={op}
+                  onClick={() => handle(r.id, "approve")}
+                  aria-label={t("group_join_requests.approve_aria", { name })}
+                  title={t("group_join_requests.approve_title")}
+                >
+                  {t("group_join_requests.approve_btn")}
                 </button>
               </div>
             </li>

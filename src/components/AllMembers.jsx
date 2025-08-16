@@ -1,6 +1,8 @@
+// src/components/AllMembers.jsx
 import GroupMembers from "./GroupMembers";
 import ExternalMembers from "./ExternalMembers";
 import UserPicker from "./UserPicker";
+import { useTranslation } from "react-i18next";
 
 export default function AllMembers({
   members,
@@ -11,6 +13,8 @@ export default function AllMembers({
   loader,
   api, // { listExternalMembers, addExternalMember, deleteExternalMember, onCount }
 }) {
+  const { t } = useTranslation();
+
   return (
     <div>
       {/* Membres internes */}
@@ -18,10 +22,11 @@ export default function AllMembers({
         <div style={{ marginBottom: 12 }}>
           <UserPicker
             onSelect={onAddInternal}
-            placeholder="Ajouter un membre interne (username / email)"
+            placeholder={t("am_add_internal_ph")}
           />
         </div>
       )}
+
       <GroupMembers
         members={members}
         canManage={canManage}

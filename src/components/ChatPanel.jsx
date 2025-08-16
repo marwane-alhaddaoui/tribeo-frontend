@@ -1,5 +1,6 @@
 // src/components/ChatPanel.jsx
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 /**
  * Props:
@@ -17,9 +18,12 @@ export default function ChatPanel({
   canRead,
   canWrite,
   canModerate,
-  title = "Chat",
+  title,
   blurred = false,
 }) {
+  const { t } = useTranslation();
+  const resolvedTitle = title ?? t("cp_title");
+
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [err, setErr] = useState("");
@@ -44,7 +48,7 @@ export default function ChatPanel({
         return;
       }
       console.warn("[ChatPanel] list error:", e);
-      setErr("Impossible de charger le chat.");
+      setErr(t("cp_err_load"));
     }
   };
 
@@ -74,7 +78,7 @@ export default function ChatPanel({
       await load();
     } catch (e) {
       console.error("[ChatPanel] send error:", e);
-      setErr("Envoi impossible.");
+      setErr(t("cp_err_send"));
     } finally {
       setSending(false);
     }
@@ -82,7 +86,7 @@ export default function ChatPanel({
 
   const onDelete = async (id) => {
     if (!api) return;
-    if (!window.confirm("Supprimer ce message ?")) return;
+    if (!window.confirm(t("cp_confirm_delete"))) return;
     try {
       await api.remove(id);
       setMessages((m) =>
@@ -90,7 +94,7 @@ export default function ChatPanel({
       );
     } catch (e) {
       console.error("[ChatPanel] delete error:", e);
-      setErr("Suppression impossible.");
+      setErr(t("cp_err_delete"));
     }
   };
 
@@ -106,7 +110,7 @@ export default function ChatPanel({
     return (
       <div className="chat-wrap is-blurred">
         <div className="chat-header">
-          <div className="chat-title">{title}</div>
+          <div className="chat-title">{resolvedTitle}</div>
         </div>
         <div className="chat-list">
           {placeholders.map((m) => (
@@ -116,12 +120,12 @@ export default function ChatPanel({
               aria-hidden
             >
               <div className="sender">{m.sender_username}</div>
-              <div className="content">Message</div>
+              <div className="content">{t("cp_placeholder_msg")}</div>
             </div>
           ))}
         </div>
         <div className="chat-soft-blur" aria-hidden />
-        <div className="chat-locked-msg">Rejoins la session pour voir le chat</div>
+        <div className="chat-locked-msg">{t("cp_join_to_view")}</div>
       </div>
     );
   }
@@ -130,9 +134,9 @@ export default function ChatPanel({
   if (!canRead) {
     return (
       <div className="chat-locked">
-        <div className="chat-locked-title">{title}</div>
+        <div className="chat-locked-title">{resolvedTitle}</div>
         <div className="chat-blur" />
-        <div className="chat-locked-msg">Discussion réservée aux membres</div>
+        <div className="chat-locked-msg">{t("cp_members_only")}</div>
       </div>
     );
   }
@@ -141,13 +145,13 @@ export default function ChatPanel({
   return (
     <div className={`chat-wrap ${blurred ? "is-blurred" : ""}`}>
       <div className="chat-header">
-        <div className="chat-title">{title}</div>
+        <div className="chat-title">{resolvedTitle}</div>
         {!!err && <div className="chat-error">{err}</div>}
       </div>
 
       <div className="chat-list">
         {messages.length === 0 ? (
-          <div className="chat-empty">Aucun message pour l’instant.</div>
+          <div className="chat-empty">{t("cp_empty")}</div>
         ) : (
           messages.map((m) => (
             <div
@@ -158,15 +162,15 @@ export default function ChatPanel({
             >
               <div className="sender">{m.sender_username}</div>
               <div className="content">
-                {m.is_deleted ? "Message supprimé" : m.content}
+                {m.is_deleted ? t("cp_deleted") : m.content}
               </div>
               {!m.is_deleted && (m.can_delete || canModerate) && (
                 <button
                   className="msg-action"
-                  title="Supprimer"
+                  title={t("cp_delete")}
                   onClick={() => onDelete(m.id)}
                 >
-                  Suppr
+                  {t("cp_delete_short")}
                 </button>
               )}
             </div>
@@ -180,7 +184,7 @@ export default function ChatPanel({
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Votre message…"
+            placeholder={t("cp_placeholder_input")}
             rows={1}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
@@ -190,7 +194,7 @@ export default function ChatPanel({
             }}
           />
           <button onClick={send} disabled={!text.trim() || sending}>
-            {sending ? "…" : "Envoyer"}
+            {sending ? "…" : t("cp_send")}
           </button>
         </div>
       )}
