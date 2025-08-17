@@ -111,10 +111,16 @@ export default function Header() {
             {langOpen && (
               <div className="lang-menu">
                 <button onClick={() => { window.i18next?.changeLanguage?.('fr'); setLangOpen(false); }}>
-                  🇫🇷 FR
+                  FR
                 </button>
                 <button onClick={() => { window.i18next?.changeLanguage?.('en'); setLangOpen(false); }}>
-                  🇬🇧 EN
+                  EN
+                </button>
+                <button onClick={() => { window.i18next?.changeLanguage?.('nl'); setLangOpen(false); }}>
+                  NL
+                </button>
+                <button onClick={() => { window.i18next?.changeLanguage?.('de'); setLangOpen(false); }}>
+                  DE
                 </button>
               </div>
             )}

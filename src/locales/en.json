@@ -881,6 +881,75 @@
     "coach_title": "Subscribe to Coach plan",
 
     "payment_error": "Payment error. Please try again."
+  },
+
+  "lp": {
+    "hero": {
+      "title": "Organize. <accent>Join.</accent> Perform.",
+      "subtitle": "The simple and fast platform to create sessions, manage your groups and coach trainings — without hassle.",
+      "cta_register": "Sign up",
+      "cta_sessions": "View sessions"
+    },
+    "metrics": {
+      "players": "Players",
+      "sessions": "Sessions",
+      "fill_rate": "Fill rate"
+    },
+    "partners_label": "They trust Tribeo",
+    "features": {
+      "title": "Everything you need, nothing superfluous",
+      "subtitle": "Organize matches, manage groups and trainings as a coach.",
+      "create_session": {
+        "title": "Session creation",
+        "desc": "Capacity, visibility (public/private), rules — in seconds."
+      },
+      "search": {
+        "title": "Search & filters",
+        "desc": "By sport, date and city. Browse the public session list."
+      },
+      "groups": {
+        "title": "Open or private groups",
+        "desc": "Create public or private groups with description and city."
+      },
+      "trainings": {
+        "title": "Trainings (Coach)",
+        "desc": "Dedicated features for coaches: manage trainings & planning."
+      },
+      "teams": {
+        "title": "Teams & organization",
+        "desc": "Split players, balance teams, and manage the match."
+      },
+      "plans": {
+        "title": "Plans & quotas",
+        "desc": "FREE / PREMIUM / COACH, secure Stripe payments, monthly quotas."
+      }
+    },
+    "how": {
+      "title": "How it works",
+      "steps": {
+        "1": { "title": "Create your session", "desc": "Sport, place, date and capacity." },
+        "2": { "title": "Share & fill", "desc": "Public sessions or private invitations." },
+        "3": { "title": "Play & manage", "desc": "Teams, monitoring and history." }
+      }
+    },
+    "testimonials": {
+      "title": "What the community says"
+    },
+    "pricing": {
+      "title": "Pricing"
+    },
+    "final": {
+      "title": "Ready to launch your next session?",
+      "subtitle": "Join Tribeo for free and step up your game.",
+      "cta_register": "Sign up",
+      "cta_sessions": "View sessions"
+    },
+    "footer": {
+      "features": "Features",
+      "how": "How",
+      "pricing": "Pricing",
+      "login": "Login"
+    }
   }
 
 }

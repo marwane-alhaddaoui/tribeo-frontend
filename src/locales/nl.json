@@ -1,0 +1,935 @@
+{
+  "logo_alt": "Tribeo logo",
+  "home": "Home",
+  "sessions": "Sessies",
+  "groups": "Groepen",
+  "dashboard": "Dashboard",
+  "billing.title": "Facturatie",
+  "profile": "Profiel",
+  "view_profile": "Bekijk profiel",
+  "login": "Inloggen",
+  "register": "Registreren",
+  "logout": "Uitloggen",
+  "menu": "Menu",
+  "close": "Sluiten",
+  "switch_language": "Taal wijzigen",
+  "billing_label": "Facturatie",
+
+  "welcome": "Welkom bij Tribeo",
+  "createSession": "Maak een sessie",
+  "join": "Deelnemen",
+  "leave": "Verlaten",
+  "search": "Zoeken",
+
+  "auth": {
+    "login_title": "Inloggen",
+    "login_subtitle": "Organiseer je sport, moeiteloos.",
+    "login_error": "Ongeldige gegevens. Probeer opnieuw.",
+    "forgot_password": "Wachtwoord vergeten?",
+    "create_account": "Maak een account",
+
+    "email_or_username": "E-mail of gebruikersnaam",
+    "email": "E-mail",
+    "email_placeholder": "Je e-mail",
+    "email_invalid": "Ongeldig e-mailadres",
+
+    "password": "Wachtwoord",
+    "password_placeholder": "Je wachtwoord",
+    "password_min": "Minimaal {{count}} tekens",
+
+    "show_password": "Toon wachtwoord",
+    "hide_password": "Verberg wachtwoord",
+    "show": "Toon",
+    "hide": "Verberg",
+    "submit_login": "Inloggen",
+
+    "register_title": "Maak een account",
+    "register_subtitle": "Sluit je aan bij je sporttribe in seconden.",
+    "register_failed": "Registratie mislukt. Controleer de velden en probeer opnieuw.",
+    "creating": "Bezig met aanmaken…",
+    "register_cta": "Registreren",
+
+    "first_name": "Voornaam",
+    "last_name": "Achternaam",
+    "first_name_placeholder": "Je voornaam",
+    "last_name_placeholder": "Je achternaam",
+
+    "username": "Gebruikersnaam",
+    "username_placeholder": "Je gebruikersnaam",
+    "username_title": "3–20 tekens, kleine letters, cijfers, underscore",
+    "username_invalid": "Ongeldige gebruikersnaam (3–20 tekens, a–z, 0–9, _).",
+    "first_last_required": "Voornaam en achternaam zijn verplicht.",
+
+    "already_have_account": "Heb je al een account?",
+    "login_link": "Inloggen"
+  },
+
+  "common": {
+    "edit": "Bewerken",
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "logout": "Uitloggen",
+    "infinity": "∞"
+  },
+
+  "profile": {
+    "loading": "Laden…",
+    "title": "Mijn profiel",
+    "subtitle": "Beheer je identiteit en avatar.",
+    "avatar_alt": "Gebruikersavatar",
+    "upload_image": "Afbeelding uploaden",
+    "use_url": "Gebruik URL",
+    "reset_avatar": "Avatar resetten",
+    "avatar_url_placeholder": "https://voorbeeld.com/mijn-afbeelding.jpg",
+    "identifier": "Gebruikersnaam",
+    "identifier_placeholder": "bv. jan_janssen",
+    "role": "Rol",
+    "no_changes": "Geen wijzigingen",
+    "avatar_updated": "Avatar bijgewerkt ✅",
+    "upload_failed": "Upload mislukt",
+    "avatar_url_saved": "Avatar-URL opgeslagen ✅",
+    "invalid_or_rejected_url": "Ongeldige of geweigerde URL",
+    "avatar_reset": "Avatar gereset ✅",
+    "reset_failed": "Kan avatar niet resetten",
+    "updated": "Profiel bijgewerkt ✅",
+    "update_failed": "Kan profiel niet bijwerken"
+  },
+
+  "session": {
+    "create": {
+      "title_label": "Titel",
+      "title_placeholder": "bv. Zondagochtend voetbal",
+      "sport_label": "Sport",
+      "sport_placeholder": "Selecteer een sport",
+      "description_label": "Beschrijving",
+      "description_placeholder": "Details, niveau, materiaal, regels...",
+      "location_label": "Locatie",
+      "location_ok": "locatie OK",
+      "location_select": "Selecteer een adres uit de lijst",
+      "date_label": "Datum",
+      "time_label": "Starttijd",
+
+      "type_label": "Sessietype",
+      "type_training": "Training",
+      "type_friendly": "Vriendschappelijke wedstrijd",
+      "type_competition": "Competitie",
+
+      "visibility_label": "Zichtbaarheid",
+      "visibility_public": "Openbaar",
+      "visibility_private": "Privé",
+      "visibility_group": "Groep",
+
+      "group_label": "Groep",
+      "group_placeholder": "Selecteer een groep",
+
+      "team_mode_label": "Teammodus",
+      "participants_label": "Deelnemers",
+      "participants_auto_from_group": "Groepsleden worden automatisch toegevoegd",
+      "select_group": "Selecteer een groep",
+      "trainings_group_members_auto": "Voor groepstrainingen worden leden automatisch toegevoegd.",
+      "team_tip_on": "Min {{minTotalPlayers}} spelers voor 2 teams • Capaciteit {{cap}}",
+      "team_tip_off": "Capaciteit {{cap}} spelers",
+
+      "max_players_label": "Max spelers",
+      "min_players_per_team_label": "Min spelers/team",
+      "max_players_per_team_label": "Max spelers/team",
+
+      "submit_create": "Sessie aanmaken",
+      "submit_creating": "Bezig met aanmaken…",
+
+      "creations_trainings": "Trainingen aangemaakt",
+      "creations_sessions": "Sessies aangemaakt",
+      "infinity": "∞",
+
+      "err_min_chars": "Min. 3 tekens",
+      "choose_sport": "Kies een sport",
+      "err_min_desc": "Min. 10 tekens",
+      "err_location": "Selecteer een adres via autocomplete",
+      "required": "Verplicht",
+      "future_5min": "Datum/tijd moet in de toekomst liggen (≥ 5 min)",
+      "ge1": "≥ 1",
+      "must_be_greater_equal_min_team": "Moet ≥ min/team zijn",
+      "insufficient_capacity_two_teams": "Onvoldoende capaciteit voor 2 teams (min/team)",
+      "select_group_required": "Selecteer een groep",
+      "quota_trainings_reached_or_plan": "Trainingsquotum bereikt of plan niet toegestaan.",
+      "quota_sessions_reached": "Maandelijks sessiequotum bereikt.",
+      "training_select_group": "Voor een training, selecteer een groep.",
+      "invalid_time_hhmm": "Ongeldige starttijd. Gebruik HH:MM (bv. 14:30).",
+      "title_quota_trainings": "Trainingsquotum bereikt / plan niet toegestaan",
+      "title_quota_sessions": "Sessiequotum bereikt",
+      "error_prefix": "Fout: "
+    }
+  },
+
+  "billing": {
+    "title": "Abonnement & Limieten",
+    "subtitle": "Beheer je plan, bekijk quota’s en upgrade met één klik.",
+    "profile_link": "Profiel",
+    "refresh": "Vernieuwen",
+    "my_plan": "Mijn plan",
+    "current_plan": "Huidig plan",
+    "expires_on": "(verloopt op {{date}})",
+    "monthly_quotas": "Maandelijkse quota",
+    "loading_quotas": "Quota laden…",
+    "per_month": "/maand",
+    "current_chip": "Huidig plan",
+    "checkout_unavailable": "Betaling niet beschikbaar.",
+    "unknown_error": "Onbekende fout.",
+    "already_on_plan": "Reeds op dit plan",
+    "switch_to_plan": "Schakel naar {{plan}}",
+    "selected": "Geselecteerd",
+    "included_note": "Standaard inbegrepen • Geen betaling vereist",
+    "q": {
+      "sessions_created": "Sessies aangemaakt",
+      "trainings_created": "Trainingen aangemaakt",
+      "participations": "Sessie deelnames",
+      "groups_created": "Groepen aangemaakt"
+    },
+    "tiers": {
+      "free": {
+        "title": "Gratis",
+        "sub": "Start zonder druk",
+        "price": "€0",
+        "feat_basic": "Basis toegang",
+        "feat_quotas": "Beperkte quota",
+        "feat_no_trainings": "Geen coach trainingen"
+      },
+      "premium": {
+        "title": "Premium",
+        "sub": "Speel vaker",
+        "price": "€7.99",
+        "feat_boost": "Verhoogde quota",
+        "feat_groups": "Onbeperkte groepen",
+        "feat_support": "Prioritaire support",
+        "feat_no_trainings": "Geen coach trainingen"
+      },
+      "coach": {
+        "title": "Coach",
+        "sub": "Creëer en beheer trainingen",
+        "price": "€7.99",
+        "feat_trainings": "Trainingssessies aanmaken (beperkt)",
+        "feat_tools": "Coach tools & analytics",
+        "feat_team_mgmt": "Teambeheer",
+        "feat_sessions_unlimited": "Onbeperkte normale sessies"
+      }
+    },
+    "notes": {
+      "line_coach": "• Coach plan laat het creëren van trainingssessies toe (onderworpen aan limieten).",
+      "line_premium": "• Premium plan laat geen coach trainingen toe maar biedt hogere quota voor sessies."
+    },
+    "success": {
+      "title": "Betaling bevestigd ✅",
+      "subtitle": "Bedankt! Je abonnement is bijgewerkt. Zie je de wijziging nog niet? Klik op “Terug naar facturatie”.",
+      "back_to_billing": "Terug naar facturatie",
+      "view_sessions": "Bekijk mijn sessies"
+    }
+  },
+
+  "sessions_index_title": "Vind je volgende sportsessie",
+  "sessions_index_tabs_aria": "Tabbladen",
+  "sessions_index_tab_upcoming": "Aankomend",
+  "sessions_index_tab_archive": "Archief",
+
+  "sessions_index_filters_state_aria": "Sessie statusfilters",
+  "sessions_index_filter_all": "Alle",
+  "sessions_index_filter_open": "Open",
+  "sessions_index_filter_full": "Vol",
+
+  "sessions_index_search_placeholder": "Zoek een sessie…",
+  "sessions_index_filter_country": "Filter op land",
+  "sessions_index_filter_city": "Filter op stad",
+  "sessions_index_countries_all": "Alle landen",
+  "sessions_index_cities_all": "Alle steden",
+
+  "sessions_index_empty_upcoming": "Geen aankomende sessies.",
+  "sessions_index_empty_archive": "Geen gearchiveerde sessies.",
+
+  "sessions_index_join_success": "✅ Je bent lid geworden van de sessie!",
+  "sessions_index_leave_success": "✅ Je hebt de sessie verlaten!",
+  "sessions_index_join_error": "Fout bij deelname aan sessie",
+  "sessions_index_leave_error": "Fout bij verlaten van sessie",
+
+  "create_session_cta_btn": "Sessie aanmaken",
+  "create_session_cta_login_btn": "Log in om te maken",
+  "create_session_cta_quota_btn": "Quota bereikt — Upgrade",
+  "create_session_cta_aria": "Maak een sessie",
+  "create_session_cta_title": "Maak een sessie",
+  "create_session_cta_login_aria": "Log in om een sessie te maken",
+  "create_session_cta_login_title": "Log in om een sessie te maken",
+  "create_session_cta_quota_aria": "Quota bereikt — ga Premium",
+  "create_session_cta_quota_title": "Quota bereikt — ga Premium",
+  "create_session_cta_quota_confirm": "Je hebt je creatiequotum bereikt. Overschakelen naar Premium?",
+
+  "sport_filter_all": "Alle sporten",
+  "sport_filter_aria": "Filter op sport",
+  "sport_filter_all_title": "Toon sessies voor alle sporten",
+  "sport_filter_select_title": "Toon sessies voor {{name}}",
+
+  "sports_names": {
+    "football": "Voetbal",
+    "padel": "Padel",
+    "tennis": "Tennis",
+    "boxing": "Boksen",
+    "basketball": "Basketbal",
+    "natation": "Zwemmen",
+    "running": "Hardlopen",
+    "trail": "Trailrun",
+    "kickboxing": "Kickboksen",
+    "pilate": "Pilates",
+    "soccer": "Soccer",
+    "futsal": "Zaalvoetbal",
+    "american_football": "Amerikaans voetbal",
+    "rugby": "Rugby",
+    "handball": "Handbal",
+    "volleyball": "Volleybal",
+    "beach_volleyball": "Beachvolleybal",
+    "badminton": "Badminton",
+    "table_tennis": "Tafeltennis",
+    "squash": "Squash",
+    "pickleball": "Pickleball",
+    "golf": "Golf",
+    "cricket": "Cricket",
+    "baseball": "Honkbal",
+    "softball": "Softbal",
+    "hockey": "Hockey",
+    "field_hockey": "Veldhockey",
+    "ice_hockey": "IJshockey",
+    "lacrosse": "Lacrosse",
+    "martial_arts": "Vechtsporten",
+    "mma": "MMA",
+    "muay_thai": "Muay Thai",
+    "karate": "Karate",
+    "taekwondo": "Taekwondo",
+    "judo": "Judo",
+    "bjj": "Braziliaans Jiu-Jitsu",
+    "grappling": "Grappling",
+    "wrestling": "Worstelen",
+    "crossfit": "CrossFit",
+    "fitness": "Fitness",
+    "gym": "Gym / Krachttraining",
+    "strength_training": "Krachttraining",
+    "weightlifting": "Olympisch gewichtheffen",
+    "powerlifting": "Powerlifting",
+    "calisthenics": "Calisthenics",
+    "yoga": "Yoga",
+    "pilates": "Pilates",
+    "zumba": "Zumba",
+    "dance": "Dans",
+    "cycling": "Fietsen",
+    "mountain_bike": "Mountainbike",
+    "bmx": "BMX",
+    "triathlon": "Triatlon",
+    "duathlon": "Duatlon",
+    "swimming": "Zwemmen",
+    "open_water_swimming": "Openwaterzwemmen",
+    "rowing": "Roeien",
+    "canoe": "Kano",
+    "kayak": "Kajak",
+    "canoe_kayak": "Kano/Kajak",
+    "sailing": "Zeilen",
+    "surfing": "Surfen",
+    "windsurfing": "Windsurfen",
+    "kitesurfing": "Kitesurfen",
+    "sup": "Stand-up paddle",
+    "climbing": "Klimmen",
+    "bouldering": "Boulderen",
+    "hiking": "Wandelen",
+    "walking": "Stappen",
+    "orienteering": "Oriëntatielopen",
+    "skateboarding": "Skateboarden",
+    "rollerblading": "Inline skaten",
+    "ice_skating": "Schaatsen",
+    "ski": "Skiën",
+    "snowboard": "Snowboarden",
+    "biathlon": "Biathlon",
+    "archery": "Boogschieten",
+    "shooting": "Schieten",
+    "fencing": "Schermen",
+    "darts": "Darten",
+    "billiards": "Biljart",
+    "snooker": "Snooker",
+    "bowling": "Bowlen",
+    "equestrian": "Paardensport",
+    "horse_riding": "Paardrijden",
+    "petanque": "Petanque",
+    "bocce": "Bocce",
+    "ultimate_frisbee": "Ultimate frisbee",
+    "disc_golf": "Disc golf",
+    "parkour": "Parkour",
+    "strongman": "Strongman",
+    "aerobics": "Aerobics"
+  },
+
+  "session_card": {
+    "label": "Sessie",
+    "past_tooltip": "Voorbije sessie — niet klikbaar",
+    "status_past": "VOORBIJ",
+    "status_full": "VOL",
+    "badge_private": "Privé",
+    "badge_ongoing": "Bezig",
+    "sport_label": "Sport",
+    "remaining_places": "{{count}} plaatsen over",
+    "full": "Vol",
+    "details": "Bekijk details"
+  },
+
+   "location_filter": {
+    "aria_country": "Filter op land",
+    "aria_city": "Filter op stad",
+    "country_all": "Alle landen",
+    "city_all": "Alle steden",
+    "city_all_in_country": "Alle steden"
+  },
+
+  "sd_loading": "Laden…",
+  "sd_retry": "Opnieuw proberen",
+  "sd_refresh": "Vernieuwen",
+  "sd_action_impossible": "Actie niet mogelijk.",
+
+  "sd_countdown_ongoing_or_past": "bezig / voorbij",
+  "sd_min": "min",
+  "sd_link_copied": "Link gekopieerd!",
+  "sd_load_failed": "Kan sessie niet laden.",
+
+  "sd_banner_past": "Deze sessie is voorbij — inschrijvingen gesloten.",
+  "sd_banner_ongoing": "Sessie bezig.",
+  "sd_banner_locked": "Deze sessie is vergrendeld.",
+  "sd_banner_finished": "Sessie afgelopen.",
+  "sd_banner_canceled": "Sessie geannuleerd.",
+
+  "sd_badge_full": "Vol",
+  "sd_badge_private": "Privé",
+
+  "sd_meta_creator": "Organisator",
+  "sd_meta_sport": "Sport",
+  "sd_meta_location": "Locatie",
+  "sd_meta_date": "Datum",
+  "sd_meta_capacity": "Capaciteit",
+  "sd_meta_remaining": "Resterend",
+  "sd_meta_starts_in": "Start over",
+  "sd_places": "plaatsen",
+
+  "sd_join": "Deelnemen",
+  "sd_leave": "Verlaten",
+  "sd_join_title": "Deelnemen aan sessie",
+  "sd_leave_title": "Sessie verlaten",
+  "sd_creator_cant_leave": "Organisator · kan niet verlaten",
+  "sd_creator_cant_leave_title": "Je bent de organisator, je kan deze sessie niet verlaten. Verwijder ze indien nodig.",
+  "sd_copy_link": "Kopieer link",
+  "sd_open_in_maps": "Open in Maps",
+
+  "sd_join_disabled_past": "Deze sessie is voorbij. Inschrijvingen gesloten.",
+  "sd_join_disabled_locked": "Deze sessie is vergrendeld.",
+  "sd_join_disabled_finished": "Sessie afgelopen.",
+  "sd_join_disabled_canceled": "Sessie geannuleerd.",
+  "sd_join_disabled_full": "De sessie is vol.",
+
+  "sd_must_login": "Log in om deel te nemen.",
+  "sd_join_failed": "Kan niet deelnemen.",
+  "sd_leave_failed": "Kan niet verlaten.",
+
+  "sd_quota_reached_prompt": "Je hebt je maandelijkse deelnamequotum bereikt. Upgrade naar Premium?",
+
+  "sd_description": "Beschrijving",
+  "sd_danger_zone_title": "Gevarenzone",
+  "sd_danger_zone_text_prefix": "Verwijdering is",
+  "sd_danger_zone_text_suffix": "Controleer dubbel voordat je doorgaat.",
+  "sd_definitive": "permanent",
+  "sd_delete_session": "Sessie verwijderen",
+  "sd_delete_confirm": "Deze sessie verwijderen? Dit is permanent.",
+  "sd_delete_failed": "Verwijderen mislukt.",
+
+  "sd_participants": "Deelnemers",
+  "sd_no_participants": "Nog geen deelnemers.",
+  "sd_session_chat": "Sessiechat",
+
+  "sd_restricted_title": "Alleen voor leden",
+  "sd_restricted_text": "Neem deel aan de sessie om teams, deelnemers en chat te zien.",
+
+  "sd_vs": "VS",
+  "sd_team_label": "Team {{n}}",
+
+  "billing_cancel": {
+    "title": "Betaling geannuleerd ❌",
+    "subtitle": "Geen wijziging van plan. Je kan het altijd opnieuw proberen.",
+    "back_button": "Terug naar abonnement"
+  },
+
+  "gp_title": "Groepen",
+  "gp_subtitle": "Organiseer je teams en start je sessies.",
+
+  "gp_create_button": "+ Groep aanmaken",
+  "gp_create_title": "Groep aanmaken",
+  "gp_cta_title_login": "Log in om een groep aan te maken",
+  "gp_cta_title_check_premium": "Controleren… (premium gedetecteerd)",
+  "gp_cta_title_check_quotas": "Quota controleren…",
+  "gp_cta_title_forbidden": "Je plan laat geen groepen toe",
+  "gp_cta_title_quota_reached": "Groepsquotum bereikt voor deze maand",
+
+  "gp_ph_search": "Zoek een groep",
+  "gp_ph_sport": "Sport-ID (tijdelijk)",
+  "gp_ph_city": "Stad",
+  "gp_filter": "Filter",
+  "gp_reset": "Reset",
+
+  "gp_loading": "Laden…",
+  "gp_results": "{{count}} groep",
+  "gp_results_plural": "{{count}} groepen",
+
+  "gp_chip_q": "q",
+  "gp_chip_sport": "sport",
+  "gp_chip_city": "stad",
+
+  "gp_preview_strong": "Voorbeeldinhoud",
+  "gp_preview_text": "Log in om groepen duidelijk te zien en toegang te krijgen.",
+  "gp_login": "Inloggen",
+  "gp_register": "Maak een account",
+
+  "gp_empty_filters": "Geen groepen gevonden met deze filters.",
+  "gp_create_first": "Maak de eerste aan",
+
+  "gd_loading": "Laden…",
+  "gd_not_found": "Groep niet gevonden.",
+  "gd_load_failed": "Kan groep niet laden.",
+  "gd_reload_failed": "Kan groep niet herladen.",
+  "gd_action_failed": "Actie niet mogelijk.",
+
+  "gd_type_private": "Privé",
+  "gd_type_coach": "Alleen coach",
+  "gd_type_public": "Openbaar",
+
+  "gd_join_policy_private": "Op aanvraag (goedkeuring vereist)",
+  "gd_join_policy_coach": "Op uitnodiging van coach",
+  "gd_join_policy_open": "Open",
+
+  "gd_invitation_required_title": "Uitnodiging vereist door de coach",
+  "gd_invitation_only": "Alleen uitnodiging",
+  "gd_request_join": "Aanvraag om deel te nemen",
+  "gd_join": "Deelnemen",
+  "gd_leave": "Verlaten",
+  "gd_join_success": "Je bent lid geworden van de groep.",
+  "gd_request_sent": "Aanvraag verzonden.",
+  "gd_leave_success": "Je hebt de groep verlaten.",
+  "gd_quota_reached_prompt": "Je hebt je groepslimiet bereikt voor je plan. Upgrade naar Premium?",
+
+  "gd_tab_overview": "Overzicht",
+  "gd_tab_members": "Leden",
+  "gd_tab_chat": "Chat",
+  "gd_tab_sessions": "Sessies",
+  "gd_tab_requests": "Aanvragen",
+
+  "gd_about": "Over",
+  "gd_access_rules": "Toegangsregels",
+  "gd_membership": "Lidmaatschap:",
+  "gd_type": "Type:",
+  "gd_members_count_one": "{{count}} lid",
+  "gd_members_count_other": "{{count}} leden",
+
+  "gd_fact_coach": "Coach",
+  "gd_fact_sport": "Sport",
+  "gd_fact_city": "Stad",
+  "gd_fact_members": "Leden",
+  "gd_fact_created": "Aangemaakt",
+  "gd_fact_updated": "Bijgewerkt",
+
+  "gd_member_added": "Lid toegevoegd: {{who}}",
+  "gd_add_member_failed": "Kan lid niet toevoegen.",
+  "gd_remove_member_confirm": "Dit lid uit de groep verwijderen?",
+  "gd_member_removed": "Lid verwijderd.",
+  "gd_remove_member_failed": "Kan lid niet verwijderen.",
+
+  "gd_danger_zone_title": "Gevarenzone",
+  "gd_danger_zone_text_prefix": "Verwijdering is",
+  "gd_danger_zone_text_suffix": "Controleer dubbel voordat je doorgaat.",
+  "gd_definitive": "permanent",
+  "gd_delete_group": "Groep verwijderen",
+  "gd_delete_confirm": "Deze groep verwijderen? Dit is permanent.",
+  "gd_delete_failed": "Kan groep niet verwijderen.",
+
+  "gd_tab_requests_none": "Aanvragen",
+  "gd_tab_requests_some": "Aanvragen ({{count}})",
+
+  "gform_title": "Groep aanmaken",
+
+  "gform_label_name": "Naam",
+  "gform_label_sport": "Sport",
+  "gform_label_type": "Type groep",
+  "gform_label_city": "Stad",
+  "gform_label_desc": "Beschrijving",
+
+  "gform_ph_name": "Groepsnaam",
+  "gform_ph_sport": "Typ om sport te zoeken",
+  "gform_ph_city": "bv. Brussel",
+  "gform_ph_desc": "Handige info, groepsregels, enz.",
+
+  "gform_type_open": "Open (direct deelnemen)",
+  "gform_type_private": "Privé (aanvraag/goedkeuring)",
+  "gform_type_coach": "Coach (alleen uitnodiging)",
+
+  "gform_hint_open": "Iedereen kan direct deelnemen.",
+  "gform_hint_private": "Gebruikers sturen een aanvraag die je accepteert of weigert.",
+  "gform_hint_coach": "Alleen uitnodiging (Deelnemen-knop uitgeschakeld).",
+  "gform_hint_searching": "Zoeken…",
+  "gform_hint_no_sport": "Geen sport",
+  "gform_selected": "Geselecteerd:",
+  "gform_id": "id",
+
+  "gform_err_required": "Naam en sport zijn verplicht.",
+  "gform_err_plan_blocks": "Je plan laat geen groepen aanmaken toe.",
+  "gform_err_quota_month": "Groepsquotum bereikt voor deze maand.",
+  "gform_err_forbidden": "Creatie geweigerd (plan/quota/rechten).",
+  "gform_err_create": "Aanmaken mislukt.",
+
+  "gform_created": "Groep aangemaakt.",
+  "gform_create": "Aanmaken",
+  "gform_creating": "Bezig met aanmaken…",
+  "gform_cancel": "Annuleren",
+
+  "gform_title_plan_blocks": "Je plan laat geen groep aanmaken toe",
+  "gform_title_quota_month": "Quota bereikt voor deze maand",
+
+  "gform_quota_unlimited": "Groepsquotum: {{used}} / ∞",
+  "gform_quota_limited": "Groepsquotum: {{used}} / {{limit}}",
+
+  "aa_placeholder": "Typ een adres…",
+  "aa_loading": "Zoeken…",
+  "aa_no_results": "Geen resultaten",
+  "aa_min_chars_one": "Typ minstens {{count}} teken…",
+  "aa_min_chars_other": "Typ minstens {{count}} tekens…",
+  "am_add_internal_ph": "Voeg een intern lid toe (gebruikersnaam / e-mail)",
+
+  "cp_title": "Chat",
+  "cp_placeholder_msg": "Bericht",
+  "cp_join_to_view": "Word lid van de sessie om de chat te bekijken",
+  "cp_members_only": "Discussie alleen voor leden",
+  "cp_empty": "Nog geen berichten.",
+  "cp_deleted": "Bericht verwijderd",
+  "cp_delete": "Verwijderen",
+  "cp_delete_short": "Verwijderen",
+  "cp_placeholder_input": "Je bericht…",
+  "cp_send": "Verzenden",
+
+  "cp_err_load": "Kan chat niet laden.",
+  "cp_err_send": "Kan niet verzenden.",
+  "cp_err_delete": "Kan niet verwijderen.",
+  "cp_confirm_delete": "Dit bericht verwijderen?",
+
+  "cc_prev_month_aria": "Vorige maand",
+  "cc_prev_month_title": "Vorige maand (←)",
+  "cc_today": "Vandaag",
+  "cc_today_title": "Vandaag (T)",
+  "cc_month_aria": "Maand",
+  "cc_year_aria": "Jaar",
+  "cc_next_month_aria": "Volgende maand",
+  "cc_next_month_title": "Volgende maand (→)",
+
+  "cc_wd_mon": "Ma",
+  "cc_wd_tue": "Di",
+  "cc_wd_wed": "Wo",
+  "cc_wd_thu": "Do",
+  "cc_wd_fri": "Vr",
+  "cc_wd_sat": "Za",
+  "cc_wd_sun": "Zo",
+
+  "cc_loading": "Laden…",
+  "cc_time_unknown": "??:??",
+
+  "cc_publish": "Publiceren",
+  "cc_cancel": "Annuleren",
+
+  "cc_more_one": "+{{count}} meer",
+  "cc_more_other": "+{{count}} meer",
+  "cc_more_title_one": "{{count}} extra evenement",
+  "cc_more_title_other": "{{count}} extra evenementen",
+
+  "cc_status_draft": "Concept",
+  "cc_status_open": "Open",
+  "cc_status_locked": "Vergrendeld",
+  "cc_status_finished": "Afgerond",
+  "cc_status_canceled": "Geannuleerd",
+
+  "external_members": {
+    "loading": "Laden…",
+    "load_error": "Kan externe leden niet laden.",
+    "add_error": "Kon extern lid niet toevoegen.",
+    "delete_error": "Verwijderen mislukt.",
+    "delete_confirm": "Dit externe lid verwijderen?",
+
+    "first_name_ph": "Voornaam",
+    "last_name_ph": "Achternaam",
+    "note_ph": "Notitie (optioneel)",
+    "add_btn": "Toevoegen",
+
+    "filter_ph": "Filter een extern lid (naam / notitie)",
+    "empty": "Geen externe leden.",
+    "delete_btn": "Verwijderen"
+  },
+
+  "group_card": {
+    "type_private": "Privé",
+    "type_coach_only": "Alleen coach",
+    "type_public": "Openbaar",
+
+    "members": "{{count}} lid",
+    "members_plural": "{{count}} leden",
+
+    "details_btn": "Details",
+    "login_required_title": "Log in om te bekijken",
+    "view_group_title": "Bekijk groep"
+  },
+
+  "group_join_requests": {
+    "loading": "Laden…",
+    "load_error": "Kan aanvragen niet laden.",
+    "action_error": "Actie mislukt.",
+    "empty": "Geen aanvragen.",
+
+    "reject_btn": "Weigeren",
+    "approve_btn": "Goedkeuren",
+
+    "reject_title": "Aanvraag weigeren",
+    "approve_title": "Aanvraag goedkeuren",
+
+    "reject_aria": "Weiger aanvraag van {{name}}",
+    "approve_aria": "Keur aanvraag van {{name}} goed"
+  },
+
+  "group_members": {
+    "empty": "Nog geen leden.",
+    "list_aria": "Leden ({{count}})",
+    "remove_btn": "Verwijderen",
+    "remove_title": "{{name}} uit de groep verwijderen",
+    "remove_aria": "{{name}} uit de groep verwijderen"
+  },
+
+  "group_sessions_tab": {
+    "title": "Groepstrainingen",
+    "create_btn": "+ Aanmaken",
+    "loading": "Laden…",
+    "load_error": "Kan trainingen niet laden.",
+    "empty": "Nog geen trainingen.",
+    "details_btn": "Details",
+    "details_title": "Bekijk details",
+    "details_aria": "Bekijk details voor “{{title}}”",
+    "attendance_btn": "Presentielijst",
+    "attendance_title": "Open presentielijst",
+    "delete_btn": "Verwijderen",
+    "delete_confirm": "Deze training verwijderen?",
+    "delete_error": "Verwijderen mislukt."
+  },
+
+  "group_training_list": {
+    "loading": "Laden…",
+    "load_error": "Kan trainingen niet laden.",
+    "empty": "Nog geen trainingen.",
+    "training_chip": "Training",
+
+    "details_btn": "Details",
+    "details_title": "Open details",
+    "details_aria": "Open details voor sessie #{{id}}",
+
+    "attendance_btn": "Presentielijst",
+    "attendance_title": "Open presentielijst",
+
+    "delete_btn": "Verwijderen",
+    "delete_title": "Training verwijderen",
+    "delete_confirm": "Deze training verwijderen?",
+    "delete_error": "Verwijderen mislukt.",
+
+    "missing_id_title": "Sessie-ID ontbreekt"
+  },
+
+  "quotas_banner": {
+    "creations_label": "Creaties / maand",
+    "participations_label": "Deelnames / maand",
+    "groups_label": "Max actieve groepen",
+    "plan_title": "Plan {{plan}}"
+  },
+
+  "session_filters": {
+    "bar_aria": "Sessiefilters",
+    "all": "Alle",
+    "open": "Open",
+    "finished": "Afgerond",
+    "full": "Vol",
+    "refresh": "Vernieuwen",
+    "refresh_aria": "Sessielijst vernieuwen",
+    "refresh_title": "Vernieuwen",
+    "filter_title": "Filter op “{{label}}”"
+  },
+
+  "session_map": {
+    "sport_label": "Sport:",
+    "date_label": "Datum:",
+    "place_label": "Plaats:",
+    "preview_overlay": "Voorbeeld — log in om details te bekijken."
+  },
+
+  "session_slots": {
+    "occupied": "Bezet",
+    "join": "Deelnemen",
+    "legend_empty": "Vrij",
+    "legend_filled": "Bezet",
+    "legend_mine": "Jij"
+  },
+
+  "training_attendance": {
+    "title": "Presentielijst",
+    "close_btn": "Sluiten",
+
+    "loading": "Laden…",
+    "load_error": "Kan niet laden.",
+    "invalid_session_id": "Ongeldig sessie-ID.",
+    "api_unavailable": "Aanwezigheids-API niet beschikbaar op server.",
+    "save_error": "Opslaan mislukt.",
+
+    "present_word": "aanwezig",
+    "external_word": "externen",
+    "external_badge": "extern",
+    "external_title": "Extern lid",
+    "external_short": "Ext #{{id}}",
+
+    "all_present_btn": "Allen aanwezig",
+    "all_absent_btn": "Allen afwezig",
+    "invert_btn": "Omkeren",
+
+    "empty": "Geen leden om weer te geven.",
+
+    "saving": "Opslaan…",
+    "save_btn": "Opslaan",
+    "cancel_btn": "Annuleren",
+
+    "last_saved_at": "Laatst opgeslagen: {{time}}",
+    "toggle_presence_aria": "Aanwezigheid schakelen voor {{name}}"
+  },
+
+  "training_form": {
+    "loading": "Laden…",
+    "group_load_error": "Kan groep niet laden.",
+    "create_error": "Fout bij aanmaken",
+
+    "title": "Nieuwe training (groep)",
+
+    "field_title": "Titel",
+    "field_sport": "Sport",
+    "field_description": "Beschrijving",
+    "field_location": "Locatie",
+    "field_date": "Datum",
+    "field_start_time": "Starttijd",
+    "team_mode": "Teammodus",
+    "field_max_players": "Max spelers",
+    "field_min_per_team": "Min spelers/team",
+    "field_max_per_team": "Max spelers/team",
+
+    "inherited_from_group": "overgenomen van groep",
+
+    "loc_ok": "locatie OK",
+    "loc_hint": "Kies een adres uit de lijst",
+
+    "tip_team": "Min {{minTotalPlayers}} spelers voor 2 teams • Capaciteit {{cap}}",
+    "tip_solo": "Capaciteit {{cap}} spelers",
+
+    "err_title_min": "Min. 3 tekens",
+    "err_description_min": "Min. 10 tekens",
+    "err_location_select": "Selecteer een adres via autocomplete",
+    "err_required": "Verplicht",
+    "err_datetime_future": "Datum/tijd moet in de toekomst liggen (≥ 5 min)",
+    "err_ge1": "≥ 1",
+    "err_max_ge_min": "Moet ≥ min/team zijn",
+    "err_cap_insufficient": "Onvoldoende capaciteit voor 2 teams (min/team)",
+
+    "creating": "Bezig met aanmaken…",
+    "create_btn": "Training aanmaken",
+    "cancel_btn": "Annuleren",
+
+    "open_in_maps": "Open locatie in Google Maps ↗",
+    "open_in_maps_title": "Open in Google Maps"
+  },
+
+  "upgrade_card": {
+    "title": "Mijn plan",
+    "loading": "Plan laden…",
+    "until_date": "· tot {{date}}",
+
+    "creations_label": "Creaties / maand",
+    "participations_label": "Deelnames / maand",
+    "groups_label": "Max actieve groepen",
+
+    "premium_btn": "Ga Premium",
+    "premium_title": "Upgrade naar Premium",
+    "coach_btn": "Word Coach",
+    "coach_title": "Abonneer op Coach plan",
+
+    "payment_error": "Betalingsfout. Probeer opnieuw."
+  },
+
+  "lp": {
+    "hero": {
+      "title": "Organiseer. <accent>Doe mee.</accent> Presteer.",
+      "subtitle": "Het eenvoudige en snelle platform om sessies te maken, je groepen te beheren en coachtrainingen te organiseren — zonder gedoe.",
+      "cta_register": "Registreren",
+      "cta_sessions": "Bekijk sessies"
+    },
+    "metrics": {
+      "players": "Spelers",
+      "sessions": "Sessies",
+      "fill_rate": "Bezettingsgraad"
+    },
+    "partners_label": "Zij vertrouwen op Tribeo",
+    "features": {
+      "title": "Alles wat je nodig hebt, niets overbodigs",
+      "subtitle": "Organiseer wedstrijden, beheer groepen en trainingen als coach.",
+      "create_session": {
+        "title": "Sessie aanmaken",
+        "desc": "Capaciteit, zichtbaarheid (openbaar/privé), regels — in seconden."
+      },
+      "search": {
+        "title": "Zoeken & filters",
+        "desc": "Op sport, datum en stad. Blader door de openbare sessielijst."
+      },
+      "groups": {
+        "title": "Open of privé groepen",
+        "desc": "Maak openbare of privé groepen met beschrijving en stad."
+      },
+      "trainings": {
+        "title": "Trainingen (Coach)",
+        "desc": "Specifieke functies voor coaches: beheer trainingen & planning."
+      },
+      "teams": {
+        "title": "Teams & organisatie",
+        "desc": "Verdeel spelers, balanceer teams en beheer de wedstrijd."
+      },
+      "plans": {
+        "title": "Plannen & quota",
+        "desc": "GRATIS / PREMIUM / COACH, veilige Stripe betalingen, maandelijkse quota."
+      }
+    },
+    "how": {
+      "title": "Hoe het werkt",
+      "steps": {
+        "1": { "title": "Maak je sessie", "desc": "Sport, plaats, datum en capaciteit." },
+        "2": { "title": "Deel & vul", "desc": "Openbare sessies of privé uitnodigingen." },
+        "3": { "title": "Speel & beheer", "desc": "Teams, opvolging en geschiedenis." }
+      }
+    },
+    "testimonials": {
+      "title": "Wat de community zegt"
+    },
+    "pricing": {
+      "title": "Prijzen"
+    },
+    "final": {
+      "title": "Klaar om je volgende sessie te starten?",
+      "subtitle": "Word gratis lid van Tribeo en verbeter je spel.",
+      "cta_register": "Registreren",
+      "cta_sessions": "Bekijk sessies"
+    },
+    "footer": {
+      "features": "Functies",
+      "how": "Hoe",
+      "pricing": "Prijzen",
+      "login": "Inloggen"
+    }
+  }
+  
+}

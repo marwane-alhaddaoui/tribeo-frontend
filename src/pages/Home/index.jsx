@@ -1,15 +1,10 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import "../../styles/HomePage.css";
 
 /**
- * Composant d'accueil sans données fake.
- * Passe des props réelles pour afficher les sections optionnelles.
- *
- * @param {Object} props
- * @param {Object} [props.stats]   - { players: number, sessions: number, fillRate: string|number }
- * @param {Array}  [props.partners]- tableau de noms/logos (strings) ex: ["Club Five", "RunCrew"]
- * @param {Array}  [props.testimonials] - [{ text, user }]
- * @param {Array}  [props.pricing] - [{ badge?, title, price, items: string[], hot?, to, ctaLabel }]
+ * Page d’accueil alignée sur les features réelles
+ * Toutes les traductions passent par le prefix custom "lp.*"
  */
 export default function HomePremium({
   stats,
@@ -17,7 +12,8 @@ export default function HomePremium({
   testimonials = [],
   pricing = [],
 }) {
-  const hasStats = stats && (stats.players || stats.sessions || stats.fillRate);
+  const { t } = useTranslation();
+  const hasStats = !!stats && (stats.players || stats.sessions || stats.fillRate);
   const hasPartners = partners.length > 0;
   const hasTestimonials = testimonials.length > 0;
   const hasPricing = pricing.length > 0;
@@ -28,39 +24,44 @@ export default function HomePremium({
       <section className="lp-hero">
         <div className="lp-hero__bg" />
         <div className="lp-hero__content">
-          <h1 className="lp-title">
-            Organise. <span className="accent">Rejoins.</span> Performe.
-          </h1>
-          <p className="lp-sub">
-            La plateforme moderne pour gérer tes sessions sportives, trouver des partenaires
-            et piloter ta communauté — sans blabla, juste ce qu’il faut.
-          </p>
+          <h1
+            className="lp-title"
+            dangerouslySetInnerHTML={{ __html: t("lp.hero.title") }}
+          />
+          <p className="lp-sub">{t("lp.hero.subtitle")}</p>
 
           <div className="lp-hero__cta">
-            <Link to="/register" className="btn primary lg">Créer mon compte</Link>
-            <Link to="/sessions" className="btn outline lg">Voir les sessions</Link>
+            <Link to="/register" className="btn primary lg">
+              {t("lp.hero.cta_register")}
+            </Link>
+            <Link to="/sessions" className="btn outline lg">
+              {t("lp.hero.cta_sessions")}
+            </Link>
           </div>
 
           {hasStats && (
             <div className="lp-metrics">
               {typeof stats.players !== "undefined" && (
-                <Metric num={formatMetric(stats.players)} label="Joueurs" />
+                <Metric num={formatMetric(stats.players)} label={t("lp.metrics.players")} />
               )}
               {typeof stats.sessions !== "undefined" && (
-                <Metric num={formatMetric(stats.sessions)} label="Sessions" />
+                <Metric num={formatMetric(stats.sessions)} label={t("lp.metrics.sessions")} />
               )}
               {typeof stats.fillRate !== "undefined" && (
-                <Metric num={`${stats.fillRate}${String(stats.fillRate).toString().includes("%") ? "" : "%"}`} label="Taux de remplissage" />
+                <Metric
+                  num={`${stats.fillRate}${String(stats.fillRate).includes("%") ? "" : "%"}`}
+                  label={t("lp.metrics.fill_rate")}
+                />
               )}
             </div>
           )}
         </div>
       </section>
 
-      {/* ====== TRUST / LOGOS (affiché seulement si partners) ====== */}
+      {/* ====== TRUST / LOGOS ====== */}
       {hasPartners && (
         <section className="lp-logos">
-          <span className="lp-logos__label">Ils utilisent Tribeo</span>
+          <span className="lp-logos__label">{t("lp.partners_label")}</span>
           <div className="lp-logos__row">
             {partners.map((p, i) => (
               <div className="logo-pseudo" key={i}>{p}</div>
@@ -71,45 +72,45 @@ export default function HomePremium({
 
       {/* ====== FEATURES ====== */}
       <section id="features" className="lp-section">
-        <h2 className="lp-h2">Pensé pour les joueurs et les coachs</h2>
-        <p className="lp-lead">Tout ce qu’il faut pour organiser, remplir et suivre tes sessions.</p>
+        <h2 className="lp-h2">{t("lp.features.title")}</h2>
+        <p className="lp-lead">{t("lp.features.subtitle")}</p>
 
         <div className="grid-3">
-          <Feature icon="⚡"  title="Création éclair" desc="Crée une session en quelques secondes avec capacité, visibilité et règles." />
-          <Feature icon="🎯"  title="Matching intelligent" desc="Trouve des partenaires compatibles selon sport, niveau et disponibilités." />
-          <Feature icon="🗺️" title="Carto & proximité" desc="Carte intégrée, filtres, et itinéraires immédiats." />
-          <Feature icon="🧩" title="Gestion des équipes" desc="Répartition, ajustements visuels, équilibre des matchs." />
-          <Feature icon="🔔" title="Notifications" desc="Rappels utiles, confirmations et changements." />
-          <Feature icon="📈" title="Statistiques" desc="Historique, assiduité, taux de remplissage, partenaires réguliers." />
+          <Feature icon="⚡" title={t("lp.features.create_session.title")} desc={t("lp.features.create_session.desc")} />
+          <Feature icon="🔎" title={t("lp.features.search.title")} desc={t("lp.features.search.desc")} />
+          <Feature icon="👥" title={t("lp.features.groups.title")} desc={t("lp.features.groups.desc")} />
+          <Feature icon="🏋️" title={t("lp.features.trainings.title")} desc={t("lp.features.trainings.desc")} />
+          <Feature icon="🧩" title={t("lp.features.teams.title")} desc={t("lp.features.teams.desc")} />
+          <Feature icon="💳" title={t("lp.features.plans.title")} desc={t("lp.features.plans.desc")} />
         </div>
       </section>
 
       {/* ====== HOW IT WORKS ====== */}
       <section id="how" className="lp-section alt">
-        <h2 className="lp-h2">Comment ça marche</h2>
+        <h2 className="lp-h2">{t("lp.how.title")}</h2>
         <div className="how-steps">
-          <Step n="1" title="Crée ta session" desc="Titre, sport, lieu, date, capacité — c’est prêt." />
-          <Step n="2" title="Partage & remplis" desc="Invitations privées ou découverte publique." />
-          <Step n="3" title="Joue & mesure" desc="Check-in, équipes équilibrées, stats automatiques." />
+          <Step n="1" title={t("lp.how.steps.1.title")} desc={t("lp.how.steps.1.desc")} />
+          <Step n="2" title={t("lp.how.steps.2.title")} desc={t("lp.how.steps.2.desc")} />
+          <Step n="3" title={t("lp.how.steps.3.title")} desc={t("lp.how.steps.3.desc")} />
         </div>
       </section>
 
-      {/* ====== SOCIAL PROOF (affiché seulement si testimonials) ====== */}
+      {/* ====== SOCIAL PROOF ====== */}
       {hasTestimonials && (
         <section className="lp-section">
-          <h2 className="lp-h2">Ce que la communauté dit</h2>
+          <h2 className="lp-h2">{t("lp.testimonials.title")}</h2>
           <div className="grid-3 testimonials">
-            {testimonials.map((t, i) => (
-              <Testi key={i} text={t.text} user={t.user} />
+            {testimonials.map((tst, i) => (
+              <Testi key={i} text={tst.text} user={tst.user} />
             ))}
           </div>
         </section>
       )}
 
-      {/* ====== PRICING (affiché seulement si pricing) ====== */}
+      {/* ====== PRICING ====== */}
       {hasPricing && (
         <section id="pricing" className="lp-section alt">
-          <h2 className="lp-h2">Tarifs</h2>
+          <h2 className="lp-h2">{t("lp.pricing.title")}</h2>
           <div className="grid-3 pricing">
             {pricing.map((p, i) => (
               <Price
@@ -128,11 +129,11 @@ export default function HomePremium({
 
       {/* ====== FINAL CTA ====== */}
       <section className="lp-final">
-        <h2 className="lp-final__title">Prêt à lancer ta prochaine session ?</h2>
-        <p className="lp-final__sub">Rejoins Tribeo gratuitement et passe au niveau supérieur.</p>
+        <h2 className="lp-final__title">{t("lp.final.title")}</h2>
+        <p className="lp-final__sub">{t("lp.final.subtitle")}</p>
         <div className="lp-final__cta">
-          <Link to="/register" className="btn primary lg">Créer mon compte</Link>
-          <Link to="/sessions" className="btn outline lg">Voir les sessions</Link>
+          <Link to="/register" className="btn primary lg">{t("lp.final.cta_register")}</Link>
+          <Link to="/sessions" className="btn outline lg">{t("lp.final.cta_sessions")}</Link>
         </div>
       </section>
 
@@ -140,10 +141,10 @@ export default function HomePremium({
         <div className="lp-footer__inner">
           <span>© {new Date().getFullYear()} Tribeo</span>
           <nav className="lp-footer__links">
-            <a href="#features">Fonctionnalités</a>
-            <a href="#how">Comment</a>
-            {hasPricing && <a href="#pricing">Tarifs</a>}
-            <Link to="/login">Connexion</Link>
+            <a href="#features">{t("lp.footer.features")}</a>
+            <a href="#how">{t("lp.footer.how")}</a>
+            {hasPricing && <a href="#pricing">{t("lp.footer.pricing")}</a>}
+            <Link to="/login">{t("lp.footer.login")}</Link>
           </nav>
         </div>
       </footer>
@@ -197,7 +198,11 @@ function Price({ badge, title, price, items = [], hot = false, cta }) {
       <ul className="price__list">
         {items.map((it, i) => <li key={i}>{it}</li>)}
       </ul>
-      {cta && <Link to={cta.to} className={`btn ${hot ? "primary" : "outline"}`}>{cta.label}</Link>}
+      {cta && (
+        <Link to={cta.to} className={`btn ${hot ? "primary" : "outline"}`}>
+          {cta.label}
+        </Link>
+      )}
     </div>
   );
 }
@@ -205,9 +210,9 @@ function Price({ badge, title, price, items = [], hot = false, cta }) {
 /* ====== helpers ====== */
 function formatMetric(v) {
   if (typeof v === "number") {
-    if (v >= 1000000) return `${(v/1_000_000).toFixed(1)}M+`;
-    if (v >= 1000)    return `${(v/1000).toFixed(1)}k+`;
+    if (v >= 1_000_000) return `${(v/1_000_000).toFixed(1)}M+`;
+    if (v >= 1_000)    return `${(v/1_000).toFixed(1)}k+`;
     return v.toString();
   }
-  return v; // string déjà formatée
+  return v;
 }

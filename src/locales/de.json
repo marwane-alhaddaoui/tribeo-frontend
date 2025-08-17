@@ -1,0 +1,945 @@
+{
+  "logo_alt": "Tribeo Logo",
+  "home": "Startseite",
+  "sessions": "Sitzungen",
+  "groups": "Gruppen",
+  "dashboard": "Dashboard",
+  "billing.title": "Abrechnung",
+  "profile": "Profil",
+  "view_profile": "Profil ansehen",
+  "login": "Anmelden",
+  "register": "Registrieren",
+  "logout": "Abmelden",
+  "menu": "Menü",
+  "close": "Schließen",
+  "switch_language": "Sprache wechseln",
+  "billing_label": "Abrechnung",
+
+  "welcome": "Willkommen bei Tribeo",
+  "createSession": "Sitzung erstellen",
+  "join": "Beitreten",
+  "leave": "Verlassen",
+  "search": "Suchen",
+
+  "auth": {
+    "login_title": "Anmelden",
+    "login_subtitle": "Organisiere deinen Sport – mühelos.",
+    "login_error": "Ungültige Zugangsdaten. Bitte erneut versuchen.",
+    "forgot_password": "Passwort vergessen?",
+    "create_account": "Konto erstellen",
+
+    "email_or_username": "E-Mail oder Benutzername",
+    "email": "E-Mail",
+    "email_placeholder": "Deine E-Mail",
+    "email_invalid": "Ungültige E-Mail-Adresse",
+
+    "password": "Passwort",
+    "password_placeholder": "Dein Passwort",
+    "password_min": "Mindestens {{count}} Zeichen",
+
+    "show_password": "Passwort anzeigen",
+    "hide_password": "Passwort verbergen",
+    "show": "Anzeigen",
+    "hide": "Verbergen",
+    "submit_login": "Anmelden",
+
+    "register_title": "Konto erstellen",
+    "register_subtitle": "Tritt deiner Sport-Community in Sekunden bei.",
+    "register_failed": "Registrierung fehlgeschlagen. Felder prüfen und erneut versuchen.",
+    "creating": "Wird erstellt…",
+    "register_cta": "Registrieren",
+
+    "first_name": "Vorname",
+    "last_name": "Nachname",
+    "first_name_placeholder": "Dein Vorname",
+    "last_name_placeholder": "Dein Nachname",
+
+    "username": "Benutzername",
+    "username_placeholder": "Dein Benutzername",
+    "username_title": "3–20 Zeichen, Kleinbuchstaben, Ziffern, Unterstrich",
+    "username_invalid": "Ungültiger Benutzername (3–20 Zeichen, a–z, 0–9, _).",
+    "first_last_required": "Vor- und Nachname sind erforderlich.",
+
+    "already_have_account": "Hast du schon ein Konto?",
+    "login_link": "Anmelden"
+  },
+
+  "common": {
+    "edit": "Bearbeiten",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "logout": "Abmelden",
+    "infinity": "∞"
+  },
+
+  "profile": {
+    "loading": "Lädt…",
+    "title": "Mein Profil",
+    "subtitle": "Verwalte deine Identität und deinen Avatar.",
+    "avatar_alt": "Benutzeravatar",
+    "upload_image": "Bild hochladen",
+    "use_url": "URL verwenden",
+    "reset_avatar": "Avatar zurücksetzen",
+    "avatar_url_placeholder": "https://beispiel.de/mein-bild.jpg",
+    "identifier": "Benutzername",
+    "identifier_placeholder": "z. B. max_muster",
+    "role": "Rolle",
+    "no_changes": "Keine Änderungen",
+    "avatar_updated": "Avatar aktualisiert ✅",
+    "upload_failed": "Upload fehlgeschlagen",
+    "avatar_url_saved": "Avatar-URL gespeichert ✅",
+    "invalid_or_rejected_url": "Ungültige oder abgelehnte URL",
+    "avatar_reset": "Avatar zurückgesetzt ✅",
+    "reset_failed": "Avatar konnte nicht zurückgesetzt werden",
+    "updated": "Profil aktualisiert ✅",
+    "update_failed": "Profil konnte nicht aktualisiert werden"
+  },
+
+  "session": {
+    "create": {
+      "title_label": "Titel",
+      "title_placeholder": "z. B. Fußball am Sonntagmorgen",
+      "sport_label": "Sport",
+      "sport_placeholder": "Sport auswählen",
+      "description_label": "Beschreibung",
+      "description_placeholder": "Details, Niveau, Ausrüstung, Regeln...",
+      "location_label": "Ort",
+      "location_ok": "Ort OK",
+      "location_select": "Adresse aus der Liste auswählen",
+      "date_label": "Datum",
+      "time_label": "Startzeit",
+
+      "type_label": "Sitzungstyp",
+      "type_training": "Training",
+      "type_friendly": "Freundschaftsspiel",
+      "type_competition": "Wettkampf",
+
+      "visibility_label": "Sichtbarkeit",
+      "visibility_public": "Öffentlich",
+      "visibility_private": "Privat",
+      "visibility_group": "Gruppe",
+
+      "group_label": "Gruppe",
+      "group_placeholder": "Gruppe auswählen",
+
+      "team_mode_label": "Team-Modus",
+      "participants_label": "Teilnehmer",
+      "participants_auto_from_group": "Gruppenmitglieder werden automatisch hinzugefügt",
+      "select_group": "Gruppe auswählen",
+      "trainings_group_members_auto": "Bei Gruppentrainings werden Mitglieder automatisch hinzugefügt.",
+      "team_tip_on": "Min. {{minTotalPlayers}} Spieler für 2 Teams • Kapazität {{cap}}",
+      "team_tip_off": "Kapazität {{cap}} Spieler",
+
+      "max_players_label": "Max. Spieler",
+      "min_players_per_team_label": "Min. Spieler/Team",
+      "max_players_per_team_label": "Max. Spieler/Team",
+
+      "submit_create": "Sitzung erstellen",
+      "submit_creating": "Wird erstellt…",
+
+      "creations_trainings": "Erstellte Trainings",
+      "creations_sessions": "Erstellte Sitzungen",
+      "infinity": "∞",
+
+      "err_min_chars": "Mind. 3 Zeichen",
+      "choose_sport": "Wähle einen Sport",
+      "err_min_desc": "Mind. 10 Zeichen",
+      "err_location": "Adresse über Autovervollständigung auswählen",
+      "required": "Erforderlich",
+      "future_5min": "Datum/Uhrzeit muss in der Zukunft liegen (≥ 5 Min.)",
+      "ge1": "≥ 1",
+      "must_be_greater_equal_min_team": "Muss ≥ min/Team sein",
+      "insufficient_capacity_two_teams": "Unzureichende Kapazität für 2 Teams (min/Team)",
+      "select_group_required": "Wähle eine Gruppe",
+      "quota_trainings_reached_or_plan": "Trainingskontingent erreicht oder im aktuellen Plan nicht erlaubt.",
+      "quota_sessions_reached": "Monatliches Sitzungskontingent erreicht.",
+      "training_select_group": "Für ein Training eine Gruppe auswählen.",
+      "invalid_time_hhmm": "Ungültige Startzeit. Format HH:MM (z. B. 14:30).",
+      "title_quota_trainings": "Trainingskontingent erreicht / Plan nicht erlaubt",
+      "title_quota_sessions": "Sitzungskontingent erreicht",
+      "error_prefix": "Fehler: "
+    }
+  },
+
+  "billing": {
+    "title": "Abo & Limits",
+    "subtitle": "Verwalte deinen Plan, sieh Kontingente und upgrade mit einem Klick.",
+    "profile_link": "Profil",
+    "refresh": "Aktualisieren",
+    "my_plan": "Mein Plan",
+    "current_plan": "Aktueller Plan",
+    "expires_on": "(läuft ab am {{date}})",
+    "monthly_quotas": "Monatliche Kontingente",
+    "loading_quotas": "Kontingente laden…",
+    "per_month": "/Monat",
+    "current_chip": "Aktueller Plan",
+    "checkout_unavailable": "Checkout nicht verfügbar.",
+    "unknown_error": "Unbekannter Fehler.",
+    "already_on_plan": "Bereits auf diesem Plan",
+    "switch_to_plan": "Wechsel zu {{plan}}",
+    "selected": "Ausgewählt",
+    "included_note": "Standardmäßig enthalten • Keine Zahlung erforderlich",
+    "q": {
+      "sessions_created": "Erstellte Sitzungen",
+      "trainings_created": "Erstellte Trainings",
+      "participations": "Sitzungs-Teilnahmen",
+      "groups_created": "Erstellte Gruppen"
+    },
+    "tiers": {
+      "free": {
+        "title": "Kostenlos",
+        "sub": "Stressfrei starten",
+        "price": "€0",
+        "feat_basic": "Basiszugang",
+        "feat_quotas": "Begrenzte Kontingente",
+        "feat_no_trainings": "Keine Coach-Trainings"
+      },
+      "premium": {
+        "title": "Premium",
+        "sub": "Öfter spielen",
+        "price": "€7.99",
+        "feat_boost": "Erhöhte Kontingente",
+        "feat_groups": "Unbegrenzte Gruppen",
+        "feat_support": "Priorisierter Support",
+        "feat_no_trainings": "Keine Coach-Trainings"
+      },
+      "coach": {
+        "title": "Coach",
+        "sub": "Trainings erstellen und verwalten",
+        "price": "€7.99",
+        "feat_trainings": "Trainingssitzungen erstellen (begrenzt)",
+        "feat_tools": "Coach-Tools & Analytics",
+        "feat_team_mgmt": "Teamverwaltung",
+        "feat_sessions_unlimited": "Unbegrenzte normale Sitzungen"
+      }
+    },
+    "notes": {
+      "line_coach": "• Coach-Plan erlaubt das Erstellen von Trainingssitzungen (unterliegt Planlimits).",
+      "line_premium": "• Premium-Plan erlaubt keine Coach-Trainings, bietet aber höhere Kontingente für Sitzungen."
+    },
+    "success": {
+      "title": "Zahlung bestätigt ✅",
+      "subtitle": "Danke! Dein Abo wurde aktualisiert. Falls du die Änderung noch nicht siehst, klicke auf „Zurück zur Abrechnung“.",
+      "back_to_billing": "Zurück zur Abrechnung",
+      "view_sessions": "Meine Sitzungen ansehen"
+    }
+  },
+
+  "sessions_index_title": "Finde deine nächste Sportsitzung",
+  "sessions_index_tabs_aria": "Registerkarten",
+  "sessions_index_tab_upcoming": "Bevorstehend",
+  "sessions_index_tab_archive": "Archiv",
+
+  "sessions_index_filters_state_aria": "Filter für Sitzungsstatus",
+  "sessions_index_filter_all": "Alle",
+  "sessions_index_filter_open": "Offen",
+  "sessions_index_filter_full": "Voll",
+
+  "sessions_index_search_placeholder": "Sitzung suchen…",
+  "sessions_index_filter_country": "Nach Land filtern",
+  "sessions_index_filter_city": "Nach Stadt filtern",
+  "sessions_index_countries_all": "Alle Länder",
+  "sessions_index_cities_all": "Alle Städte",
+
+  "sessions_index_empty_upcoming": "Keine bevorstehenden Sitzungen.",
+  "sessions_index_empty_archive": "Keine archivierten Sitzungen.",
+
+  "sessions_index_join_success": "✅ Du bist der Sitzung beigetreten!",
+  "sessions_index_leave_success": "✅ Du hast die Sitzung verlassen!",
+  "sessions_index_join_error": "Fehler beim Beitreten der Sitzung",
+  "sessions_index_leave_error": "Fehler beim Verlassen der Sitzung",
+
+  "create_session_cta_btn": "Sitzung erstellen",
+  "create_session_cta_login_btn": "Zum Erstellen anmelden",
+  "create_session_cta_quota_btn": "Kontingent erreicht — Upgrade",
+  "create_session_cta_aria": "Sitzung erstellen",
+  "create_session_cta_title": "Sitzung erstellen",
+  "create_session_cta_login_aria": "Anmelden, um eine Sitzung zu erstellen",
+  "create_session_cta_login_title": "Anmelden, um eine Sitzung zu erstellen",
+  "create_session_cta_quota_aria": "Kontingent erreicht — zu Premium wechseln",
+  "create_session_cta_quota_title": "Kontingent erreicht — zu Premium wechseln",
+  "create_session_cta_quota_confirm": "Du hast dein Erstellungskontingent erreicht. Zu Premium wechseln?",
+
+  "sport_filter_all": "Alle Sportarten",
+  "sport_filter_aria": "Nach Sportart filtern",
+  "sport_filter_all_title": "Sitzungen für alle Sportarten anzeigen",
+  "sport_filter_select_title": "Sitzungen für {{name}} anzeigen",
+
+  "sports_names": {
+    "football": "Fußball",
+    "padel": "Padel",
+    "tennis": "Tennis",
+    "boxing": "Boxen",
+    "basketball": "Basketball",
+    "natation": "Schwimmen",
+    "running": "Laufen",
+    "trail": "Trailrunning",
+    "kickboxing": "Kickboxen",
+    "pilate": "Pilates",
+
+    "soccer": "Soccer",
+    "futsal": "Futsal",
+    "american_football": "American Football",
+    "rugby": "Rugby",
+    "handball": "Handball",
+    "volleyball": "Volleyball",
+    "beach_volleyball": "Beachvolleyball",
+    "badminton": "Badminton",
+    "table_tennis": "Tischtennis",
+    "squash": "Squash",
+    "pickleball": "Pickleball",
+    "golf": "Golf",
+    "cricket": "Cricket",
+    "baseball": "Baseball",
+    "softball": "Softball",
+    "hockey": "Hockey",
+    "field_hockey": "Feldhockey",
+    "ice_hockey": "Eishockey",
+    "lacrosse": "Lacrosse",
+
+    "martial_arts": "Kampfsport",
+    "mma": "MMA",
+    "muay_thai": "Muay Thai",
+    "karate": "Karate",
+    "taekwondo": "Taekwondo",
+    "judo": "Judo",
+    "bjj": "Brazilian Jiu-Jitsu",
+    "grappling": "Grappling",
+    "wrestling": "Ringen",
+
+    "crossfit": "CrossFit",
+    "fitness": "Fitness",
+    "gym": "Gym / Krafttraining",
+    "strength_training": "Krafttraining",
+    "weightlifting": "Olympisches Gewichtheben",
+    "powerlifting": "Powerlifting",
+    "calisthenics": "Calisthenics",
+    "yoga": "Yoga",
+    "pilates": "Pilates",
+    "zumba": "Zumba",
+    "dance": "Tanz",
+
+    "cycling": "Radsport",
+    "mountain_bike": "Mountainbike",
+    "bmx": "BMX",
+    "triathlon": "Triathlon",
+    "duathlon": "Duathlon",
+
+    "swimming": "Schwimmen",
+    "open_water_swimming": "Freiwasserschwimmen",
+    "rowing": "Rudern",
+    "canoe": "Kanu",
+    "kayak": "Kajak",
+    "canoe_kayak": "Kanu/Kajak",
+    "sailing": "Segeln",
+    "surfing": "Surfen",
+    "windsurfing": "Windsurfen",
+    "kitesurfing": "Kitesurfen",
+    "sup": "Stand-up-Paddling",
+
+    "climbing": "Klettern",
+    "bouldering": "Bouldern",
+    "hiking": "Wandern",
+    "walking": "Spazieren",
+    "orienteering": "Orientierungslauf",
+
+    "skateboarding": "Skateboarden",
+    "rollerblading": "Inline-Skaten",
+    "ice_skating": "Eislaufen",
+    "ski": "Skifahren",
+    "snowboard": "Snowboarden",
+    "biathlon": "Biathlon",
+
+    "archery": "Bogenschießen",
+    "shooting": "Schießen",
+    "fencing": "Fechten",
+    "darts": "Darts",
+    "billiards": "Billard",
+    "snooker": "Snooker",
+    "bowling": "Bowling",
+
+    "equestrian": "Reitsport",
+    "horse_riding": "Reiten",
+    "petanque": "Pétanque",
+    "bocce": "Boccia",
+
+    "ultimate_frisbee": "Ultimate Frisbee",
+    "disc_golf": "Disc Golf",
+
+    "parkour": "Parkour",
+    "strongman": "Strongman",
+    "aerobics": "Aerobic"
+  },
+
+  "session_card": {
+    "label": "Sitzung",
+    "past_tooltip": "Vergangene Sitzung — nicht anklickbar",
+    "status_past": "VORBEI",
+    "status_full": "VOLL",
+    "badge_private": "Privat",
+    "badge_ongoing": "Laufend",
+    "sport_label": "Sport",
+    "remaining_places": "{{count}} Plätze übrig",
+    "full": "Voll",
+    "details": "Details anzeigen"
+  },
+
+  "location_filter": {
+    "aria_country": "Nach Land filtern",
+    "aria_city": "Nach Stadt filtern",
+    "country_all": "Alle Länder",
+    "city_all": "Alle Städte",
+    "city_all_in_country": "Alle Städte"
+  },
+
+  "sd_loading": "Lädt…",
+  "sd_retry": "Erneut versuchen",
+  "sd_refresh": "Aktualisieren",
+  "sd_action_impossible": "Aktion nicht möglich.",
+
+  "sd_countdown_ongoing_or_past": "laufend / vorbei",
+  "sd_min": "Min",
+  "sd_link_copied": "Link kopiert!",
+  "sd_load_failed": "Sitzung konnte nicht geladen werden.",
+
+  "sd_banner_past": "Diese Sitzung ist vorbei — Anmeldungen geschlossen.",
+  "sd_banner_ongoing": "Sitzung läuft.",
+  "sd_banner_locked": "Diese Sitzung ist gesperrt.",
+  "sd_banner_finished": "Sitzung beendet.",
+  "sd_banner_canceled": "Sitzung abgesagt.",
+
+  "sd_badge_full": "Voll",
+  "sd_badge_private": "Privat",
+
+  "sd_meta_creator": "Organisator",
+  "sd_meta_sport": "Sport",
+  "sd_meta_location": "Ort",
+  "sd_meta_date": "Datum",
+  "sd_meta_capacity": "Kapazität",
+  "sd_meta_remaining": "Verbleibend",
+  "sd_meta_starts_in": "Beginnt in",
+  "sd_places": "Plätze",
+
+  "sd_join": "Beitreten",
+  "sd_leave": "Verlassen",
+  "sd_join_title": "Der Sitzung beitreten",
+  "sd_leave_title": "Sitzung verlassen",
+  "sd_creator_cant_leave": "Organisator · kann nicht verlassen",
+  "sd_creator_cant_leave_title": "Du bist der Organisator und kannst diese Sitzung nicht verlassen. Lösche sie bei Bedarf.",
+  "sd_copy_link": "Link kopieren",
+  "sd_open_in_maps": "In Maps öffnen",
+
+  "sd_join_disabled_past": "Diese Sitzung ist vorbei. Anmeldungen geschlossen.",
+  "sd_join_disabled_locked": "Diese Sitzung ist gesperrt.",
+  "sd_join_disabled_finished": "Sitzung beendet.",
+  "sd_join_disabled_canceled": "Sitzung abgesagt.",
+  "sd_join_disabled_full": "Die Sitzung ist voll.",
+
+  "sd_must_login": "Zum Beitreten bitte anmelden.",
+  "sd_join_failed": "Beitritt nicht möglich.",
+  "sd_leave_failed": "Verlassen nicht möglich.",
+
+  "sd_quota_reached_prompt": "Du hast dein monatliches Teilnahme-Kontingent erreicht. Zu Premium upgraden?",
+
+  "sd_description": "Beschreibung",
+  "sd_danger_zone_title": "Gefahrenbereich",
+  "sd_danger_zone_text_prefix": "Löschen ist",
+  "sd_danger_zone_text_suffix": "Bitte vor dem Fortfahren doppelt prüfen.",
+  "sd_definitive": "dauerhaft",
+  "sd_delete_session": "Sitzung löschen",
+  "sd_delete_confirm": "Diese Sitzung löschen? Dieser Vorgang ist dauerhaft.",
+  "sd_delete_failed": "Löschen fehlgeschlagen.",
+
+  "sd_participants": "Teilnehmer",
+  "sd_no_participants": "Noch keine Teilnehmer.",
+  "sd_session_chat": "Sitzungs-Chat",
+
+  "sd_restricted_title": "Nur für Mitglieder",
+  "sd_restricted_text": "Tritt der Sitzung bei, um Teams, Teilnehmer und Chat zu sehen.",
+
+  "sd_vs": "VS",
+  "sd_team_label": "Team {{n}}",
+
+  "billing_cancel": {
+    "title": "Zahlung abgebrochen ❌",
+    "subtitle": "Keine Planänderung. Du kannst es jederzeit erneut versuchen.",
+    "back_button": "Zurück zum Abo"
+  },
+
+  "gp_title": "Gruppen",
+  "gp_subtitle": "Organisiere deine Teams und starte deine Sitzungen.",
+
+  "gp_create_button": "+ Gruppe erstellen",
+  "gp_create_title": "Gruppe erstellen",
+  "gp_cta_title_login": "Zum Erstellen einer Gruppe anmelden",
+  "gp_cta_title_check_premium": "Wird geprüft… (Premium erkannt)",
+  "gp_cta_title_check_quotas": "Kontingente prüfen…",
+  "gp_cta_title_forbidden": "Dein Plan erlaubt das Erstellen von Gruppen nicht",
+  "gp_cta_title_quota_reached": "Gruppenkontingent für diesen Monat erreicht",
+
+  "gp_ph_search": "Gruppe suchen",
+  "gp_ph_sport": "Sport-ID (temporär)",
+  "gp_ph_city": "Stadt",
+  "gp_filter": "Filtern",
+  "gp_reset": "Zurücksetzen",
+
+  "gp_loading": "Lädt…",
+  "gp_results": "{{count}} Gruppe",
+  "gp_results_plural": "{{count}} Gruppen",
+
+  "gp_chip_q": "q",
+  "gp_chip_sport": "sport",
+  "gp_chip_city": "stadt",
+
+  "gp_preview_strong": "Vorschau",
+  "gp_preview_text": "Melde dich an, um Gruppen klar zu sehen und zu betreten.",
+  "gp_login": "Anmelden",
+  "gp_register": "Konto erstellen",
+
+  "gp_empty_filters": "Keine Gruppen passen zu diesen Filtern.",
+  "gp_create_first": "Erstelle die erste",
+
+  "gd_loading": "Lädt…",
+  "gd_not_found": "Gruppe nicht gefunden.",
+  "gd_load_failed": "Gruppe konnte nicht geladen werden.",
+  "gd_reload_failed": "Gruppe konnte nicht neu geladen werden.",
+  "gd_action_failed": "Aktion nicht möglich.",
+
+  "gd_type_private": "Privat",
+  "gd_type_coach": "Nur Coach",
+  "gd_type_public": "Öffentlich",
+
+  "gd_join_policy_private": "Auf Anfrage (Genehmigung erforderlich)",
+  "gd_join_policy_coach": "Auf Einladung durch Coach",
+  "gd_join_policy_open": "Offen",
+
+  "gd_invitation_required_title": "Einladung durch den Coach erforderlich",
+  "gd_invitation_only": "Nur Einladung",
+  "gd_request_join": "Beitritt anfragen",
+  "gd_join": "Beitreten",
+  "gd_leave": "Verlassen",
+  "gd_join_success": "Du bist der Gruppe beigetreten.",
+  "gd_request_sent": "Anfrage gesendet.",
+  "gd_leave_success": "Du hast die Gruppe verlassen.",
+  "gd_quota_reached_prompt": "Du hast deine Gruppenanzahl für deinen Plan erreicht. Zu Premium upgraden?",
+
+  "gd_tab_overview": "Übersicht",
+  "gd_tab_members": "Mitglieder",
+  "gd_tab_chat": "Chat",
+  "gd_tab_sessions": "Sitzungen",
+  "gd_tab_requests": "Anfragen",
+
+  "gd_about": "Über",
+  "gd_access_rules": "Zugangsregeln",
+  "gd_membership": "Mitgliedschaft:",
+  "gd_type": "Typ:",
+  "gd_members_count_one": "{{count}} Mitglied",
+  "gd_members_count_other": "{{count}} Mitglieder",
+
+  "gd_fact_coach": "Coach",
+  "gd_fact_sport": "Sport",
+  "gd_fact_city": "Stadt",
+  "gd_fact_members": "Mitglieder",
+  "gd_fact_created": "Erstellt",
+  "gd_fact_updated": "Aktualisiert",
+
+  "gd_member_added": "Mitglied hinzugefügt: {{who}}",
+  "gd_add_member_failed": "Mitglied konnte nicht hinzugefügt werden.",
+  "gd_remove_member_confirm": "Dieses Mitglied aus der Gruppe entfernen?",
+  "gd_member_removed": "Mitglied entfernt.",
+  "gd_remove_member_failed": "Mitglied konnte nicht entfernt werden.",
+
+  "gd_danger_zone_title": "Gefahrenbereich",
+  "gd_danger_zone_text_prefix": "Löschen ist",
+  "gd_danger_zone_text_suffix": "Bitte vor dem Fortfahren doppelt prüfen.",
+  "gd_definitive": "dauerhaft",
+  "gd_delete_group": "Gruppe löschen",
+  "gd_delete_confirm": "Diese Gruppe löschen? Dieser Vorgang ist dauerhaft.",
+  "gd_delete_failed": "Gruppe konnte nicht gelöscht werden.",
+
+  "gd_tab_requests_none": "Anfragen",
+  "gd_tab_requests_some": "Anfragen ({{count}})",
+
+  "gform_title": "Gruppe erstellen",
+
+  "gform_label_name": "Name",
+  "gform_label_sport": "Sport",
+  "gform_label_type": "Gruppentyp",
+  "gform_label_city": "Stadt",
+  "gform_label_desc": "Beschreibung",
+
+  "gform_ph_name": "Name der Gruppe",
+  "gform_ph_sport": "Tippe, um eine Sportart zu suchen",
+  "gform_ph_city": "z. B. Brüssel",
+  "gform_ph_desc": "Nützliche Infos, Gruppenregeln, etc.",
+
+  "gform_type_open": "Offen (direkter Beitritt)",
+  "gform_type_private": "Privat (Anfrage/Genehmigung)",
+  "gform_type_coach": "Coach (nur Einladung)",
+
+  "gform_hint_open": "Jeder kann direkt beitreten.",
+  "gform_hint_private": "Nutzer senden eine Anfrage, die du akzeptierst oder ablehnst.",
+  "gform_hint_coach": "Nur Einladung (Beitreten-Schaltfläche deaktiviert).",
+  "gform_hint_searching": "Suchen…",
+  "gform_hint_no_sport": "Kein Sport",
+  "gform_selected": "Ausgewählt:",
+  "gform_id": "id",
+
+  "gform_err_required": "Name und Sport sind erforderlich.",
+  "gform_err_plan_blocks": "Dein Plan erlaubt das Erstellen von Gruppen nicht.",
+  "gform_err_quota_month": "Gruppenkontingent für diesen Monat erreicht.",
+  "gform_err_forbidden": "Erstellung abgelehnt (Plan/Kontingent/Berechtigungen).",
+  "gform_err_create": "Erstellung fehlgeschlagen.",
+
+  "gform_created": "Gruppe erstellt.",
+  "gform_create": "Erstellen",
+  "gform_creating": "Wird erstellt…",
+  "gform_cancel": "Abbrechen",
+
+  "gform_title_plan_blocks": "Dein Plan erlaubt keine Gruppenerstellung",
+  "gform_title_quota_month": "Kontingent für diesen Monat erreicht",
+
+  "gform_quota_unlimited": "Gruppenkontingent: {{used}} / ∞",
+  "gform_quota_limited": "Gruppenkontingent: {{used}} / {{limit}}",
+
+  "aa_placeholder": "Adresse eingeben…",
+  "aa_loading": "Suchen…",
+  "aa_no_results": "Keine Ergebnisse",
+  "aa_min_chars_one": "Mindestens {{count}} Zeichen eingeben…",
+  "aa_min_chars_other": "Mindestens {{count}} Zeichen eingeben…",
+  "am_add_internal_ph": "Internes Mitglied hinzufügen (Benutzername / E-Mail)",
+
+  "cp_title": "Chat",
+  "cp_placeholder_msg": "Nachricht",
+  "cp_join_to_view": "Tritt der Sitzung bei, um den Chat zu sehen",
+  "cp_members_only": "Nur für Mitglieder",
+  "cp_empty": "Noch keine Nachrichten.",
+  "cp_deleted": "Nachricht gelöscht",
+  "cp_delete": "Löschen",
+  "cp_delete_short": "Löschen",
+  "cp_placeholder_input": "Deine Nachricht…",
+  "cp_send": "Senden",
+
+  "cp_err_load": "Chat konnte nicht geladen werden.",
+  "cp_err_send": "Senden fehlgeschlagen.",
+  "cp_err_delete": "Löschen fehlgeschlagen.",
+  "cp_confirm_delete": "Diese Nachricht löschen?",
+
+  "cc_prev_month_aria": "Voriger Monat",
+  "cc_prev_month_title": "Voriger Monat (←)",
+  "cc_today": "Heute",
+  "cc_today_title": "Heute (T)",
+  "cc_month_aria": "Monat",
+  "cc_year_aria": "Jahr",
+  "cc_next_month_aria": "Nächster Monat",
+  "cc_next_month_title": "Nächster Monat (→)",
+
+  "cc_wd_mon": "Mo",
+  "cc_wd_tue": "Di",
+  "cc_wd_wed": "Mi",
+  "cc_wd_thu": "Do",
+  "cc_wd_fri": "Fr",
+  "cc_wd_sat": "Sa",
+  "cc_wd_sun": "So",
+
+  "cc_loading": "Lädt…",
+  "cc_time_unknown": "??:??",
+
+  "cc_publish": "Veröffentlichen",
+  "cc_cancel": "Abbrechen",
+
+  "cc_more_one": "+{{count}} mehr",
+  "cc_more_other": "+{{count}} mehr",
+  "cc_more_title_one": "{{count}} weiteres Ereignis",
+  "cc_more_title_other": "{{count}} weitere Ereignisse",
+
+  "cc_status_draft": "Entwurf",
+  "cc_status_open": "Offen",
+  "cc_status_locked": "Gesperrt",
+  "cc_status_finished": "Beendet",
+  "cc_status_canceled": "Abgesagt",
+
+  "external_members": {
+    "loading": "Lädt…",
+    "load_error": "Externe Mitglieder konnten nicht geladen werden.",
+    "add_error": "Externes Mitglied konnte nicht hinzugefügt werden.",
+    "delete_error": "Löschen fehlgeschlagen.",
+    "delete_confirm": "Dieses externe Mitglied löschen?",
+
+    "first_name_ph": "Vorname",
+    "last_name_ph": "Nachname",
+    "note_ph": "Notiz (optional)",
+    "add_btn": "Hinzufügen",
+
+    "filter_ph": "Externes Mitglied filtern (Name / Notiz)",
+    "empty": "Keine externen Mitglieder.",
+    "delete_btn": "Löschen"
+  },
+
+  "group_card": {
+    "type_private": "Privat",
+    "type_coach_only": "Nur Coach",
+    "type_public": "Öffentlich",
+
+    "members": "{{count}} Mitglied",
+    "members_plural": "{{count}} Mitglieder",
+
+    "details_btn": "Details",
+    "login_required_title": "Zum Anzeigen anmelden",
+    "view_group_title": "Gruppe anzeigen"
+  },
+
+  "group_join_requests": {
+    "loading": "Lädt…",
+    "load_error": "Anfragen konnten nicht geladen werden.",
+    "action_error": "Aktion fehlgeschlagen.",
+    "empty": "Keine Anfragen.",
+
+    "reject_btn": "Ablehnen",
+    "approve_btn": "Genehmigen",
+
+    "reject_title": "Anfrage ablehnen",
+    "approve_title": "Anfrage genehmigen",
+
+    "reject_aria": "Anfrage von {{name}} ablehnen",
+    "approve_aria": "Anfrage von {{name}} genehmigen"
+  },
+
+  "group_members": {
+    "empty": "Noch keine Mitglieder.",
+    "list_aria": "Mitglieder ({{count}})",
+    "remove_btn": "Entfernen",
+    "remove_title": "{{name}} aus der Gruppe entfernen",
+    "remove_aria": "{{name}} aus der Gruppe entfernen"
+  },
+
+  "group_sessions_tab": {
+    "title": "Gruppentrainings",
+    "create_btn": "+ Erstellen",
+    "loading": "Lädt…",
+    "load_error": "Trainings konnten nicht geladen werden.",
+    "empty": "Noch keine Trainings.",
+    "details_btn": "Details",
+    "details_title": "Details ansehen",
+    "details_aria": "Details für „{{title}}“ ansehen",
+    "attendance_btn": "Anwesenheitsliste",
+    "attendance_title": "Anwesenheitsliste öffnen",
+    "delete_btn": "Löschen",
+    "delete_confirm": "Dieses Training löschen?",
+    "delete_error": "Löschen fehlgeschlagen."
+  },
+
+  "group_training_list": {
+    "loading": "Lädt…",
+    "load_error": "Trainings konnten nicht geladen werden.",
+    "empty": "Noch keine Trainings.",
+    "training_chip": "Training",
+
+    "details_btn": "Details",
+    "details_title": "Details öffnen",
+    "details_aria": "Details für Sitzung #{{id}} öffnen",
+
+    "attendance_btn": "Anwesenheitsliste",
+    "attendance_title": "Anwesenheitsliste öffnen",
+
+    "delete_btn": "Löschen",
+    "delete_title": "Training löschen",
+    "delete_confirm": "Dieses Training löschen?",
+    "delete_error": "Löschen fehlgeschlagen.",
+
+    "missing_id_title": "Sitzungs-ID fehlt"
+  },
+
+  "quotas_banner": {
+    "creations_label": "Erstellungen / Monat",
+    "participations_label": "Teilnahmen / Monat",
+    "groups_label": "Max. aktive Gruppen",
+    "plan_title": "Plan {{plan}}"
+  },
+
+  "session_filters": {
+    "bar_aria": "Sitzungsfilter",
+    "all": "Alle",
+    "open": "Offen",
+    "finished": "Beendet",
+    "full": "Voll",
+    "refresh": "Aktualisieren",
+    "refresh_aria": "Sitzungsliste aktualisieren",
+    "refresh_title": "Aktualisieren",
+    "filter_title": "Filtern nach „{{label}}“"
+  },
+
+  "session_map": {
+    "sport_label": "Sport:",
+    "date_label": "Datum:",
+    "place_label": "Ort:",
+    "preview_overlay": "Vorschau — zum Anzeigen der Details bitte anmelden."
+  },
+
+  "session_slots": {
+    "occupied": "Belegt",
+    "join": "Beitreten",
+    "legend_empty": "Frei",
+    "legend_filled": "Belegt",
+    "legend_mine": "Du"
+  },
+
+  "training_attendance": {
+    "title": "Anwesenheitsliste",
+    "close_btn": "Schließen",
+
+    "loading": "Lädt…",
+    "load_error": "Laden nicht möglich.",
+    "invalid_session_id": "Ungültige Sitzungs-ID.",
+    "api_unavailable": "Anwesenheits-API auf dem Server nicht verfügbar.",
+    "save_error": "Speichern fehlgeschlagen.",
+
+    "present_word": "anwesend",
+    "external_word": "Externe",
+    "external_badge": "extern",
+    "external_title": "Externes Mitglied",
+    "external_short": "Ext #{{id}}",
+
+    "all_present_btn": "Alle anwesend",
+    "all_absent_btn": "Alle abwesend",
+    "invert_btn": "Umschalten",
+
+    "empty": "Keine Mitglieder anzuzeigen.",
+
+    "saving": "Speichern…",
+    "save_btn": "Speichern",
+    "cancel_btn": "Abbrechen",
+
+    "last_saved_at": "Zuletzt gespeichert: {{time}}",
+    "toggle_presence_aria": "Anwesenheit für {{name}} umschalten"
+  },
+
+  "training_form": {
+    "loading": "Lädt…",
+    "group_load_error": "Gruppe konnte nicht geladen werden.",
+    "create_error": "Fehler beim Erstellen",
+
+    "title": "Neues Training (Gruppe)",
+
+    "field_title": "Titel",
+    "field_sport": "Sport",
+    "field_description": "Beschreibung",
+    "field_location": "Ort",
+    "field_date": "Datum",
+    "field_start_time": "Startzeit",
+    "team_mode": "Team-Modus",
+    "field_max_players": "Max. Spieler",
+    "field_min_per_team": "Min. Spieler/Team",
+    "field_max_per_team": "Max. Spieler/Team",
+
+    "inherited_from_group": "von Gruppe übernommen",
+
+    "loc_ok": "Ort OK",
+    "loc_hint": "Adresse aus der Liste auswählen",
+
+    "tip_team": "Min. {{minTotalPlayers}} Spieler für 2 Teams • Kapazität {{cap}}",
+    "tip_solo": "Kapazität {{cap}} Spieler",
+
+    "err_title_min": "Mind. 3 Zeichen",
+    "err_description_min": "Mind. 10 Zeichen",
+    "err_location_select": "Adresse über Autovervollständigung auswählen",
+    "err_required": "Erforderlich",
+    "err_datetime_future": "Datum/Uhrzeit muss in der Zukunft liegen (≥ 5 Min.)",
+    "err_ge1": "≥ 1",
+    "err_max_ge_min": "Muss ≥ min/Team sein",
+    "err_cap_insufficient": "Unzureichende Kapazität für 2 Teams (min/Team)",
+
+    "creating": "Wird erstellt…",
+    "create_btn": "Training erstellen",
+    "cancel_btn": "Abbrechen",
+
+    "open_in_maps": "Ort in Google Maps öffnen ↗",
+    "open_in_maps_title": "In Google Maps öffnen"
+  },
+
+  "upgrade_card": {
+    "title": "Mein Plan",
+    "loading": "Plan wird geladen…",
+    "until_date": "· bis {{date}}",
+
+    "creations_label": "Erstellungen / Monat",
+    "participations_label": "Teilnahmen / Monat",
+    "groups_label": "Max. aktive Gruppen",
+
+    "premium_btn": "Zu Premium wechseln",
+    "premium_title": "Upgrade auf Premium",
+    "coach_btn": "Coach werden",
+    "coach_title": "Coach-Plan abonnieren",
+
+    "payment_error": "Zahlungsfehler. Bitte erneut versuchen."
+  },
+
+  "lp": {
+    "hero": {
+      "title": "Organisieren. <accent>Beitreten.</accent> Performen.",
+      "subtitle": "Die einfache und schnelle Plattform, um Sitzungen zu erstellen, Gruppen zu verwalten und Coach-Trainings zu organisieren — ohne Aufwand.",
+      "cta_register": "Registrieren",
+      "cta_sessions": "Sitzungen ansehen"
+    },
+    "metrics": {
+      "players": "Spieler",
+      "sessions": "Sitzungen",
+      "fill_rate": "Auslastung"
+    },
+    "partners_label": "Diese Partner vertrauen Tribeo",
+    "features": {
+      "title": "Alles, was du brauchst – nichts Überflüssiges",
+      "subtitle": "Organisiere Matches, verwalte Gruppen und Trainings als Coach.",
+      "create_session": {
+        "title": "Sitzungserstellung",
+        "desc": "Kapazität, Sichtbarkeit (öffentlich/privat), Regeln — in Sekunden."
+      },
+      "search": {
+        "title": "Suche & Filter",
+        "desc": "Nach Sport, Datum und Stadt. Durchsuche die öffentliche Sitzungs­liste."
+      },
+      "groups": {
+        "title": "Offene oder private Gruppen",
+        "desc": "Erstelle öffentliche oder private Gruppen mit Beschreibung und Stadt."
+      },
+      "trainings": {
+        "title": "Trainings (Coach)",
+        "desc": "Spezielle Funktionen für Coaches: Trainings & Planung verwalten."
+      },
+      "teams": {
+        "title": "Teams & Organisation",
+        "desc": "Spieler aufteilen, Teams ausbalancieren und das Match managen."
+      },
+      "plans": {
+        "title": "Pläne & Kontingente",
+        "desc": "FREE / PREMIUM / COACH, sichere Stripe-Zahlungen, monatliche Kontingente."
+      }
+    },
+    "how": {
+      "title": "So funktioniert’s",
+      "steps": {
+        "1": { "title": "Erstelle deine Sitzung", "desc": "Sport, Ort, Datum und Kapazität." },
+        "2": { "title": "Teilen & füllen", "desc": "Öffentliche Sitzungen oder private Einladungen." },
+        "3": { "title": "Spielen & verwalten", "desc": "Teams, Monitoring und Historie." }
+      }
+    },
+    "testimonials": {
+      "title": "Das sagt die Community"
+    },
+    "pricing": {
+      "title": "Preise"
+    },
+    "final": {
+      "title": "Bereit für deine nächste Sitzung?",
+      "subtitle": "Tritt Tribeo kostenlos bei und steigere dein Spiel.",
+      "cta_register": "Registrieren",
+      "cta_sessions": "Sitzungen ansehen"
+    },
+    "footer": {
+      "features": "Funktionen",
+      "how": "Ablauf",
+      "pricing": "Preise",
+      "login": "Anmelden"
+    }
+  }
+}

@@ -352,3 +352,73 @@ html, body{ overflow-x: hidden; }
 @media (min-width: 1201px){
   .lang-inline{ display:none; }
 }
+
+/* --- Language Switcher --- */
+.lang-switcher {
+  position: relative;
+  display: inline-block;
+}
+
+.lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--border, #444);
+  color: var(--text, #fff);
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.lang-btn:hover {
+  background: var(--panel, #222);
+}
+
+.lang-code {
+  font-weight: 600;
+}
+
+.lang-menu {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  background: var(--panel, #1a1a1a);
+  border: 1px solid var(--border, #333);
+  border-radius: 6px;
+  padding: 4px;
+  list-style: none;
+  margin: 0;
+  z-index: 1000;
+  min-width: 60px;
+}
+
+.lang-option {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  border: none;
+  background: none;
+  color: var(--text, #fff);
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.lang-option:hover,
+.lang-option.focused {
+  background: var(--accent, #ff2d2d);
+  color: #fff;
+}
+
+.lang-option.active {
+  font-weight: bold;
+}
+
+.lang-check {
+  margin-left: 6px;
+  color: var(--text, #fff);
+}

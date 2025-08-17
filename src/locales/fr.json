@@ -860,6 +860,75 @@
     "coach_title": "Souscrire à l’offre Coach",
 
     "payment_error": "Erreur de paiement. Réessaie."
+  },
+
+  "lp": {
+    "hero": {
+      "title": "Organise. <accent>Rejoins.</accent> Performe.",
+      "subtitle": "La plateforme simple et rapide pour créer des sessions, gérer tes groupes et piloter tes entraînements — sans prise de tête.",
+      "cta_register": "Créer mon compte",
+      "cta_sessions": "Voir les sessions"
+    },
+    "metrics": {
+      "players": "Joueurs",
+      "sessions": "Sessions",
+      "fill_rate": "Taux de remplissage"
+    },
+    "partners_label": "Ils utilisent Tribeo",
+    "features": {
+      "title": "Tout ce qu’il faut, rien de superflu",
+      "subtitle": "Organise tes matchs, gère tes groupes et tes entraînements de coach.",
+      "create_session": {
+        "title": "Création de sessions",
+        "desc": "Capacité, visibilité (publique/privée), règles — en quelques secondes."
+      },
+      "search": {
+        "title": "Recherche & filtres",
+        "desc": "Par sport, date et ville. Accède à la liste publique des sessions."
+      },
+      "groups": {
+        "title": "Groupes ouverts ou privés",
+        "desc": "Crée des groupes publics ou privés, description et ville incluses."
+      },
+      "trainings": {
+        "title": "Entraînements (Coach)",
+        "desc": "Fonctionnalités dédiées pour coach : gestion d’entraînements & planning."
+      },
+      "teams": {
+        "title": "Équipes & organisation",
+        "desc": "Répartis les joueurs, ajuste l’équilibre et suis le déroulé."
+      },
+      "plans": {
+        "title": "Plans & quotas clairs",
+        "desc": "FREE / PREMIUM / COACH, paiements sécurisés Stripe, quotas mensuels."
+      }
+    },
+    "how": {
+      "title": "Comment ça marche",
+      "steps": {
+        "1": { "title": "Crée ta session", "desc": "Sport, lieu, date et capacité." },
+        "2": { "title": "Partage & remplis", "desc": "Sessions publiques, ou partage privé à ton groupe." },
+        "3": { "title": "Joue & gère", "desc": "Gestion des équipes, suivi et historique." }
+      }
+    },
+    "testimonials": {
+      "title": "Ce que la communauté dit"
+    },
+    "pricing": {
+      "title": "Tarifs"
+    },
+    "final": {
+      "title": "Prêt à lancer ta prochaine session ?",
+      "subtitle": "Rejoins Tribeo gratuitement et passe au niveau supérieur.",
+      "cta_register": "Créer mon compte",
+      "cta_sessions": "Voir les sessions"
+    },
+    "footer": {
+      "features": "Fonctionnalités",
+      "how": "Comment",
+      "pricing": "Tarifs",
+      "login": "Connexion"
+    }
   }
 
 
