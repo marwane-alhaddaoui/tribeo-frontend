@@ -4,6 +4,7 @@ import SessionManagement from "./SessionManagement";
 import SportsManagement from "./SportsManagement";
 import GroupManagement from "./GroupManagement"; // 👈 NEW
 import "../../styles/AdminDashboard.css";
+import AuditActions from "../../components/AuditActions";
 
 export default function AdminDashboard({
   stats = { users: 0, sessions: 0, sports: 0, groups: 0 },
@@ -56,17 +57,14 @@ export default function AdminDashboard({
       <header className="admin__head">
         <div className="admin__title">
           <span className="spark">⚙️</span> Admin Dashboard
-          <span className="hint"> • press 1‑2‑3‑4 to switch</span>
+          <span className="hint"> •</span>
         </div>
 
-        <div className="admin__search">
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Rechercher… (filtre local au panel)"
-            aria-label="Rechercher"
-          />
-        </div>
+  
+          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+  
+     <AuditActions />
+   </div>
       </header>
 
       {/* quick stats */}

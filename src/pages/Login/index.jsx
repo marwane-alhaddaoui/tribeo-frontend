@@ -44,7 +44,6 @@ export default function LoginPage() {
         <LoginForm onSubmit={handleLogin} />
 
         <div className="lp-actions">
-          <Link to="/forgot-password" className="lp-link">{t('auth.forgot_password')}</Link>
           <span className="lp-dot">•</span>
           <Link to="/register" className="lp-link">{t('auth.create_account')}</Link>
         </div>

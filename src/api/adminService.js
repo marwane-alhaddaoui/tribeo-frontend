@@ -60,3 +60,26 @@ export const deleteGroupAdmin = async (id) => {
     throw e;
   }
 };
+
+
+// ===== Audit (admin) =====
+export const exportAuditCsv = async ({ since, until } = {}) => {
+  const res = await api.get('/admin/audit/export/', {
+    params: { since, until },
+    responseType: 'blob', // important : on récupère un fichier
+  });
+
+  // Essayer de lire le filename depuis les headers
+  const dispo = res.headers?.['content-disposition'] || '';
+  const m = dispo.match(/filename="?([^"]+)"?/i);
+  const filename = m?.[1] || `audit_logs_${Date.now()}.csv`;
+
+  return { blob: res.data, filename };
+};
+
+export const deleteAuditLogs = async ({ since, until } = {}) => {
+  const res = await api.delete('/admin/audit/', {
+    data: { since, until },
+  });
+  return res.data; // { deleted: n }
+};
