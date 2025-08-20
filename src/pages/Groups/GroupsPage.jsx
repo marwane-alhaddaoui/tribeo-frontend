@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState, useContext } from "react";
 import { useTranslation } from "react-i18next";
 import { listGroups } from "../../api/groupService";
+import { listSports } from "../../api/sportService";
 import GroupCard from "../../components/GroupCard";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
@@ -65,17 +66,41 @@ export default function GroupsPage() {
 
   // filtres
   const [q, setQ] = useState("");
-  const [sport, setSport] = useState("");
+  const [sport, setSport] = useState(""); // on stocke l'ID du sport choisi
   const [city, setCity] = useState("");
 
+  // liste des sports pour le select
+  const [sports, setSports] = useState([]);
+  const [sportsLoading, setSportsLoading] = useState(true);
+
   const allowCreate = canCreateGroupFromQuotasOrRole(user, quotas, quotasLoading);
+
+  const fetchSports = async () => {
+    try {
+      setSportsLoading(true);
+      const data = await listSports();
+      const arr = Array.isArray(data) ? data : [];
+      setSports(
+        arr
+          .filter((s) => s && s.id != null)
+          .map((s) => ({ id: s.id, label: s.name || s.label || String(s.id) }))
+          .sort((a, b) =>
+            a.label.localeCompare(b.label, undefined, { sensitivity: "base" })
+          )
+      );
+    } catch {
+      setSports([]);
+    } finally {
+      setSportsLoading(false);
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
     try {
       const data = await listGroups({
         q: q || undefined,
-        sport: sport || undefined,
+        sport: sport || undefined, // envoie toujours l'ID au backend
         city: city || undefined,
       });
       // Exclure les groupes COACH de la liste publique
@@ -87,6 +112,11 @@ export default function GroupsPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchSports();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -127,6 +157,11 @@ export default function GroupsPage() {
           ? t("gp_cta_title_forbidden")
           : t("gp_cta_title_quota_reached"));
 
+  const selectedSportLabel = useMemo(() => {
+    const s = sports.find((x) => String(x.id) === String(sport));
+    return s?.label || "";
+  }, [sports, sport]);
+
   return (
     <div className="groups-wrap">
       {/* Header */}
@@ -162,13 +197,23 @@ export default function GroupsPage() {
           className="gf-input"
           disabled={isVisitor}
         />
-        <input
+
+        {/* Select des sports (libellés) */}
+        <select
           value={sport}
           onChange={(e) => setSport(e.target.value)}
-          placeholder={t("gp_ph_sport")}
           className="gf-input"
-          disabled={isVisitor}
-        />
+          disabled={isVisitor || sportsLoading || sports.length === 0}
+          aria-label={t("gp_ph_sport")}
+        >
+          <option value="">{t("gp_sport_any", { defaultValue: "Tous les sports" })}</option>
+          {sports.map((s) => (
+            <option key={s.id} value={String(s.id)}>
+              {s.label}
+            </option>
+          ))}
+        </select>
+
         <input
           value={city}
           onChange={(e) => setCity(e.target.value)}
@@ -188,7 +233,7 @@ export default function GroupsPage() {
         {(q || sport || city) && (
           <div className="groups-active-filters">
             {q && <span className="chip">{t("gp_chip_q")}: {q}</span>}
-            {sport && <span className="chip">{t("gp_chip_sport")}: {sport}</span>}
+            {sport && <span className="chip">{t("gp_chip_sport")}: {selectedSportLabel || sport}</span>}
             {city && <span className="chip">{t("gp_chip_city")}: {city}</span>}
           </div>
         )}

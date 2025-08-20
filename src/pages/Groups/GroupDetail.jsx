@@ -65,6 +65,7 @@ export default function GroupDetail() {
   const { user } = useContext(AuthContext);
 
   const [group, setGroup] = useState(null);
+  const [locked, setLocked] = useState(null); // { reason: 'forbidden'|'hidden', code: number }
   const [loading, setLoading] = useState(true);
   const [opLoading, setOpLoading] = useState(false);
   const [err, setErr] = useState(null);
@@ -81,8 +82,12 @@ export default function GroupDetail() {
     try {
       const fresh = await getGroup(groupId);
       setGroup(fresh);
-    } catch {
-      setErr(t("gd_reload_failed"));
+      setLocked(null);
+    } catch (err) {
+      const code = err?.response?.status ?? err?.status ?? null;
+      if (code === 401 || code === 403) setLocked({ reason: "forbidden", code });
+      else if (code === 404) setLocked({ reason: "hidden", code });
+      else setErr(t("gd_reload_failed"));
     }
   };
 
@@ -93,8 +98,19 @@ export default function GroupDetail() {
       try {
         const data = await getGroup(groupId);
         setGroup(data);
-      } catch {
-        setErr(t("gd_load_failed"));
+        setLocked(null);
+      } catch (err) {
+        const code = err?.response?.status ?? err?.status ?? null;
+        if (code === 401 || code === 403) {
+          setLocked({ reason: "forbidden", code });
+          setGroup(null);
+        } else if (code === 404) {
+          // privé/masqué → on affiche l'écran verrouillé avec CTA
+          setLocked({ reason: "hidden", code });
+          setGroup(null);
+        } else {
+          setErr(t("gd_load_failed"));
+        }
       } finally {
         setLoading(false);
       }
@@ -122,10 +138,15 @@ export default function GroupDetail() {
     : group?.group_type === "COACH" ? t("gd_join_policy_coach")
     : t("gd_join_policy_open");
 
-  // ---- Permissions robustes ----
-  const userEmail = user?.email?.toLowerCase?.() || "";
-  const coachEmail = (group?.coach?.email || "").toLowerCase();
+  // ---- (on garde le calcul de rôles pour le reste de la page)
   const rolesStr = (user?.roles || user?.role || []).toString().toUpperCase();
+  const userEmail = (user?.email || "").toLowerCase();
+  const coachEmail = (group?.coach?.email || "").toLowerCase();
+
+  const isGroupCoach =
+    group?.is_group_coach === true ||
+    coachEmail === userEmail ||
+    rolesStr.includes("COACH");
 
   const isAdminLike =
     user?.is_superuser === true ||
@@ -133,11 +154,11 @@ export default function GroupDetail() {
     user?.is_admin === true ||
     rolesStr.includes("ADMIN");
 
-  // 👇 c'est le créateur/coach du groupe ?
-  const isGroupCoach = group?.is_group_coach === true || (!!coachEmail && coachEmail === userEmail) || rolesStr.includes("COACH");
-
   const canDelete = isOwnerOrManager || isAdminLike || isGroupCoach;
   const canCreateTraining = group?.group_type === "COACH" && group?.is_group_coach === true;
+
+  // ✅ DEMANDE: n’afficher la barre d’ajout d’externes QUE pour les groupes de type COACH
+  const showExternalForm = group?.group_type === "COACH";
 
   // ---- Actions principales ----
   const handleJoin = async () => {
@@ -222,8 +243,59 @@ export default function GroupDetail() {
     }
   };
 
+  // d'abord loading, puis écran "locked", puis "not found"
   if (loading) return <div className="gd-skel">{t("gd_loading")}</div>;
-  if (!group)   return <div className="gd-empty">{t("gd_not_found")}</div>;
+  if (!group && locked) {
+    const isForbidden = locked.reason === "forbidden";
+    return (
+      <div className="gd gd-locked">
+        <div className="gd-locked-card">
+          <h1 className="gd-title">{t("gd_locked_title", { defaultValue: "Groupe privé" })}</h1>
+        <p className="gd-locked-text">
+            {isForbidden
+              ? t("gd_locked_text_forbidden", { defaultValue: "Ce groupe est privé. Vous devez être membre pour voir les détails." })
+              : t("gd_locked_text_hidden", { defaultValue: "Ce groupe est privé ou non listé. Vous pouvez demander à le rejoindre." })}
+          </p>
+          <div className="gd-locked-actions">
+            {user ? (
+              <button
+                className="gd-btn primary"
+                onClick={async () => {
+                  try {
+                    await joinGroup(groupId); // crée la demande
+                    alert(t("gd_request_sent", { defaultValue: "Demande d’adhésion envoyée." }));
+                  } catch (err2) {
+                    const raw = err2?.response?.data?.detail || err2?.message || "";
+                    if (/already|exist|pending|en attente/i.test(raw)) {
+                      alert(t("gd_request_already", { defaultValue: "Votre demande est déjà en attente." }));
+                    } else if (/coach|invite/i.test(raw)) {
+                      alert(t("gd_invitation_required_title", { defaultValue: "Invitation requise par le coach." }));
+                    } else {
+                      alert(t("gd_request_failed", { defaultValue: "Impossible d’envoyer la demande pour l’instant." }));
+                    }
+                  }
+                }}
+              >
+                {t("gd_request_join")}
+              </button>
+            ) : (
+              <>
+                <a className="gd-btn primary" href="/login">{t("gd_login")}</a>
+                <a className="gd-btn" href="/register">{t("gd_register")}</a>
+              </>
+            )}
+          </div>
+        </div>
+        <style>{`
+          .gd-locked{display:grid;place-items:center;min-height:50vh}
+          .gd-locked-card{border:1px solid #333;border-radius:12px;padding:16px;max-width:680px;background:#0f0f0f}
+          .gd-locked-text{opacity:.9;margin:8px 0 16px}
+          .gd-locked-actions{display:flex;gap:8px}
+        `}</style>
+      </div>
+    );
+  }
+  if (!group) return <div className="gd-empty">{t("gd_not_found")}</div>;
 
   // 👉 total internes + externes pour l’affichage
   const internalCount = group?.members_count ?? (group?.members?.length ?? 0);
@@ -332,7 +404,11 @@ export default function GroupDetail() {
             onRemoveInternal={handleRemoveMember}
             groupId={groupId}
             loader={reload}
-            api={{ listExternalMembers, addExternalMember, deleteExternalMember, onCount: setExternalCount }}
+            api={{
+              listExternalMembers,
+              onCount: setExternalCount,
+              ...(group?.group_type === "COACH" ? { addExternalMember, deleteExternalMember } : {}),
+            }}
           />
         </section>
       )}
