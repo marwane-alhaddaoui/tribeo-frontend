@@ -7,10 +7,16 @@ export default function LoginForm({ onSubmit }) {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPwd, setShowPwd] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit(identifier.trim(), password);
+    setLoading(true);
+    try {
+      await onSubmit(identifier.trim(), password);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -52,8 +58,19 @@ export default function LoginForm({ onSubmit }) {
         </div>
       </div>
 
-      <button type="submit" className="login-button">
-        {t('auth.submit_login')}
+      <button
+        type="submit"
+        className={`btn-primary ${loading ? 'is-loading' : ''}`}
+        disabled={loading}
+        aria-busy={loading}
+      >
+        <span className="btn-label">{t('auth.submit_login')}</span>
+
+        {loading && (
+          <svg className="spinner-ring" viewBox="0 0 50 50" aria-hidden="true">
+            <circle className="path" cx="25" cy="25" r="20" fill="none" strokeWidth="5"/>
+          </svg>
+        )}
       </button>
     </form>
   );

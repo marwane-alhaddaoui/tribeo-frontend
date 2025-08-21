@@ -115,3 +115,88 @@
 }
 .lp-link:hover::after{ width:100%; }
 .lp-dot{ color:#8d8d90; }
+
+
+/* ---- Bouton principal stylé ---- */
+.btn-primary {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  width: 100%;
+  padding: .9rem 1.1rem;
+  border: 0;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: .2px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #5b7cfa 0%, #7b5bfa 45%, #a05bfa 100%);
+  box-shadow:
+    0 8px 18px rgba(124, 93, 250, 0.35),
+    inset 0 0 0 1px rgba(255,255,255,0.08);
+  transition: transform .08s ease, box-shadow .2s ease, filter .2s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow:
+    0 12px 26px rgba(124, 93, 250, 0.45),
+    inset 0 0 0 1px rgba(255,255,255,0.12);
+  filter: brightness(1.02);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow:
+    0 6px 14px rgba(124, 93, 250, 0.35),
+    inset 0 0 0 1px rgba(255,255,255,0.1);
+}
+
+.btn-primary:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(255,255,255,0.6),
+    0 0 0 6px rgba(124, 93, 250, 0.55);
+}
+
+/* état disabled/loading */
+.btn-primary:disabled {
+  opacity: .9;
+  cursor: not-allowed;
+}
+
+/* Cache le label quand loading, pour centrer le spinner sans décaler le bouton */
+.btn-primary.is-loading .btn-label {
+  opacity: 0;
+}
+
+/* ---- Spinner SVG stylé ---- */
+.spinner-ring {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  animation: rotate 1s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(255,255,255,.6));
+}
+
+.spinner-ring .path {
+  stroke: #fff;
+  stroke-linecap: round;
+  /* Effet "arc" progressif */
+  stroke-dasharray: 90, 150;
+  stroke-dashoffset: 0;
+  animation: dash 1.2s ease-in-out infinite;
+  opacity: .95;
+}
+
+/* Animations */
+@keyframes rotate {
+  100% { transform: rotate(360deg); }
+}
+@keyframes dash {
+  0%   { stroke-dasharray: 1, 150; stroke-dashoffset: 0; }
+  50%  { stroke-dasharray: 90, 150; stroke-dashoffset: -35; }
+  100% { stroke-dasharray: 90, 150; stroke-dashoffset: -124; }
+}
