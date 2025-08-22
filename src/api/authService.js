@@ -44,3 +44,9 @@ export const setAvatarUrl = (url) => {
 export const resetAvatar = () => {
   return axiosClient.patch('/auth/profile/', { avatar: null, avatar_url: null });
 };
+
+
+
+export const deleteMe = () => {
+  return axiosClient.delete('/auth/profile/');
+};

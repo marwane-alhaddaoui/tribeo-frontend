@@ -137,3 +137,33 @@ body{ margin:0; background:var(--bg); color:var(--text); font-family:system-ui, 
 
 /* Loading */
 .profile-loading{ min-height:60vh; display:grid; place-items:center; color:#cfcfcf; }
+
+
+/* --- Modal sombre forcé --- */
+.profile-shell .modal {
+  background: #111 !important;   /* force le fond noir */
+  color: #fff !important;        /* force le texte blanc */
+  width: min(520px, 92vw);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  animation: fadeIn 0.25s ease-out;
+}
+
+.profile-shell .modal h3 {
+  color: #ff4d4f !important;     /* accent rouge danger */
+}
+
+.profile-shell .modal p {
+  color: #ddd !important;
+}
+
+.profile-shell .modal input {
+  background: #222 !important;
+  color: #fff !important;
+  border: 1px solid #444 !important;
+}
+
+.profile-shell .modal input::placeholder {
+  color: #888 !important;
+}

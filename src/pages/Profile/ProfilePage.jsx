@@ -1,8 +1,7 @@
-// src/pages/Profile/index.jsx (ou ProfilePage.jsx selon ton arbo)
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AuthContext } from '../../context/AuthContext';
-import { updateMe } from '../../api/authService';
+import { updateMe, deleteMe } from '../../api/authService';
 import fallbackAvatar from '../../assets/avatar.png';
 import '../../styles/ProfilePage.css';
 import UpgradeCard from "../../components/UpgradeCard";
@@ -16,6 +15,28 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState(null);
   const [err, setErr] = useState(null);
+
+  // Danger zone / delete account
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [confirmText, setConfirmText] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const canConfirmDelete = confirmText.trim().toUpperCase() === 'DELETE';
+
+  const openDelete = () => { setConfirmText(''); setShowDeleteModal(true); };
+  const closeDelete = () => { if (!deleting) setShowDeleteModal(false); };
+  const onDeleteAccount = async () => {
+    if (!canConfirmDelete) return;
+    setDeleting(true);
+    try {
+      await deleteMe();
+      await logout?.();
+    } catch (e) {
+      // Optionnel: setErr(t('profile.delete_failed')) si tu ajoutes la clé i18n
+    } finally {
+      setDeleting(false);
+      setShowDeleteModal(false);
+    }
+  };
 
   // Avatar
   const initialAvatar = user?.avatar_src || fallbackAvatar;
@@ -296,10 +317,65 @@ export default function ProfilePage() {
 
             {msg && <p className="profile-success">{msg}</p>}
             {err && <p className="profile-error">{err}</p>}
-
-            
           </section>
         </div>
+
+        {/* --- Danger Zone --- */}
+        <section className="danger-zone" style={{ borderTop: '1px solid #eee', marginTop: 24, paddingTop: 16 }}>
+          <h2 style={{ marginBottom: 8 }}>Danger zone</h2>
+          <p style={{ marginBottom: 12 }}>
+            Supprimer définitivement votre compte et les données associées. Cette action est irréversible.
+          </p>
+          <button
+            className="btn-danger"
+            onClick={openDelete}
+            style={{ background: '#c0392b', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: 8 }}
+          >
+            Delete my account
+          </button>
+        </section>
+
+        {/* Modal de confirmation */}
+        {showDeleteModal && (
+          <div
+            className="modal-backdrop"
+            style={{
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+            }}
+          >
+            <div
+              className="modal"
+              style={{ background: '#fff', width: 'min(520px, 92vw)', borderRadius: 12, padding: 20, boxShadow: '0 10px 30px rgba(0,0,0,.2)' }}
+            >
+              <h3 style={{ marginBottom: 8 }}>Confirmer la suppression</h3>
+              <p style={{ marginBottom: 12 }}>
+                Tapez <strong>DELETE</strong> pour confirmer la suppression définitive de votre compte.
+              </p>
+              <input
+                value={confirmText}
+                onChange={(e) => setConfirmText(e.target.value)}
+                placeholder="DELETE"
+                autoFocus
+                style={{ width: '100%', padding: 10, border: '1px solid #ddd', borderRadius: 8 }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+                <button className="profile-button outline" onClick={closeDelete} disabled={deleting}>
+                  {t('common.cancel')}
+                </button>
+                <button
+                  className="btn-danger"
+                  onClick={onDeleteAccount}
+                  disabled={!canConfirmDelete || deleting}
+                  title={!canConfirmDelete ? 'Tapez DELETE pour activer' : ''}
+                  style={{ background: '#c0392b', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: 8 }}
+                >
+                  {deleting ? '…' : 'Supprimer mon compte'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
